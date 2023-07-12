@@ -1,0 +1,115 @@
+package dao
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"replite_web/internal/app/config"
+	"replite_web/internal/app/utils"
+	"strconv"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+)
+
+var redisClient *redis.Client
+
+func init() {
+	var redisConfig = config.DBConfig.RedisConfig
+	db, err := strconv.ParseInt(redisConfig.Database, 10, utils.GetOperationBit())
+	if err != nil {
+		panic(fmt.Sprintf("convert %s to int error:%v", redisConfig.Database, err))
+	}
+	redisClient = redis.NewClient(&redis.Options{
+		Addr:     redisConfig.Address,
+		Username: redisConfig.Username,
+		Password: redisConfig.Passowrd,
+		DB:       int(db),
+	})
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		panic(fmt.Sprintf("redis %v ping error:%s", redisConfig, err.Error()))
+	}
+	log.Printf("Connected to Redis")
+}
+
+func GetRedisClient() *redis.Client {
+	return redisClient
+}
+
+func GetStr(key string) (string, error) {
+	cmd := get(key)
+	return cmd.Val(), cmd.Err()
+}
+func Get(key string, value any) error {
+	cmd := get(key)
+	if cmd.Err() != nil {
+		return cmd.Err()
+	}
+	return json.Unmarshal([]byte(cmd.Val()), value)
+}
+
+func get(key string) *redis.StringCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	return GetRedisClient().Get(ctx, key)
+}
+
+func GetStrList(key string, start int, end int) ([]string, error) {
+	cmd := getList(key, start, end)
+	return cmd.Val(), cmd.Err()
+}
+
+func GetList(key string, value any, start int, end int) error {
+	cmd := getList(key, start, end)
+	if cmd.Err() != nil {
+		return cmd.Err()
+	}
+	val := cmd.String()
+	return json.Unmarshal([]byte(val), value)
+}
+func getList(key string, start int, end int) *redis.StringSliceCmd {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	return GetRedisClient().LRange(ctx, key, int64(start), int64(end))
+}
+
+func Del(key ...string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	cmd := GetRedisClient().Del(ctx, key...)
+	return cmd.Err()
+}
+
+// func create(key string, value any, expire time.Duration) *redis.StatusCmd {
+// 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+// 	defer cancel()
+// 	return GetRedisClient().SetEx(ctx, key, value, expire)
+// }
+
+func CreateList(key string, value any, expire time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	// sctx, scancel := context.WithTimeout(context.Background(), 2*time.Second)
+	// defer scancel()
+	// start transaction
+	str, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	tx := GetRedisClient().TxPipeline()
+	tx.LPush(ctx, key, string(str))
+	tx.Expire(ctx, key, expire)
+	_, err = tx.Exec(ctx)
+	return err
+}
+
+func Create(key string, value any, expire time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	str, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	return GetRedisClient().SetEx(ctx, key, string(str), expire).Err()
+}
