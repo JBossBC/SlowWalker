@@ -26,7 +26,6 @@ the middleware must open after the jwt verify
 */
 func RBACMiddleware(context *gin.Context) {
 	role, bol := context.Get("role")
-	log.Print(role)
 	if !bol {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return

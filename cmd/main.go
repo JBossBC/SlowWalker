@@ -35,10 +35,10 @@ func userRoute(engine *gin.Engine) {
 }
 
 func auditRoute(engine *gin.Engine) {
-	group := engine.Group("/audit")
+	group := engine.Group("/log")
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
-	group.Handle(http.MethodGet, "/logs/query", controller.QueryAuditLogs)
-	group.Handle(http.MethodGet, "/log/query", controller.QueryAuditLog)
+	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
+	group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
 }

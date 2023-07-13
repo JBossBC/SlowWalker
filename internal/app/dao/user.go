@@ -151,7 +151,7 @@ func QueryUsers(page int, pageNumber int) ([]*User, error) {
 	}
 	defer result.Close(context.Background())
 	result.All(context.Background(), users)
-	err = Create(redisKey, users, DEFAULT_USER_EXPIRE_TIME)
+	err = CreateList(redisKey, users, DEFAULT_USER_EXPIRE_TIME)
 	if err != nil {
 		log.Printf("创建redis缓存(key:%s,value:%v)失败%s", redisKey, users, err.Error())
 	}

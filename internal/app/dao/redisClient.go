@@ -71,9 +71,12 @@ func GetList(key string, value any, start int, end int) error {
 	if err != nil {
 		return err
 	}
+	if len(val) <= 0 {
+		return redis.Nil
+	}
 	rValue := reflect.ValueOf(value)
-	if rValue.Type().Kind() != reflect.Slice || rValue.Type().Kind() != reflect.Array {
-		return errors.New("value 应该是一个slice或者array")
+	if rValue.Type().Kind() != reflect.Slice {
+		return errors.New("value 应该是一个slice")
 	}
 	if rValue.Len() <= len(val) {
 		rValue = reflect.MakeSlice(rValue.Type(), len(val), len(val))

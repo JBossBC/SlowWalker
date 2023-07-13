@@ -14,7 +14,6 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,7 +22,8 @@ import (
 const DEFAULT_LOG_DOCUMENT = "log"
 
 const ERROR_LOG_STORAGE = "/var/repliteLog.json"
-const DEFALT_LOG_NUMBER = 10
+
+// const DEFALT_LOG_NUMBER = 10
 
 const DEFAULT_REDIS_LOGS_PREFIX = "logs-"
 
@@ -151,56 +151,55 @@ func getLogCollection() *mongo.Collection {
 	return getMongoConn().Collection(config.CollectionConfig.Get(DEFAULT_LOG_DOCUMENT).(string))
 }
 
-func QueryLogs(page int, pageNumber int) ([]*Log, error) {
-	var logs []*Log = make([]*Log, 0, DEFALT_LOG_NUMBER)
-	/* the cache start and end is set the list length by default*/
-	redisKey := getLogsKey(page, pageNumber)
-	err := GetList(redisKey, logs, 0, -1)
-	if err != nil {
-		log.Printf("query logs info (page: %d, pageNumber: %d) error: %s \r\n", page, pageNumber, err.Error())
-		return nil, err
-	}
-	if len(logs) <= 0 {
-		// invalid the cache
-		return nil, nil
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	result, err := getLogCollection().Find(ctx, bson.D{}, options.Find().SetLimit(int64(pageNumber)), options.Find().SetSkip(int64(page)-1))
-	if err != nil {
-		log.Printf("query the logs(page: %d,pageNumber: %d) error:%s", page, pageNumber, err.Error())
-		if err == mongo.ErrNoDocuments {
-			err = CreateList(redisKey, nil, 30*time.Second)
-			if err != nil {
-				log.Printf("create the logs invalid key error:%s", err.Error())
-			}
-			return nil, nil
-		}
-		return nil, err
-	}
-	defer result.Close(context.Background())
-	err = result.All(context.Background(), result)
-	if err != nil {
-		return nil, err
-	}
-	err = CreateList(redisKey, result, DEFUALT_REDIS_LOGS_EXPIRE)
-	if err != nil {
-		log.Printf("create the logs %v cache error: %s", result, err.Error())
-	}
-	return logs, nil
-}
+// func QueryLogs(page int, pageNumber int) (*[]*Log, error) {
+// 	var logs []*Log = make([]*Log, 0, pageNumber)
+// 	/* the cache start and end is set the list length by default*/
+// 	redisKey := getLogsKey(page, pageNumber)
+// 	err := GetList(redisKey, logs, 0, -1)
+// 	// if err != nil && err != redis.Nil {
+// 	// 	log.Printf("query logs info (page: %d, pageNumber: %d) error: %s \r\n", page, pageNumber, err.Error())
+// 	// 	return nil, err
+// 	// }
+// 	// 如果每次返回错误的时候返回logs,err的话会导致内存空间占用增大
+// 	if err == nil {
+// 		return &logs, nil
+// 	}
+// 	if err != redis.Nil {
+// 		log.Printf("查询日志的redis缓存(%s)出错:%s", redisKey, err.Error())
+// 	}
+// 	// if len(logs) <= 0 {
+// 	// 	// invalid the cache
+// 	// 	return nil, nil
+// 	// }
+// 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+// 	defer cancel()
+// 	result, err := getLogCollection().Find(ctx, bson.D{}, options.Find().SetLimit(int64(pageNumber)), options.Find().SetSkip(int64(page)-1))
+// 	if err != nil {
+// 		log.Printf("query the logs(page: %d,pageNumber: %d) error:%s", page, pageNumber, err.Error())
+// 		if err == mongo.ErrNoDocuments {
+// 			err = CreateList(redisKey, nil, 30*time.Second)
+// 			if err != nil {
+// 				log.Printf("create the logs invalid key error:%s", err.Error())
+// 			}
+// 			return nil, nil
+// 		}
+// 		return nil, err
+// 	}
+// 	defer result.Close(context.Background())
+// 	err = result.All(context.Background(), &logs)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	err = CreateList(redisKey, result, DEFUALT_REDIS_LOGS_EXPIRE)
+// 	if err != nil {
+// 		log.Printf("create the logs %v cache error: %s", result, err.Error())
+// 	}
+// 	return &logs, nil
+// }
 
-func QueryLog(l *Log) (Log, error) {
-	var result = new(Log)
-	redisKey := getLogKey(l)
-	err := Get(redisKey, result)
-	if err == nil {
-		// to defend the Variable escape
-		return *result, nil
-	}
-	if err == redis.Nil {
-		log.Printf("缓存失效:%s", redisKey)
-	}
+// cant need to redis cache
+func FilterLogs(l *Log, page int, pageNumber int) (*[]*Log, error) {
+	var logs []*Log = make([]*Log, 0, pageNumber)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	filter := bson.M{}
@@ -219,23 +218,61 @@ func QueryLog(l *Log) (Log, error) {
 	if l.Level != "" {
 		filter["level"] = l.Level
 	}
-	err = getLogCollection().FindOne(ctx, filter).Decode(result)
+	result, err := getLogCollection().Find(ctx, filter, options.Find().SetLimit(int64(pageNumber)), options.Find().SetSkip(int64(page)-1))
 	if err != nil {
-		log.Printf("query the log %v error:%s", filter, err.Error())
-		if err == mongo.ErrNoDocuments {
-			err = Create(redisKey, nil, 30*time.Second)
-			if err != nil {
-				log.Printf("create the log invalid key error:%s", err.Error())
-			}
-			return Log{}, nil
-		}
-		return Log{}, err
+		log.Printf("query the logs(filter:%v,page: %d,pageNumber: %d) error:%s", l, page, pageNumber, err.Error())
+		return nil, err
 	}
-	err = Create(redisKey, result, DEFUALT_REDIS_LOGS_EXPIRE)
+	err = result.All(context.Background(), &logs)
 	if err != nil {
-		log.Printf("create the logs %v cache error: %s", result, err.Error())
+		log.Println("日志数据处理出错%s", err.Error())
 	}
-	return *result, nil
+	return &logs, err
+	// var result = new(Log)
+	// redisKey := getLogKey(l)
+	// err := Get(redisKey, result)
+	// if err == nil {
+	// 	// to defend the Variable escape
+	// 	return *result, nil
+	// }
+	// if err != redis.Nil {
+	// 	log.Printf("查询日志redis缓存(%s)失效:%s", redisKey, err.Error())
+	// }
+	// ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// defer cancel()
+	// filter := bson.M{}
+	// if l.IP != "" {
+	// 	filter["ip"] = bson.M{
+	// 		"$regex":   fmt.Sprintf(".*%s.*", l.IP),
+	// 		"$options": "i",
+	// 	}
+	// }
+	// if l.Operator != "" {
+	// 	filter["operator"] = bson.M{
+	// 		"$regex":   fmt.Sprintf(".*%s.*", l.Operator),
+	// 		"$options": "i",
+	// 	}
+	// }
+	// if l.Level != "" {
+	// 	filter["level"] = l.Level
+	// }
+	// err = getLogCollection().FindOne(ctx, filter).Decode(result)
+	// if err != nil {
+	// 	log.Printf("query the log %v error:%s", filter, err.Error())
+	// 	if err == mongo.ErrNoDocuments {
+	// 		err = Create(redisKey, nil, 30*time.Second)
+	// 		if err != nil {
+	// 			log.Printf("create the log invalid key error:%s", err.Error())
+	// 		}
+	// 		return Log{}, nil
+	// 	}
+	// 	return Log{}, err
+	// }
+	// err = Create(redisKey, result, DEFUALT_REDIS_LOGS_EXPIRE)
+	// if err != nil {
+	// 	log.Printf("create the logs %v cache error: %s", result, err.Error())
+	// }
+	// return *result, nil
 }
 
 func getLogsKey(page int, pageNumber int) string {

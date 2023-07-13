@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +24,6 @@ func BeforeHandler(ctx *gin.Context) {
 	case http.MethodGet:
 		for k := range default_get_params {
 			value := ctx.Query(k)
-			log.Printf(value)
 			if value != "" {
 				ctx.Set(k, value)
 			}
