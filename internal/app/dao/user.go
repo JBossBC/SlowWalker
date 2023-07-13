@@ -111,7 +111,7 @@ func QueryUser(user *User) (User, error) {
 		// defend the cache breakdown
 		if result.Err() == mongo.ErrNoDocuments {
 			// invalid key expire time be set
-			//TODO  the query user will appear in the register stage,this situation will take much redis appear
+			//TODO  the query user will appear in the register stage,this situation will take much redis key appear
 			Create(redisKey, INVALID_REDIS_USER_VALUE, 1*time.Minute)
 			return User{}, nil
 		}

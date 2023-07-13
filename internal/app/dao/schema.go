@@ -1,9 +1,11 @@
 package dao
 
 import (
+	"bufio"
 	"context"
 	"encoding/xml"
 	"fmt"
+	"log"
 	"os"
 	"replite_web/internal/app/config"
 )
@@ -56,9 +58,35 @@ func InitMogoSchema() {
 	//renew the db.xml the init state
 	go func() {
 		config.DBConfig.MongoConfig.Init = "true"
-		bytes, _ := xml.Marshal(config.DBConfig)
+		bytes, err := xml.MarshalIndent(config.DBConfig, "", "  ")
+		if err != nil {
+			log.Printf("序列化dbconfig出错%s", err.Error())
+			return
+		}
+		// file.Write(bytes)
+		// doc := etree.NewDocument()
+		// if err := doc.ReadFromString(string(bytes)); err != nil {
+		// 	log.Printf("格式化db配置文件时出错%s", err.Error())
+		// 	return
+		// }
+		// prettyData, err := doc.WriteToString()
+		// if err != nil {
+		// 	log.Printf("格式化db配置文件时出错%s", err.Error())
+		// 	return
+		// }
 		file, _ := os.OpenFile(config.DEFAULT_DB_CONFIG, os.O_TRUNC|os.O_WRONLY, 0755)
-		file.Write(bytes)
+		writer := bufio.NewWriter(file)
+		_, err = writer.Write(bytes)
+		if err != nil {
+			log.Printf("修改db配置文件出错%s", err.Error())
+			return
+		}
+		err = writer.Flush()
+		if err != nil {
+			log.Printf("修改db配置文件出错%s", err.Error())
+			return
+		}
+		log.Printf("修改db配置文件成功")
 	}()
 }
 

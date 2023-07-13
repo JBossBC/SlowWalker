@@ -11,15 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const DEFAULT_RBAC_CONFIG = "../../configs/rbac.json"
+// const DEFAULT_RBAC_CONFIG = "../../configs/rbac.json"
 
 //TODO match the rule to allow user to use
 
 // all user can access the resource list
-var currencyResource = map[string]any{
-	"login":    nil,
-	"register": nil,
-}
+// var currencyResource = map[string]any{
+// 	"login":    nil,
+// 	"register": nil,
+// }
 
 /*
 the middleware must open after the jwt verify
@@ -36,9 +36,9 @@ func RBACMiddleware(context *gin.Context) {
 		return
 	}
 	// currency resource skip the rbac
-	if _, ok := currencyResource[resource.(string)]; ok {
-		return
-	}
+	// if _, ok := currencyResource[resource.(string)]; ok {
+	// 	return
+	// }
 	if !hasAuthority(role.(string), resource.(string)) {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
