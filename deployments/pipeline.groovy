@@ -8,7 +8,7 @@ pipeline{
     stages{
         stage("pull"){
             steps{
-                git branch: 'main', url: 'https://github.com/JBossBC/repliteWeb.git'
+                git branch: 'main', credentialsId:"jenkins",url:'git@github.com:JBossBC/repliteWeb.git'
             }
         }
          stage('Set golang proxy') {
@@ -32,18 +32,25 @@ pipeline{
                     // 通过SCP命令将文件复制到节点
                     //TODO should use node to connect with ip
                     sh """
-                       ssh-agent bash -c 'ssh-add $SSH_KEY; scp ./configs/ root@112.124.53.234:/opt'
-                        ssh-agent bash -c 'ssh-add $SSH_KEY; scp backend root@112.124.53.234:/opt'
+                        ssh-agent bash -c 'ssh-add $SSH_KEY; scp backend root@112.124.53.234:/opt/'
                     """
+                    sh """
+                        ssh-agent bash -c 'ssh-add $SSH_KEY; scp -r configs/ root@112.124.53.234:/opt/'
+                    """    
                 } 
             }
         }
         stage("report"){
-            steps{
-               node("backend"){
-                 sh './backend'
-               }
+            agent{
+                node{
+                    label 'backend'
+                }
             }
+            steps{
+                 dir('/opt') {
+                 sh './backend'
+                }
         }
-    }
+        }
+}
 }
