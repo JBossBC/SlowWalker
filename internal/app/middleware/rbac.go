@@ -25,13 +25,14 @@ import (
 the middleware must open after the jwt verify
 */
 func RBACMiddleware(context *gin.Context) {
-	role, bool := context.Get("role")
-	if !bool {
+	role, bol := context.Get("role")
+	log.Print(role)
+	if !bol {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
-	resource, bool := context.Get("resource")
-	if !bool {
+	resource, bol := context.Get("resource")
+	if !bol {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
@@ -100,6 +101,7 @@ func getRulesToMap() {
 		if systemSource[rule.Name] == nil {
 			systemSource[rule.Name] = make(map[string]any)
 		}
+		log.Printf("正在添加 rule:%s authority:%s", rule.Name, rule.Authority)
 		systemSource[rule.Name][rule.Authority] = nil
 	}
 	log.Println("renew the rules successfully")

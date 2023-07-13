@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,6 +10,8 @@ import (
 var default_get_params = map[string]any{
 	"resource": nil,
 }
+
+//TODO maybe should convert all params to
 
 func BeforeHandler(ctx *gin.Context) {
 	switch ctx.Request.Method {
@@ -22,6 +25,7 @@ func BeforeHandler(ctx *gin.Context) {
 	case http.MethodGet:
 		for k := range default_get_params {
 			value := ctx.Query(k)
+			log.Printf(value)
 			if value != "" {
 				ctx.Set(k, value)
 			}

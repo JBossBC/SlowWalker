@@ -22,7 +22,7 @@ const DEFAULT_REDIS_USERS_PREFIX = "users-"
 
 var INVALID_REDIS_USER_VALUE = User{}
 
-const DEFAULT_USER_EXPIRE_TIME = 3 * time.Minute
+const DEFAULT_USER_EXPIRE_TIME = 5 * time.Minute
 
 var INVALID_REDIS_USERS_VALUE = struct{}{}
 var emptyUser = User{}
@@ -97,7 +97,7 @@ func QueryUser(user *User) (User, error) {
 	err := Get(redisKey, &model)
 	// defend the invalid key to access the mongoDB
 	if !model.IsEmpty() || (err != nil && err != redis.Nil) {
-		log.Printf("查询(%s)缓存失败：%s", redisKey, err.Error())
+		log.Printf("查询(%s)缓存失败：%v", redisKey, err)
 		return model, err
 	}
 	// if err != redis.Nil {

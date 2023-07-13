@@ -14,6 +14,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -26,7 +27,11 @@ const DEFALT_LOG_NUMBER = 10
 
 const DEFAULT_REDIS_LOGS_PREFIX = "logs-"
 
-const DEFUALT_REDIS_LOGS_EXPIRE = 3 * time.Minute
+const DEFUALT_REDIS_LOGS_EXPIRE = 30 * time.Second
+
+const DEFAULT_REDIS_LOG_PREFIX = "log-"
+
+var Empty_Log = Log{}
 
 var (
 	error_log_info *bufio.Writer
@@ -54,6 +59,7 @@ func init() {
 
 type Log struct {
 	Level    LogLevel `json:"level" bson:"level"`
+	IP       string   `json:"ip" bson:"ip"`
 	Message  string   `json:"message" bson:"message"`
 	Operator string   `json:"operator" bson:"operator"`
 	//unix time
@@ -70,53 +76,54 @@ var (
 	PANIC LogLevel = "panic"
 )
 
-func Error(operator string, message string) {
-	Errorf(operator, message)
+func Error(operator string, ip string, message string) {
+	Errorf(operator, ip, message)
 }
 
-func Errorf(operator string, format string, v ...any) {
-	log := newLog(ERROR, operator, fmt.Sprintf(format, v...))
+func Errorf(operator string, ip string, format string, v ...any) {
+	log := newLog(ERROR, operator, ip, fmt.Sprintf(format, v...))
 	insertLog(&log)
 }
 
-func Info(operator string, message string) {
-	Infof(operator, message)
+func Info(operator string, ip string, message string) {
+	Infof(operator, ip, message)
 }
 
-func Infof(operator string, format string, v ...any) {
-	log := newLog(INFO, operator, fmt.Sprintf(format, v...))
+func Infof(operator string, ip string, format string, v ...any) {
+	log := newLog(INFO, operator, ip, fmt.Sprintf(format, v...))
 	insertLog(&log)
 }
 
-func Panic(operator string, message string) {
-	Panicf(operator, message)
+func Panic(operator string, ip string, message string) {
+	Panicf(operator, ip, message)
 }
-func Panicf(operator string, format string, v ...any) {
-	log := newLog(PANIC, operator, fmt.Sprintf(format, v...))
+func Panicf(operator string, ip string, format string, v ...any) {
+	log := newLog(PANIC, operator, ip, fmt.Sprintf(format, v...))
 	insertLog(&log)
 }
 
-func Print(operator string, message string) {
-	Printf(operator, message)
+func Print(operator string, ip string, message string) {
+	Printf(operator, ip, message)
 }
 
-func Printf(operator string, format string, v ...any) {
-	log := newLog(PRINT, operator, fmt.Sprintf(format, v...))
+func Printf(operator string, ip string, format string, v ...any) {
+	log := newLog(PRINT, operator, ip, fmt.Sprintf(format, v...))
 	insertLog(&log)
 }
 
-func Warn(operator string, message string) {
-	Warnf(operator, message)
+func Warn(operator string, ip string, message string) {
+	Warnf(operator, ip, message)
 }
 
-func Warnf(operator string, format string, v ...any) {
-	log := newLog(WARN, operator, fmt.Sprintf(format, v...))
+func Warnf(operator string, ip string, format string, v ...any) {
+	log := newLog(WARN, operator, ip, fmt.Sprintf(format, v...))
 	insertLog(&log)
 }
-func newLog(level LogLevel, operator string, message string) Log {
+func newLog(level LogLevel, operator string, ip string, message string) Log {
 	return Log{
 		Level:    level,
 		Operator: operator,
+		IP:       ip,
 		Message:  message,
 		Date:     time.Now().Unix(),
 	}
@@ -132,11 +139,11 @@ func insertLog(l *Log) {
 			log.Printf("序列化日志信息出错:%v \r\n", bLog)
 			return
 		}
-		go func() {
+		go func(bLog []byte) {
 			mu.Lock()
 			defer mu.Unlock()
 			error_log_info.Write(bLog)
-		}()
+		}(bLog)
 	}
 }
 
@@ -163,7 +170,7 @@ func QueryLogs(page int, pageNumber int) ([]*Log, error) {
 	if err != nil {
 		log.Printf("query the logs(page: %d,pageNumber: %d) error:%s", page, pageNumber, err.Error())
 		if err == mongo.ErrNoDocuments {
-			err = CreateList(redisKey, nil, 1*time.Minute)
+			err = CreateList(redisKey, nil, 30*time.Second)
 			if err != nil {
 				log.Printf("create the logs invalid key error:%s", err.Error())
 			}
@@ -183,6 +190,61 @@ func QueryLogs(page int, pageNumber int) ([]*Log, error) {
 	return logs, nil
 }
 
+func QueryLog(l *Log) (Log, error) {
+	var result = new(Log)
+	redisKey := getLogKey(l)
+	err := Get(redisKey, result)
+	if err == nil {
+		// to defend the Variable escape
+		return *result, nil
+	}
+	if err == redis.Nil {
+		log.Printf("缓存失效:%s", redisKey)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	filter := bson.M{}
+	if l.IP != "" {
+		filter["ip"] = bson.M{
+			"$regex":   fmt.Sprintf(".*%s.*", l.IP),
+			"$options": "i",
+		}
+	}
+	if l.Operator != "" {
+		filter["operator"] = bson.M{
+			"$regex":   fmt.Sprintf(".*%s.*", l.Operator),
+			"$options": "i",
+		}
+	}
+	if l.Level != "" {
+		filter["level"] = l.Level
+	}
+	err = getLogCollection().FindOne(ctx, filter).Decode(result)
+	if err != nil {
+		log.Printf("query the log %v error:%s", filter, err.Error())
+		if err == mongo.ErrNoDocuments {
+			err = Create(redisKey, nil, 30*time.Second)
+			if err != nil {
+				log.Printf("create the log invalid key error:%s", err.Error())
+			}
+			return Log{}, nil
+		}
+		return Log{}, err
+	}
+	err = Create(redisKey, result, DEFUALT_REDIS_LOGS_EXPIRE)
+	if err != nil {
+		log.Printf("create the logs %v cache error: %s", result, err.Error())
+	}
+	return *result, nil
+}
+
 func getLogsKey(page int, pageNumber int) string {
 	return utils.MergeStr(DEFAULT_REDIS_LOGS_PREFIX, strconv.FormatInt(int64(page), 10), "-", strconv.FormatInt(int64(pageNumber), 10))
+}
+func getLogKey(log *Log) string {
+	return utils.MergeStr(DEFAULT_REDIS_LOG_PREFIX, log.Operator, "-", log.IP)
+}
+
+func (l *Log) IsEmpty() bool {
+	return *l == Empty_Log
 }

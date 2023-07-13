@@ -41,7 +41,7 @@ func LoginAccount(user *dao.User, remoteIP string) (response utils.Response, jwt
 		response = utils.NewFailedResponse("系统错误")
 		return
 	}
-	dao.Printf(single.Authority, "%s 登录成功,操作IP地址为:%s", user.Username, remoteIP)
+	dao.Printf(single.Authority, remoteIP, "%s 登录成功,操作IP地址为:%s", user.Username, remoteIP)
 	return utils.NewSuccessResponse("登录成功"), jwtStr
 
 }
@@ -82,7 +82,7 @@ func CreateAccount(user *dao.User, remoteIP string) (response utils.Response) {
 	DeleteCode(user.PhoneNumber)
 	// insert the remote IP to defind the numerous invalid operations
 	//TODO the user.Authority is operator not  user which be created
-	dao.Printf(remoteIP, "成功创建用户%s,操作IP地址:%s", user.Username, remoteIP)
+	dao.Printf(remoteIP, remoteIP, "成功创建用户%s,操作IP地址:%s", user.Username, remoteIP)
 	return utils.NewSuccessResponse(nil)
 }
 
@@ -107,7 +107,7 @@ func UpdateInfo(user *dao.User, remoteIP string) (response utils.Response) {
 		response = utils.NewFailedResponse("创建失败")
 		return
 	}
-	dao.Printf(single.Authority, "成功修改%v信息为%v,操作IP地址为:%s", single, user, remoteIP)
+	dao.Printf(single.Authority, remoteIP, "成功修改%v信息为%v,操作IP地址为:%s", single, user, remoteIP)
 	return utils.NewSuccessResponse("修改成功")
 }
 

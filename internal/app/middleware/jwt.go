@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"log"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
 	"strings"
@@ -19,7 +20,7 @@ func Auth(ctx *gin.Context) {
 		return
 	}
 	//bearer 方案
-	_, rawJWT, ok := strings.Cut(rawJWT, " ")
+	_, rawJWT, ok := strings.Cut(rawJWT, "\u0020")
 	if !ok {
 		ctx.AbortWithStatus(utils.AuthFailedState)
 		return
@@ -32,6 +33,7 @@ func Auth(ctx *gin.Context) {
 		return []byte(config.ServerConf.Secret), nil
 	})
 	if err != nil || !token.Valid {
+		log.Printf("%v", err)
 		ctx.AbortWithStatus(utils.AuthFailedState)
 		return
 	}

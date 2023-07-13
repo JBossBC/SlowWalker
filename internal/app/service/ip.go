@@ -5,11 +5,11 @@ import (
 	"replite_web/internal/app/utils"
 )
 
-//TODO will make sure that what times we should to merge the string to finish the complete redis key
-const DEFUALT_ALLOW_MAX_NUMBER = 1
+// TODO will make sure that what times we should to merge the string to finish the complete redis key
+const DEFUALT_ALLOW_MAX_REGISTER_NUMBER = 1
 
 func IsValidRegisterInternal(ip string) bool {
-	return dao.QueryIP(getRegisterKey(ip)) <= DEFUALT_ALLOW_MAX_NUMBER
+	return dao.QueryIP(getRegisterKey(ip)) <= DEFUALT_ALLOW_MAX_REGISTER_NUMBER
 }
 
 func RegisterSuccessHook(ip string) {

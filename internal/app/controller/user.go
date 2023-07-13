@@ -37,7 +37,7 @@ func Login(ctx *gin.Context) {
 	}
 }
 
-const DEFUALT_AUTHORITY_LEVEL = "mumber"
+const DEFUALT_AUTHORITY_LEVEL = "member"
 
 func Register(ctx *gin.Context) {
 	username := ctx.PostForm("username")

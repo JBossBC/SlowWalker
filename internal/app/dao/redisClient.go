@@ -3,8 +3,10 @@ package dao
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
+	"reflect"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
 	"strconv"
@@ -57,7 +59,7 @@ func get(key string) *redis.StringCmd {
 
 func GetStrList(key string, start int, end int) ([]string, error) {
 	cmd := getList(key, start, end)
-	return cmd.Val(), cmd.Err()
+	return cmd.Result()
 }
 
 func GetList(key string, value any, start int, end int) error {
@@ -65,8 +67,25 @@ func GetList(key string, value any, start int, end int) error {
 	if cmd.Err() != nil {
 		return cmd.Err()
 	}
-	val := cmd.String()
-	return json.Unmarshal([]byte(val), value)
+	val, err := cmd.Result()
+	if err != nil {
+		return err
+	}
+	rValue := reflect.ValueOf(value)
+	if rValue.Type().Kind() != reflect.Slice || rValue.Type().Kind() != reflect.Array {
+		return errors.New("value 应该是一个slice或者array")
+	}
+	if rValue.Len() <= len(val) {
+		rValue = reflect.MakeSlice(rValue.Type(), len(val), len(val))
+	}
+	//************** TODO should inspect **********
+	for i := 0; i < len(val); i++ {
+		err = json.Unmarshal([]byte(val[i]), rValue.Index(i).Interface())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 func getList(key string, start int, end int) *redis.StringSliceCmd {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -97,6 +116,10 @@ func CreateList(key string, value any, expire time.Duration) error {
 	if err != nil {
 		return err
 	}
+	// valSlice, ok := value.([]any)
+	// if !ok {
+	// 	return errors.New("createList method: the value which is input  should be slice type")
+	// }
 	tx := GetRedisClient().TxPipeline()
 	tx.LPush(ctx, key, string(str))
 	tx.Expire(ctx, key, expire)

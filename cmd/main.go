@@ -20,6 +20,7 @@ func main() {
 	// engine.Use(middleware.RBACMiddleware)
 	userRoute(engine)
 	mobileRoute(engine)
+	auditRoute(engine)
 	engine.Run(fmt.Sprintf(":%s", config.ServerConf.Port))
 }
 func mobileRoute(engine *gin.Engine) {
@@ -31,4 +32,13 @@ func userRoute(engine *gin.Engine) {
 	group := engine.Group("/user")
 	group.Handle(http.MethodGet, "/login", controller.Login)
 	group.Handle(http.MethodPost, "/register", controller.Register)
+}
+
+func auditRoute(engine *gin.Engine) {
+	group := engine.Group("/audit")
+	group.Use(middleware.BeforeHandler)
+	group.Use(middleware.Auth)
+	group.Use(middleware.RBACMiddleware)
+	group.Handle(http.MethodGet, "/logs/query", controller.QueryAuditLogs)
+	group.Handle(http.MethodGet, "/log/query", controller.QueryAuditLog)
 }
