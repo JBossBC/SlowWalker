@@ -1,0 +1,14 @@
+<dbConfig>
+  <mongoConfig>
+    <url>mongodb://localhost:27017/</url>
+    <database>repliteweb</database>
+    <init>true</init>
+  </mongoConfig>
+  <redisConfig>
+    <address>localhost:6379</address>
+    <username></username>
+    <password></password>
+    <database>9</database>
+    <init></init>
+  </redisConfig>
+</dbConfig>

@@ -1,0 +1,17 @@
+<!DOCTYPE configuration>
+
+<mongoTables>
+    <table>
+       <name>rule</name>
+       <value>rule</value>
+    </table>
+    <table>
+        <name>user</name>
+        <value>user</value>
+    </table>
+    <table>
+    <name>log</name>   <!-- the name  is relative to server-->
+    <value>log</value>   <!-- the value is relative to mongo database-->
+    </table>
+    
+</mongoTables>
