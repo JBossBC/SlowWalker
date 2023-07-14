@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"replite_web/internal/app/config"
+	"replite_web/internal/app/utils"
 )
 
 /* mogoDB schema init rule */
@@ -53,7 +54,8 @@ var default_audit_schema = []any{
 func InitMogoSchema() {
 	// initDB()
 	initRuleSchema()
-	// initUserSchema()
+	// 为了防止在分布式条件下，更新后的其他服务器配置文件未能及时更新从而导致的数据错误,只在user collections 中追加user数据
+	initUserSchema()
 	// initLogSchema()
 	//renew the db.xml the init state
 	go func() {
@@ -108,26 +110,49 @@ func initRuleSchema() {
 		panic(fmt.Sprintf("drop the rule schema collection error: %v", err))
 	}
 	_, err = getRuleCollection().InsertMany(context.Background(), ruleCollections)
+	log.Printf("成功初始化Rule collections:%v", ruleCollections)
 	if err != nil {
 		panic(fmt.Sprintf("insert the rule schema collection error: %v", err))
 	}
 }
 
-// func initUserSchema() {
-// 	var users = []any{}
-// 	_, err := getUserCollection().InsertOne(context.Background(), map[string]struct{}{})
-// 	if err != nil {
-// 		panic(err.Error())
-// 	}
-// 	err = getUserCollection().Drop(context.Background())
-// 	if err != nil {
-// 		panic(fmt.Sprintf("drop the user schema collection error: %v", err))
-// 	}
-// 	_, err = getUserCollection().InsertMany(context.Background(), users)
-// 	if err != nil {
-// 		panic(fmt.Sprintf("insert the user schema collection error: %v", err))
-// 	}
-// }
+var default_users_schema = []any{
+	User{
+		Username:    "admin",
+		Authority:   "admin",
+		Password:    utils.Encrypt("admin"),
+		PhoneNumber: "18080705675",
+	},
+	User{
+		Username:    "audit",
+		Authority:   "audit",
+		Password:    utils.Encrypt("audit"),
+		PhoneNumber: "18080705675",
+	},
+	User{
+		Username:    "member",
+		Authority:   "member",
+		Password:    utils.Encrypt("member"),
+		PhoneNumber: "18080705675",
+	},
+}
+
+func initUserSchema() {
+	// var users = []any{}
+	_, err := getUserCollection().InsertMany(context.Background(), default_users_schema)
+	if err != nil {
+		panic(fmt.Sprintf("初始化user document失败:%s", err.Error()))
+	}
+	log.Printf("成功初始化user collections:%v", default_users_schema)
+	// err = getUserCollection().Drop(context.Background())
+	// if err != nil {
+	// 	panic(fmt.Sprintf("drop the user schema collection error: %v", err))
+	// }
+	// _, err = getUserCollection().InsertMany(context.Background(), users)
+	// if err != nil {
+	// 	panic(fmt.Sprintf("insert the user schema collection error: %v", err))
+	// }
+}
 
 // func initLogSchema() {
 // 	var logs = []any{}
