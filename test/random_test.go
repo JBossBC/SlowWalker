@@ -16,7 +16,6 @@ func TestRandom(t *testing.T) {
 			t.Fatalf("出现重复的验证码")
 		}
 		mapRand[str] = nil
-		t.Logf(str)
 		time.Sleep(1 * time.Nanosecond)
 	}
 
