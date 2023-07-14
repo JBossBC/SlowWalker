@@ -1,6 +1,6 @@
 <dbConfig>
   <mongoConfig>
-    <url>mongodb://124.220.20.204:27017/</url>
+    <url>mongodb://124.220.208.204:27017/</url>
     <database>repliteweb</database>
     <init>false</init>
   </mongoConfig>
