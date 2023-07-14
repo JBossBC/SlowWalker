@@ -55,7 +55,12 @@ const Register=()=>{
       );
       const onFinish = (values) => {
         // console.log('Received values of form: ', values);
-        axios
+        // axios
+
+        // response
+        //response.result=="true"
+        // reponse.message
+        //alert("登录成功")
       };
     return(
 
