@@ -1,8 +1,8 @@
 <dbConfig>
   <mongoConfig>
-    <url>mongodb://admin:admin@124.220.162.38:27017/</url>
+    <url>mongodb://124.220.20.204:27017/</url>
     <database>repliteweb</database>
-    <init>true</init>
+    <init>false</init>
   </mongoConfig>
   <redisConfig>
     <address>124.220.162.38:6379</address>
