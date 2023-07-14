@@ -43,7 +43,6 @@ func IsMatching(key string, code string) bool {
 		log.Printf("获取redis的值(key:%s)出错:%s", realKey, err.Error())
 		return false
 	}
-	log.Printf("redis code:%s,user code:%s", redisCode, code)
 	if strings.Compare(code, redisCode) == 0 {
 		return true
 	} else {

@@ -130,12 +130,19 @@ func CreateList(key string, value any, expire time.Duration) error {
 	return err
 }
 
+// if value is str,should appear the ""
 func Create(key string, value any, expire time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	str, err := json.Marshal(value)
-	if err != nil {
-		return err
+	var str string
+	if valueStr, ok := value.(string); ok {
+		str = valueStr
+	} else {
+		valueStr, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+		str = string(valueStr)
 	}
-	return GetRedisClient().SetEx(ctx, key, string(str), expire).Err()
+	return GetRedisClient().SetEx(ctx, key, str, expire).Err()
 }
