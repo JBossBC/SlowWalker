@@ -1,13 +1,13 @@
 <dbConfig>
   <mongoConfig>
-    <url>mongodb://localhost:27017/</url>
+    <url>mongodb://admin:admin@124.220.162.38:27017/</url>
     <database>repliteweb</database>
     <init>true</init>
   </mongoConfig>
   <redisConfig>
-    <address>localhost:6379</address>
-    <username></username>
-    <password></password>
+    <address>124.220.162.38:6379</address>
+    <!-- <username></username> -->
+    <password>root</password>
     <database>9</database>
     <init></init>
   </redisConfig>
