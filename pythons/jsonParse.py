@@ -34,5 +34,3 @@ def AnalysisJSON(src, target):
             writer.writerow(rowData)
 
 
-if __name__ == "__main__":
-    AnalysisJSON(r'D:\work\湖南\5972.com\数据\出款记录(2023.2.1-2023.4.16)',r'D:\work\湖南\5972.com\数据\出款记录(2023.2.1-2023.4.16).csv')

@@ -88,6 +88,3 @@ def recursionAdd(rootNode, element):
         recursionAdd(node, subElement)
 
 
-if __name__ == "__main__":
-    VisibleGraph(r'C:\Users\Xiyang\Desktop\work\湖南\临澧\2017\可视化\会员列表--清洗数据(5).xlsx',
-                 r'C:\Users\Xiyang\Desktop\work\湖南\临澧\2017\可视化')
