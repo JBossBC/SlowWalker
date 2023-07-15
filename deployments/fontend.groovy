@@ -23,7 +23,7 @@ pipeline{
             steps{
                 // dir("/opt"){
                     sh 'docker build -f deployments/frontend.dockerfile  -n frontend . '
-                    sh 'docker run -p 80:80 fontend'
+                    sh 'docker run -p 80:80 frontend'
                 // }
             }
         }
