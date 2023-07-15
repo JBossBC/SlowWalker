@@ -13,6 +13,8 @@ RUN npm install
 # 将项目文件复制到容器
 COPY web/ ./
 
+RUN npm run build
+
 RUN npm install -g serve
 
 CMD ["serve","-s","build"]
