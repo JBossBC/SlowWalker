@@ -96,9 +96,11 @@ func QueryUser(user *User) (User, error) {
 	redisKey := getUserKey(user.Username)
 	err := Get(redisKey, &model)
 	// defend the invalid key to access the mongoDB
-	if !model.IsEmpty() || (err != nil && err != redis.Nil) {
+	if !model.IsEmpty() {
+		return model, nil
+	}
+	if err != nil && err != redis.Nil {
 		log.Printf("查询(%s)缓存失败：%v", redisKey, err)
-		return model, err
 	}
 	// if err != redis.Nil {
 	// 	log.Printf("查询缓存失败：%s", err.Error())
