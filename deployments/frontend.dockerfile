@@ -15,7 +15,7 @@ COPY web/ ./
 
 RUN npm install -g serve
 
-CMD [serve "-s" "build"]
+CMD ["serve","-s","build"]
 
 # # 构建 React 项目
 # RUN npm run build
