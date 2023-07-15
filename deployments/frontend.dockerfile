@@ -11,7 +11,7 @@ COPY web/package*.json ./
 RUN npm install
 
 # 将项目文件复制到容器
-COPY . .
+COPY ./web/ .
 
 # 构建 React 项目
 RUN npm run build
