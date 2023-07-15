@@ -8,7 +8,7 @@ pipeline{
     stages{
         stage("pull"){
             steps{
-                git branch: 'main', credentialsId:"jenkins",url:'git@github.com:JBossBC/repliteWeb.git'
+                git branch: 'test', credentialsId:"jenkins",url:'git@github.com:JBossBC/repliteWeb.git'
             }
         }
          stage('Set golang proxy') {
