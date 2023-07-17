@@ -11,7 +11,7 @@ func CORS(ctx *gin.Context) {
 	ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 	ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE,OPTIONS")
 	ctx.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-
+	ctx.Writer.Header().Set("Access-Control-Expose-Headers", "Authorization")
 	if ctx.Request.Method == http.MethodOptions {
 		ctx.AbortWithStatus(utils.ProtocolConvert)
 		return

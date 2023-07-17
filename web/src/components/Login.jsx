@@ -1,9 +1,9 @@
-import { Form, Input, Checkbox, Button, message, Modal } from "antd";
+import { Form, Input, Checkbox, Button, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import logo from "../public/logo.png";
 import React, { useState,useContext } from "react";
 import axios from "axios";
-import Backend from "../App"
+import {Backend} from "../App"
 // convert the localURL to BackendURL
 //const localURL="http://localhost:8080/"
 //const testURL="http://112.124.53.234:8080/"
@@ -15,17 +15,20 @@ const Login = () => {
         //username 要求
         try {
             setLoading(true);
+            console.log("backendURL is",backendURL);
             //TODO: url=localhost+
-            const response = await axios.get(backendURL+"user/login?username="+username+"&password="+password)
+            const response = await axios.get(backendURL+"/user/login?username="+username+"&password="+password)
             //TODO: url=localhost+ jwtStr position
-            const { state, data, message: resMessage,jwtStr } = response.data;
+            const { state, message: resMessage } = response.data;
 
             if (state) {
                 // 登录成功，保存JWT Token到浏览器
                 console.log("insert ----------------")
+                console.log(response);
+                console.log(response.data);
                 console.log(response.headers);
-                const jwt = response.headers.get("Authorization");
-                console.log("Authorization",jwt);
+                const jwt = response.headers.getAuthorization();
+                // console.log("Authorization",jwt);
                 localStorage.setItem("jwtToken", jwtStr);
 
                 // 提示登录成功
