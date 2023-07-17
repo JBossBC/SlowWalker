@@ -1,7 +1,7 @@
 
 
 import React,{useState} from 'react';
-import { Empty, Space, Table, Tag } from 'antd';
+import { Empty, Space, Table, Tag,Button } from 'antd';
 /** 	PRINT LogLevel = "print"
 	WARN  LogLevel = "warn"
 	ERROR LogLevel = "error"
@@ -15,15 +15,13 @@ const columns = [
         title: '日志等级',
         key: 'level',
         dataIndex: 'level',
-        render: (_, { level }) => (
-          <> 
+        render: (_, { level }) => {
               return (
-                <Tag color={color} key={levelForColor(level)}>
+                <Tag color={levelForColor[level]} key={levelForColor[level]}>
                   {level.toUpperCase()}
                 </Tag>
               );
-          </>
-        ),
+        },
       },
   {
     title: '操作IP',
