@@ -18,11 +18,13 @@ import (
 
 func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) {
 	result, err := dao.FilterLogs(l, page, pageNumber)
+	//max return page
 	if err != nil {
 		log.Printf("查询日志:%v,page:%d,pageNumber:%d失败:%s", l, page, pageNumber, err.Error())
 		response = utils.NewFailedResponse("系统出错")
 		return
 	}
+
 	// if result.IsEmpty() {
 	// 	response = utils.NewFailedResponse("日志不存在")
 	// 	return

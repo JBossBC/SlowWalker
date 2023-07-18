@@ -1,30 +1,59 @@
-import React from 'react';
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
+import React, { useContext } from 'react';
+import { DesktopOutlined,ExclamationCircleOutlined} from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 const { Header, Content, Sider } = Layout;
-const items1 = ['1', '2', '3'].map((key) => ({
-  key,
-  label: `nav ${key}`,
-}));
-const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map((icon, index) => {
-  const key = String(index + 1);
-  return {
-    key: `sub${key}`,
-    icon: React.createElement(icon),
-    label: `subnav ${key}`,
-    children: new Array(4).fill(null).map((_, j) => {
-      const subKey = index * 4 + j + 1;
-      return {
-        key: subKey,
-        label: `option${subKey}`,
-      };
-    }),
-  };
-});
+import {Backend} from "../App"
+// const items1 = ['1', '2', '3'].map((key) => ({
+//   key,
+//   label: `nav ${key}`,
+// }));
+// const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map((icon, index) => {
+//   const key = String(index + 1);
+//   return {
+//     key: `sub${key}`,
+//     icon: React.createElement(icon),
+//     label: `subnav ${key}`,
+//     children: new Array(4).fill(null).map((_, j) => {
+//       const subKey = index * 4 + j + 1;
+//       return {
+//         key: subKey,
+//         label: `option${subKey}`,
+//       };
+//     }),
+//   };
+// });
+
+
+const itemsForIcon = {"function":DesktopOutlined,"system":ExclamationCircleOutlined}
+
+
+//TODO 对每一个功能添加对应的类别
+// const menuItems = [DesktopOutlined,ExclamationCircleOutlined].map((icon,index)=>{
+//    const key=String(index+1);
+//    return {
+       
+//    }
+// })
+
 const Main = () => {
+  const BackendURL = useContext(Backend)
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  useEffect(()=>{
+    async function initMain(){
+      // get the authorization data
+      await axios.get(BackendURL+"/rule/query").then((response)=>{
+        let data =response.data;
+        if (response.status != '200' ||data.state!=true){
+          message.error("加载首页出错");
+          // 返回首页
+
+          return
+        }
+      })
+    }
+  },[])
   return (
     <Layout>
       <Header
@@ -33,8 +62,6 @@ const Main = () => {
           alignItems: 'center',
         }}
       >
-        <div className="demo-logo" />
-        <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']} items={items1} />
       </Header>
       <Layout>
         <Sider
@@ -51,7 +78,6 @@ const Main = () => {
               height: '100%',
               borderRight: 0,
             }}
-            items={items2}
           />
         </Sider>
         <Layout
@@ -64,7 +90,7 @@ const Main = () => {
               margin: '16px 0',
             }}
           >
-            <Breadcrumb.Item>Home</Breadcrumb.Item>
+            <Breadcrumb.Item>首页</Breadcrumb.Item>
             <Breadcrumb.Item>List</Breadcrumb.Item>
             <Breadcrumb.Item>App</Breadcrumb.Item>
           </Breadcrumb>

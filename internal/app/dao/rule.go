@@ -20,6 +20,7 @@ const DEFAULT_RULE_NUMBER = 3
 type Rule struct {
 	Name      string `json:"name" bson:"name"`
 	Authority string `json:"authority" bson:"authority"`
+	Type      string `json:"type" bson:"type"`
 }
 
 const DEFAULT_RENEW_RULES_MAP_TIME = 24 * time.Hour
@@ -50,6 +51,7 @@ var (
 	rw           sync.RWMutex
 )
 
+// ok is true represent the rule has authority
 func GetRule(owner string, authority string) (value any, ok bool) {
 	rw.RLock()
 	defer rw.RUnlock()
@@ -59,6 +61,14 @@ func GetRule(owner string, authority string) (value any, ok bool) {
 	}
 	value, ok = owners[authority]
 	return
+}
+
+func GetAuthority(owner string) []any {
+	var result = make([]any, 0, 3)
+	for _, value := range systemSource[owner] {
+		result = append(result, value)
+	}
+	return result
 }
 
 // func getRulesCache() *map[string]map[string]any {
@@ -84,8 +94,8 @@ func getRulesToMap() {
 		if systemSource[rule.Name] == nil {
 			systemSource[rule.Name] = make(map[string]any)
 		}
-		log.Printf("正在添加 rule:%s authority:%s", rule.Name, rule.Authority)
-		systemSource[rule.Name][rule.Authority] = nil
+		log.Printf("正在添加 rule:%s authority:%s,type:%s", rule.Name, rule.Authority, rule.Type)
+		systemSource[rule.Name][rule.Authority] = rule
 	}
 	log.Println("renew the rules successfully")
 }
