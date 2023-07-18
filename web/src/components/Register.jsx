@@ -1,6 +1,8 @@
-import React from "react"
-import { useState } from 'react';
+import React, { useEffect } from "react"
+import { useState,useContext } from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import {Backend} from "../App"
 import {
     Button,
     Checkbox,
@@ -9,6 +11,7 @@ import {
     Input,
     Row,
     Select,
+    message
   } from 'antd';
   const formItemLayout = {
     labelCol: {
@@ -43,8 +46,13 @@ import {
   const { Option } = Select;
 const Register=()=>{
     const [form] = Form.useForm();
+    const backendURL = useContext(Backend);
+    const navigate = useNavigate();
+    //allow to send code
+    const [sendCode,setSendCode]=useState(false);
+    const [timer,setTimer]=useState(60);
     //const [autoCompleteResult, setAutoCompleteResult] = useState([]);
-    const [registerResult, setRegisterResult] = useState(null);
+
     const prefixSelector = (
         <Form.Item name="prefix" noStyle>
           <Select
@@ -57,39 +65,68 @@ const Register=()=>{
         </Form.Item>
       );
       const onFinish = async(values) => {
-        console.log(values)
         try {
-          const response = await axios.post('http://localhost:8080/user/register', values);   //response就是一个promise对象，里面的data就是后端返回的值
-          const data = response.data;
-            if (data.state) {
-                setRegisterResult("注册成功！"); // 注册成功
-                console.log("注册成功");
-            } else {
-                setRegisterResult(data.message); // 注册失败，显示后端返回的错误信息
-                console.log(data.message);
+          let form=new FormData()
+          form.append("username",values.username);
+          form.append("password",values.password);
+          form.append("phone",values.phone);
+          form.append("code",values.captcha);
+          const response = await axios.post(backendURL+'/user/register', form,{
+            headers:{
+              'Content-Type':'multipart/form-data'
             }
+          });   //response就是一个promise对象，里面的data就是后端返回的值
+          const data = response.data;
+            if (response.status!='200' || data.state!=true){
+             let msg = data.message;
+             if (msg == undefined ||msg == ""){
+              msg = "系统正在开小差";
+             }
+             message.error(msg);
+             return
+          }
+          message.success("注册成功").then(()=>navigate('/login'));
             } catch (error) {
-                setRegisterResult("注册失败，请稍后再试！"); 
-                console.log("注册失败，请稍后再试！");
+              console.log(error);
+                message.error("系统出错");  
             }
       };
-
-      const sendVerificationCode = async () => {
+      useEffect(()=>{
+         if(sendCode){
+          setTimer(60);
+          const task = setInterval(() => {
+            if (timer>0){
+            setTimer((prevCount) => prevCount - 1);
+            }
+          }, 1000);
+          setTimeout(()=>{clearInterval(task);setSendCode(false)},60000);
+         }
+      },[sendCode])
+      const sendVerificationCode = async (event) => {
+        if (sendCode){
+          return
+        }
         try {
-          const response = await axios.get('http://localhost:8080/phone/send', {
+          const response = await axios.get(backendURL+'/phone/send', {
           params: {
-              phone: form.getFieldValue('phone')  //获取phone这个字段的值，携带参数的axios的get请求就等于http://localhost:8080/phone/send?phone=1234567890
+              phoneNumber: form.getFieldValue('phone')  //获取phone这个字段的值，携带参数的axios的get请求就等于http://localhost:8080/phone/send?phone=1234567890
           }
           });
-          const data = response.data; 
-          if (data.state) {
-            console.log("验证码发送成功");
-          } else {
-            console.log("验证码发送失败");
+          const data = response.data;
+          if (response.status!='200' || data.state!=true){
+             let msg = data.message;
+             if (msg == undefined ||msg == ""){
+              msg = "系统正在开小差";
+             }
+             message.error(msg);
+             return
           }
-          } catch (error) {
-            console.log(error);
+          setSendCode(true);
+        }catch(e){
+               console.log(e)
+               message.error("系统出错");
           }
+        
       };
 
 
@@ -202,7 +239,7 @@ const Register=()=>{
             </Form.Item>
           </Col>
           <Col span={12}>
-          <Button onClick={sendVerificationCode}>获取验证码</Button>   
+          <Button style={{width:"100px"}} disabled={sendCode} onClick={sendVerificationCode}>{sendCode?timer+"秒":"获取验证码"}</Button>   
           </Col>
         </Row>
       </Form.Item>

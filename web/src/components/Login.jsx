@@ -1,7 +1,8 @@
 import { Form, Input, Checkbox, Button, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import {useNavigate}  from 'react-router-dom';
 import logo from "../public/logo.png";
-import React, { useState,useContext} from "react";
+import React, { useState,useContext,useEffect} from "react";
 import axios from "axios";
 import {Backend} from "../App";
 //import { useHistory } from "react-router-dom";
@@ -12,14 +13,23 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [disableAll, setDisableAll] = useState(false);
     const backendURL = useContext(Backend);
-    console.log(backendURL);
+    const nagivate =useNavigate();
     //const history=useHistory();
+    useEffect(()=>{
+       let  token=sessionStorage.getItem("repliteweb");
+       if(token == undefined ||token == ""){
+        return
+       }
+       // init the token for system
+       // login 
+       nagivate('/main');
+    },[])
     const onFinish = async (value) => {
         const { username, password } = value; // Obtain the value of the form input
         try {
             setLoading(true);
             setDisableAll(true); // 禁用其他链接和按钮
-            const response = await axios.get( backendURL+ "user/login?username=" + username + "&password=" + password)
+            const response = await axios.get( backendURL+ "/user/login?username=" + username + "&password=" + password)
             const {state, message: resMessage} = response.data;
             //先检查所有错误并处理
             if (response.status != "200" || !state) {
@@ -32,18 +42,16 @@ const Login = () => {
                 return
             }
             // 登录成功，保存JWT Token到浏览器
-            const jwt = response.headers.get('Authorization');
-            console.log("Authorization", jwt);
+            const jwt = String(response.headers.get('Authorization')).replace("Bearer ","");
             //localStorage.setItem("jwtToken", jwt);
             /*使用浏览器的会话存储（session Storage）来存储 JWT Token。
             与 Local Storage 不同，会话存储只在当前会话期间有效，
             当浏览器标签页或窗口关闭时会被清除。同样存在安全风险和 XSS 攻击的风险。*/
-            sessionStorage.setItem('jwtToken', jwt);
-            message.success(resMessage);
+            sessionStorage.setItem('repliteweb', jwt);
+            message.success(resMessage).then(()=>nagivate("/main"));
             // TODO: 跳转到首页或其他页面
             //history.push("/main");
-            window.location.href = "/main";
-            console.log(jwt);
+            // window.location.href = "/main";
         } finally {
             //TODO:自旋
             setLoading(false);
@@ -118,11 +126,7 @@ const Login = () => {
                         </Form.Item>
 
                         <Form.Item>
-<<<<<<< Updated upstream
                             <Button type="primary" htmlType="submit" className="login-form-button"loading={loading} disabled={loading || disableAll}>
-=======
-                            <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} disabled={loading}>
->>>>>>> Stashed changes
                                 登录
                             </Button>
                             Or <a href="/register"disabled={disableAll}>去注册!</a>

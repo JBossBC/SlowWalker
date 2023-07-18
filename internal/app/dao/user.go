@@ -49,7 +49,7 @@ func CreateUser(user *User) error {
 		return err
 	}
 	//delete the cache invalid key
-	Create(user.Username, user, DEFAULT_USER_EXPIRE_TIME)
+	Create(getUserKey(user.Username), user, DEFAULT_USER_EXPIRE_TIME)
 	return err
 }
 func UpdateUser(user *User) error {
@@ -67,7 +67,7 @@ func UpdateUser(user *User) error {
 		log.Printf("解析mongoDB修改后的document异常:%s", err.Error())
 		return err
 	}
-	err = Create(user.Username, updateUser, DEFAULT_USER_EXPIRE_TIME)
+	err = Create(getUserKey(user.Username), updateUser, DEFAULT_USER_EXPIRE_TIME)
 	if err != nil {
 		log.Printf("创建redis缓存(%v)失败:%s", updateUser, err.Error())
 	}
