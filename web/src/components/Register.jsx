@@ -56,28 +56,33 @@ const Register=()=>{
           </Select>
         </Form.Item>
       );
-
-
-
       const onFinish = async(values) => {
+        console.log(values)
         try {
-          const response = axios.post('http://localhost:8080/user/register', values);   //response就是一个promise对象，里面的data就是后端返回的值
+          const response = await axios.post('http://localhost:8080/user/register', values);   //response就是一个promise对象，里面的data就是后端返回的值
           const data = response.data;
-            if (data.success) {
+            if (data.state) {
                 setRegisterResult("注册成功！"); // 注册成功
+                console.log("注册成功");
             } else {
                 setRegisterResult(data.message); // 注册失败，显示后端返回的错误信息
+                console.log(data.message);
             }
             } catch (error) {
                 setRegisterResult("注册失败，请稍后再试！"); 
+                console.log("注册失败，请稍后再试！");
             }
       };
 
       const sendVerificationCode = async () => {
         try {
-          const response = await axios.post('http://localhost:8080/phone/send');
+          const response = await axios.get('http://localhost:8080/phone/send', {
+          params: {
+              phone: form.getFieldValue('phone')  //获取phone这个字段的值，携带参数的axios的get请求就等于http://localhost:8080/phone/send?phone=1234567890
+          }
+          });
           const data = response.data; 
-          if (data.success) {
+          if (data.state) {
             console.log("验证码发送成功");
           } else {
             console.log("验证码发送失败");
@@ -196,13 +201,9 @@ const Register=()=>{
               <Input />
             </Form.Item>
           </Col>
-
-
           <Col span={12}>
           <Button onClick={sendVerificationCode}>获取验证码</Button>   
           </Col>
-
-
         </Row>
       </Form.Item>
 
