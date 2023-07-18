@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext,useEffect } from 'react';
 import { DesktopOutlined,ExclamationCircleOutlined} from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
-const { Header, Content, Sider } = Layout;
+import { Breadcrumb, Layout, Menu, theme,message } from 'antd';
 import {Backend} from "../App"
+import axios from 'axios'
 // const items1 = ['1', '2', '3'].map((key) => ({
 //   key,
 //   label: `nav ${key}`,
@@ -23,7 +23,7 @@ import {Backend} from "../App"
 //   };
 // });
 
-
+const { Header, Content, Sider } = Layout;
 const itemsForIcon = {"function":DesktopOutlined,"system":ExclamationCircleOutlined}
 
 

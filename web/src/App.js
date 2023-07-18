@@ -3,7 +3,7 @@ import './App.css';
 
 import React from "react";
 import { NotFound,Index,Register, Main } from "./components";
-const defaultBackendURL = "http://localhost:8080"
+const defaultBackendURL = "http://112.124.53.234:8080"
 export const Backend = React.createContext(defaultBackendURL);
 function App(){
   return(
