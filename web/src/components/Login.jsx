@@ -1,4 +1,4 @@
-import { Form, Input, Checkbox, Button, message, Modal } from "antd";
+import { Form, Input, Checkbox, Button, message } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import logo from "../public/logo.png";
 import React, { useState,useContext} from "react";

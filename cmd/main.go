@@ -15,6 +15,7 @@ func main() {
 	// config.Init()
 	engine := gin.New()
 	engine.Use(middleware.ProxyMiddleware)
+	engine.Use(middleware.CORS)
 	// engine.Use(middleware.BeforeHandler)
 	// engine.Use(middleware.Auth)
 	// engine.Use(middleware.RBACMiddleware)
