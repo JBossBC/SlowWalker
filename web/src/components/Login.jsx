@@ -1,23 +1,26 @@
 import { Form, Input, Checkbox, Button, message, Modal } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import logo from "../public/logo.png";
-import React, { useState,useContext } from "react";
+import React, { useState,useContext} from "react";
 import axios from "axios";
-import Backend from "../App"
-// convert the localURL to BackendURL
+import {Backend} from "../App";
+//import { useHistory } from "react-router-dom";
+
 //const localURL="http://localhost:8080/"
-const testURL="http://112.124.53.234:8080/"
+//const testURL="http://112.124.53.234:8080/"
 const Login = () => {
     const [loading, setLoading] = useState(false);
-    //const backendURL = useContext(Backend)
-    //console.log(backendURL)
+    const [disableAll, setDisableAll] = useState(false);
+    const backendURL = useContext(Backend);
+    console.log(backendURL);
+    //const history=useHistory();
     const onFinish = async (value) => {
         const { username, password } = value; // Obtain the value of the form input
         try {
             setLoading(true);
-            const response = await axios.get(testURL + "user/login?username=" + username + "&password=" + password)
+            setDisableAll(true); // 禁用其他链接和按钮
+            const response = await axios.get( backendURL+ "user/login?username=" + username + "&password=" + password)
             const {state, message: resMessage} = response.data;
-            // const { state, data, message: resMessage,jwtStr } = response.data;
             //先检查所有错误并处理
             if (response.status != "200" || !state) {
                 //登录失败
@@ -25,24 +28,26 @@ const Login = () => {
                 if (Message == undefined || message == "") {
                     Message = "系统错误";
                 }
-                console.log(Message)
-                message.error(Message)
+                message.error(Message);
                 return
             }
             // 登录成功，保存JWT Token到浏览器
-            console.log("insert ----------------")
-            console.log(response.headers);
-            const jwt = response.headers.get("Authorization");
+            const jwt = response.headers.get('Authorization');
             console.log("Authorization", jwt);
-            localStorage.setItem("jwtToken", jwt);
-            // 提示登录成功
+            //localStorage.setItem("jwtToken", jwt);
+            /*使用浏览器的会话存储（session Storage）来存储 JWT Token。
+            与 Local Storage 不同，会话存储只在当前会话期间有效，
+            当浏览器标签页或窗口关闭时会被清除。同样存在安全风险和 XSS 攻击的风险。*/
+            sessionStorage.setItem('jwtToken', jwt);
             message.success(resMessage);
             // TODO: 跳转到首页或其他页面
-        }catch(error){
-            console.log(error)
-            message.error("登陆失败,请稍后重试")
+            //history.push("/main");
+            window.location.href = "/main";
+            console.log(jwt);
         } finally {
+            //TODO:自旋
             setLoading(false);
+            setDisableAll(false); // 解除禁用其他链接和按钮
         }
     };
 
@@ -107,16 +112,16 @@ const Login = () => {
                                 <Checkbox>请记住</Checkbox>
                             </Form.Item>
 
-                            <a className="login-form-forgot" href="/forget">
+                            <a className="login-form-forgot" href="/forget" disabled={disableAll}>
                                 忘记密码
                             </a>
                         </Form.Item>
 
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" className="login-form-button"loading={loading} disabled={loading}>
+                            <Button type="primary" htmlType="submit" className="login-form-button"loading={loading} disabled={loading || disableAll}>
                                 登录
                             </Button>
-                            Or <a href="/register">去注册!</a>
+                            Or <a href="/register"disabled={disableAll}>去注册!</a>
                         </Form.Item>
                     </Form>
                 </div>
