@@ -118,7 +118,11 @@ const Login = () => {
                         </Form.Item>
 
                         <Form.Item>
+<<<<<<< Updated upstream
                             <Button type="primary" htmlType="submit" className="login-form-button"loading={loading} disabled={loading || disableAll}>
+=======
+                            <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} disabled={loading}>
+>>>>>>> Stashed changes
                                 登录
                             </Button>
                             Or <a href="/register"disabled={disableAll}>去注册!</a>

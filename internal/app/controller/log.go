@@ -43,6 +43,8 @@ func QueryAuditLogs(ctx *gin.Context) {
 		page = DEFAULT_PAGE
 	}
 	pageNumberStr := ctx.Query("pageNumber")
+	//20
+	//TODO add the max pageNumber limit
 	pageNumber, err := strconv.ParseUint(pageNumberStr, 10, 64)
 	if pageNumberStr == "" || err != nil {
 		pageNumber = DEFAULT_PAGE_NUMBER

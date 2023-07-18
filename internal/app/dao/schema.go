@@ -17,10 +17,12 @@ var default_admin_schema = []any{
 	Rule{
 		Name:      "admin",
 		Authority: "fileSystem",
+		Type:      "system",
 	},
 	Rule{
 		Name:      "admin",
 		Authority: "log",
+		Type:      "system",
 	},
 	//TODO write the new python resource to the program
 	// Rule{
@@ -33,20 +35,24 @@ var default_member_schma = []any{
 	Rule{
 		Name:      "member",
 		Authority: "ipQuery",
+		Type:      "function",
 	},
 	Rule{
 		Name:      "member",
 		Authority: "levelGraph",
+		Type:      "function",
 	},
 	Rule{
 		Name:      "member",
 		Authority: "fileCut",
+		Type:      "function",
 	},
 }
 var default_audit_schema = []any{
 	Rule{
 		Name:      "audit",
 		Authority: "log",
+		Type:      "system",
 	},
 }
 
