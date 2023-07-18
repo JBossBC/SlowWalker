@@ -6,41 +6,41 @@ import axios from "axios";
 import Backend from "../App"
 // convert the localURL to BackendURL
 //const localURL="http://localhost:8080/"
-//const testURL="http://112.124.53.234:8080/"
+const testURL="http://112.124.53.234:8080/"
 const Login = () => {
     const [loading, setLoading] = useState(false);
-    const backendURL = useContext(Backend)
+    //const backendURL = useContext(Backend)
+    //console.log(backendURL)
     const onFinish = async (value) => {
         const { username, password } = value; // Obtain the value of the form input
-        //username 要求
         try {
             setLoading(true);
-            //TODO: url=localhost+
-            const response = await axios.get(backendURL+"user/login?username="+username+"&password="+password)
-            //TODO: url=localhost+ jwtStr position
-            const { state, data, message: resMessage,jwtStr } = response.data;
-
-            if (state) {
-                // 登录成功，保存JWT Token到浏览器
-                console.log("insert ----------------")
-                console.log(response.headers);
-                const jwt = response.headers.get("Authorization");
-                console.log("Authorization",jwt);
-                localStorage.setItem("jwtToken", jwtStr);
-
-                // 提示登录成功
-                message.success(resMessage);
-                // message.success("")
-                // alert("登录成功")
-                // TODO: 跳转到首页或其他页面
-            } else {
-                // 登录失败
-                message.error(resMessage);
+            const response = await axios.get(testURL + "user/login?username=" + username + "&password=" + password)
+            const {state, message: resMessage} = response.data;
+            // const { state, data, message: resMessage,jwtStr } = response.data;
+            //先检查所有错误并处理
+            if (response.status != "200" || !state) {
+                //登录失败
+                let Message = resMessage;
+                if (Message == undefined || message == "") {
+                    Message = "系统错误";
+                }
+                console.log(Message)
+                message.error(Message)
+                return
             }
-        } catch (error) {
-            // 处理异常
-            console.log(error);
-            message.error("登录失败，请稍后重试");
+            // 登录成功，保存JWT Token到浏览器
+            console.log("insert ----------------")
+            console.log(response.headers);
+            const jwt = response.headers.get("Authorization");
+            console.log("Authorization", jwt);
+            localStorage.setItem("jwtToken", jwt);
+            // 提示登录成功
+            message.success(resMessage);
+            // TODO: 跳转到首页或其他页面
+        }catch(error){
+            console.log(error)
+            message.error("登陆失败,请稍后重试")
         } finally {
             setLoading(false);
         }
