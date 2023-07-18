@@ -275,6 +275,10 @@ func FilterLogs(l *Log, page int, pageNumber int) (*[]*Log, error) {
 	// return *result, nil
 }
 
+// func queryMaxPage(pageNumber int) int {
+
+// }
+
 func getLogsKey(page int, pageNumber int) string {
 	return utils.MergeStr(DEFAULT_REDIS_LOGS_PREFIX, strconv.FormatInt(int64(page), 10), "-", strconv.FormatInt(int64(pageNumber), 10))
 }

@@ -28,6 +28,8 @@ type BaseResponse struct {
 	Message string `json:"message"`
 }
 
+//{}
+
 func (response BaseResponse) SerializeJSON() []byte {
 	
 	result, err := json.Marshal(response) 

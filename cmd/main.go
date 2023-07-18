@@ -15,12 +15,14 @@ func main() {
 	// config.Init()
 	engine := gin.New()
 	engine.Use(middleware.ProxyMiddleware)
+	engine.Use(middleware.CORS)
 	// engine.Use(middleware.BeforeHandler)
 	// engine.Use(middleware.Auth)
 	// engine.Use(middleware.RBACMiddleware)
 	userRoute(engine)
 	mobileRoute(engine)
 	auditRoute(engine)
+	ruleRoute(engine)
 	engine.Run(fmt.Sprintf(":%s", config.ServerConf.Port))
 }
 func mobileRoute(engine *gin.Engine) {
@@ -41,4 +43,10 @@ func auditRoute(engine *gin.Engine) {
 	group.Use(middleware.RBACMiddleware)
 	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
 	group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
+}
+
+func ruleRoute(engine *gin.Engine) {
+	group := engine.Group("/rule")
+	group.Use(middleware.Auth)
+	group.Handle(http.MethodGet, "/query", controller.QueryRuleAuthorization)
 }

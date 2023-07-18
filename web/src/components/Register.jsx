@@ -1,4 +1,8 @@
-import React from "react"
+import React, { useEffect } from "react"
+import { useState,useContext } from 'react';
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import {Backend} from "../App"
 import {
     Button,
     Checkbox,
@@ -7,6 +11,7 @@ import {
     Input,
     Row,
     Select,
+    message
   } from 'antd';
   const formItemLayout = {
     labelCol: {
@@ -41,7 +46,13 @@ import {
   const { Option } = Select;
 const Register=()=>{
     const [form] = Form.useForm();
-    // const [autoCompleteResult, setAutoCompleteResult] = useState([]);
+    const backendURL = useContext(Backend);
+    const navigate = useNavigate();
+    //allow to send code
+    const [sendCode,setSendCode]=useState(false);
+    const [timer,setTimer]=useState(60);
+    //const [autoCompleteResult, setAutoCompleteResult] = useState([]);
+
     const prefixSelector = (
         <Form.Item name="prefix" noStyle>
           <Select
@@ -53,20 +64,83 @@ const Register=()=>{
           </Select>
         </Form.Item>
       );
-      const onFinish = (values) => {
-        // console.log('Received values of form: ', values);
-        axios
+      const onFinish = async(values) => {
+        try {
+          let form=new FormData()
+          form.append("username",values.username);
+          form.append("password",values.password);
+          form.append("phone",values.phone);
+          form.append("code",values.captcha);
+          const response = await axios.post(backendURL+'/user/register', form,{
+            headers:{
+              'Content-Type':'multipart/form-data'
+            }
+          });   //response就是一个promise对象，里面的data就是后端返回的值
+          const data = response.data;
+            if (response.status!='200' || data.state!=true){
+             let msg = data.message;
+             if (msg == undefined ||msg == ""){
+              msg = "系统正在开小差";
+             }
+             message.error(msg);
+             return
+          }
+          message.success("注册成功").then(()=>navigate('/login'));
+            } catch (error) {
+              console.log(error);
+                message.error("系统出错");  
+            }
       };
+      useEffect(()=>{
+         if(sendCode){
+          setTimer(60);
+          const task = setInterval(() => {
+            if (timer>0){
+            setTimer((prevCount) => prevCount - 1);
+            }
+          }, 1000);
+          setTimeout(()=>{clearInterval(task);setSendCode(false)},60000);
+         }
+      },[sendCode])
+      const sendVerificationCode = async (event) => {
+        if (sendCode){
+          return
+        }
+        try {
+          const response = await axios.get(backendURL+'/phone/send', {
+          params: {
+              phoneNumber: form.getFieldValue('phone')  //获取phone这个字段的值，携带参数的axios的get请求就等于http://localhost:8080/phone/send?phone=1234567890
+          }
+          });
+          const data = response.data;
+          if (response.status!='200' || data.state!=true){
+             let msg = data.message;
+             if (msg == undefined ||msg == ""){
+              msg = "系统正在开小差";
+             }
+             message.error(msg);
+             return
+          }
+          setSendCode(true);
+        }catch(e){
+               console.log(e)
+               message.error("系统出错");
+          }
+        
+      };
+
+
     return(
 
         <div style={{height:"100%",width:"100%",display:"flex",justifyContent:"center",alignItems:"center"}}>
             <div style={{maxWidth:"600px",height:"80%",textAlign:"center"}}>
             {/* <div style={{margin:"12px",marginBottom:"32px",maxWidth:"600px",fontFamily:" Montserrat, sans-serif",fontSize:"25px"}}>注册</div> */}
             <Form
+
       {...formItemLayout}
       form={form}
       name="register"
-      onFinish={onFinish}
+      onFinish={onFinish} //这里才是核心关键所在
       initialValues={{
         prefix: '86',
       }}
@@ -165,7 +239,7 @@ const Register=()=>{
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Button>获取验证码</Button>
+          <Button style={{width:"100px"}} disabled={sendCode} onClick={sendVerificationCode}>{sendCode?timer+"秒":"获取验证码"}</Button>   
           </Col>
         </Row>
       </Form.Item>
