@@ -1,4 +1,6 @@
 import React from "react"
+import { useState } from 'react';
+import axios from 'axios';
 import {
     Button,
     Checkbox,
@@ -41,7 +43,8 @@ import {
   const { Option } = Select;
 const Register=()=>{
     const [form] = Form.useForm();
-    // const [autoCompleteResult, setAutoCompleteResult] = useState([]);
+    //const [autoCompleteResult, setAutoCompleteResult] = useState([]);
+    const [registerResult, setRegisterResult] = useState(null);
     const prefixSelector = (
         <Form.Item name="prefix" noStyle>
           <Select
@@ -53,25 +56,54 @@ const Register=()=>{
           </Select>
         </Form.Item>
       );
-      const onFinish = (values) => {
-        // console.log('Received values of form: ', values);
-        // axios
-
-        // response
-        //response.result=="true"
-        // reponse.message
-        //alert("登录成功")
+      const onFinish = async(values) => {
+        console.log(values)
+        try {
+          const response = await axios.post('http://localhost:8080/user/register', values);   //response就是一个promise对象，里面的data就是后端返回的值
+          const data = response.data;
+            if (data.state) {
+                setRegisterResult("注册成功！"); // 注册成功
+                console.log("注册成功");
+            } else {
+                setRegisterResult(data.message); // 注册失败，显示后端返回的错误信息
+                console.log(data.message);
+            }
+            } catch (error) {
+                setRegisterResult("注册失败，请稍后再试！"); 
+                console.log("注册失败，请稍后再试！");
+            }
       };
+
+      const sendVerificationCode = async () => {
+        try {
+          const response = await axios.get('http://localhost:8080/phone/send', {
+          params: {
+              phone: form.getFieldValue('phone')  //获取phone这个字段的值，携带参数的axios的get请求就等于http://localhost:8080/phone/send?phone=1234567890
+          }
+          });
+          const data = response.data; 
+          if (data.state) {
+            console.log("验证码发送成功");
+          } else {
+            console.log("验证码发送失败");
+          }
+          } catch (error) {
+            console.log(error);
+          }
+      };
+
+
     return(
 
         <div style={{height:"100%",width:"100%",display:"flex",justifyContent:"center",alignItems:"center"}}>
             <div style={{maxWidth:"600px",height:"80%",textAlign:"center"}}>
             {/* <div style={{margin:"12px",marginBottom:"32px",maxWidth:"600px",fontFamily:" Montserrat, sans-serif",fontSize:"25px"}}>注册</div> */}
             <Form
+
       {...formItemLayout}
       form={form}
       name="register"
-      onFinish={onFinish}
+      onFinish={onFinish} //这里才是核心关键所在
       initialValues={{
         prefix: '86',
       }}
@@ -170,7 +202,7 @@ const Register=()=>{
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Button>获取验证码</Button>
+          <Button onClick={sendVerificationCode}>获取验证码</Button>   
           </Col>
         </Row>
       </Form.Item>
