@@ -12,8 +12,8 @@ function App(){
       <Routes>
       <Route path="/" Component={Index}/>
       <Route path="/login" Component={Index}/>
-      <Route path="/register" Component={Register}></Route>
-      <Route path="/main" Component={Main}></Route>
+      <Route path="/register" Component={Register}/>
+      <Route path="/main" Component={Main}/>
        <Route path="*" Component={NotFound}/>
        </Routes>
        </Backend.Provider>

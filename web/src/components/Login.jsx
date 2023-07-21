@@ -50,8 +50,6 @@ const Login = () => {
             sessionStorage.setItem('repliteweb', jwt);
             message.success(resMessage).then(()=>nagivate("/main"));
             // TODO: 跳转到首页或其他页面
-            //history.push("/main");
-            // window.location.href = "/main";
         } finally {
             //TODO:自旋
             setLoading(false);
