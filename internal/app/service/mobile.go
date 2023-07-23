@@ -7,21 +7,36 @@ import (
 	"replite_web/internal/app/utils"
 	"strings"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const DEFAULT_CODE_VALID_TIME = 1 * time.Minute
 
 const DEFAULT_REDIS_PHONE_CODE_PREFIX = "phoneCode-"
 
-func SendMessage(phone string) (response utils.Response) {
+func SendMessage(phone string, ip string) (response utils.Response) {
+	redisKey := getPhoneCodeKey(phone)
+	// add the repeat send message failed
+	_, err := dao.GetStr(redisKey)
+	if err != nil {
+		if err != redis.Nil {
+			log.Printf("访问redis缓存失败(%s):%s", redisKey, err.Error())
+			return utils.NewFailedResponse("系统错误")
+		}
+	} else {
+		if !Incre_Warning_IP(ip) {
+			return utils.NewFailedResponse("系统错误")
+		}
+	}
 	code := utils.NewRandomCode()
-	err := infrastructure.Send(phone, code)
+	err = infrastructure.Send(phone, code)
 	if err != nil {
 		response = utils.NewFailedResponse("发送验证码失败")
 		return
 	}
 	//发送成功
-	err = dao.Create(getPhoneCodeKey(phone), utils.IgnoreQuotationMarks(code), DEFAULT_CODE_VALID_TIME)
+	err = dao.Create(redisKey, utils.IgnoreQuotationMarks(code), DEFAULT_CODE_VALID_TIME)
 	if err != nil {
 		response = utils.NewFailedResponse("发送验证码失败")
 		return
