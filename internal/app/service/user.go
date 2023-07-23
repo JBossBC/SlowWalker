@@ -5,6 +5,7 @@ import (
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
+	"time"
 )
 
 type user struct {
@@ -35,7 +36,8 @@ func LoginAccount(user *dao.User, remoteIP string) (response utils.Response, jwt
 		return
 	}
 	cliams := utils.JwtClaims{Username: single.Username, Role: single.Authority}
-	jwtStr, err = utils.CreateJWT(config.ServerConf.Secret, cliams)
+	expirationTime := time.Now().Add(time.Hour * 2) // 设置过期时间为当前时间加上2小时
+	jwtStr, err = utils.CreateJWT(config.ServerConf.Secret, cliams, expirationTime)
 	if err != nil {
 		log.Printf("创建JWT(%v)异常:%s", cliams, err.Error())
 		response = utils.NewFailedResponse("系统错误")
