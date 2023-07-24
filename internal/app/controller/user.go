@@ -20,8 +20,9 @@ func Login(ctx *gin.Context) {
 	user := &dao.User{
 		Username: username,
 		Password: password,
+		IP:       ctx.RemoteIP(),
 	}
-	result, jwtStr := service.LoginAccount(user, ctx.RemoteIP())
+	result, jwtStr := service.LoginAccount(user)
 	resultByte := result.SerializeJSON()
 	// if err != nil {
 	// 	_, err := ctx.Writer.Write(utils.HELPLESS_ERROR_RESPONSE)
@@ -50,8 +51,9 @@ func Register(ctx *gin.Context) {
 		PhoneNumber: phone,
 		Code:        code,
 		Authority:   DEFUALT_AUTHORITY_LEVEL,
+		IP:          ctx.RemoteIP(),
 	}
-	_, err := ctx.Writer.Write(service.CreateAccount(user, ctx.RemoteIP()).SerializeJSON())
+	_, err := ctx.Writer.Write(service.CreateAccount(user).SerializeJSON())
 	if err != nil {
 		log.Printf("写入response信息失败:%s", err.Error())
 	}

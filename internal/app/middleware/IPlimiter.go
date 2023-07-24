@@ -13,5 +13,4 @@ func IPLimiter(ctx *gin.Context) {
 		ctx.AbortWithStatus(utils.ForbiddenAccess)
 		return
 	}
-
 }

@@ -44,17 +44,17 @@ const columns = [
     dataIndex: 'date',
     key: 'date',
   },
-  {
-    title: '操作',
-    key: 'action',
-    render: (_, record) => (
-      <Space size="middle">
-        {/* <a>Invite {record.name}</a> */}
-        {/* <a>Delete</a> */}
-        <Button>删除</Button>
-      </Space>
-    ),
-  },
+  // {
+  //   title: '操作',
+  //   key: 'action',
+  //   render: (_, record) => (
+  //     <Space size="middle">
+  //       {/* <a>Invite {record.name}</a> */}
+  //       {/* <a>Delete</a> */}
+  //       <Button>删除</Button>
+  //     </Space>
+  //   ),
+  // },
 ];
 const data = [
   {

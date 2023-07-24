@@ -26,8 +26,6 @@ var smsClient *dysmsapi20170525.Client
 // 	return smsClient
 // }
 
-//TODO the SMS Service should be support
-
 func CreateClient(accessKeyId *string, accessKeySecret *string) (_result *dysmsapi20170525.Client, _err error) {
 	config := &openapi.Config{
 		// 必填，您的 AccessKey ID
