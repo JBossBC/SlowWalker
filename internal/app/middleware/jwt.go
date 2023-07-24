@@ -46,7 +46,7 @@ func Auth(ctx *gin.Context) {
 	}
 
 	if claims.ExpiresAt < time.Now().Unix() {
-		ctx.AbortWithStatusJSON(utils.AuthFailedState, gin.H{"error": "token已过期"})
+		ctx.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
 	// add the jwt claims to context

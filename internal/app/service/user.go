@@ -22,7 +22,7 @@ type user struct {
 //		})
 //		return userService
 //	}
-func LoginAccount(user *dao.User, remoteIP string) (response utils.Response, jwtStr string) {
+func LoginAccount(user *dao.User) (response utils.Response, jwtStr string) {
 	single, err := dao.QueryUser(&dao.User{
 		Username: user.Username,
 	})
@@ -43,13 +43,13 @@ func LoginAccount(user *dao.User, remoteIP string) (response utils.Response, jwt
 		response = utils.NewFailedResponse("系统错误")
 		return
 	}
-	dao.Printf(single.Authority, remoteIP, "%s 登录成功,操作IP地址为:%s", user.Username, remoteIP)
+	dao.Printf(single.Authority, user.IP, "%s 登录成功,操作IP地址为:%s", user.Username, user.IP)
 	return utils.NewSuccessResponse("登录成功"), jwtStr
 
 }
-func CreateAccount(user *dao.User, remoteIP string) (response utils.Response) {
+func CreateAccount(user *dao.User) (response utils.Response) {
 	// whether the username  exists
-	if !IsValidRegisterInternal(remoteIP) {
+	if !IsValidRegisterInternal(user.IP) {
 		response = utils.NewFailedResponse("注册次数太多,请等一会再试")
 		return
 	}
@@ -79,19 +79,19 @@ func CreateAccount(user *dao.User, remoteIP string) (response utils.Response) {
 		return
 	}
 	//TODO the code cant match the real result will write redis to defend error
-	RegisterSuccessHook(remoteIP)
+	RegisterSuccessHook(user.IP)
 	//delete code redis cache
 	DeleteCode(user.PhoneNumber)
 	// insert the remote IP to defind the numerous invalid operations
 	//TODO the user.Authority is operator not  user which be created
-	dao.Printf(remoteIP, remoteIP, "成功创建用户%s,操作IP地址:%s", user.Username, remoteIP)
+	dao.Printf(user.IP, user.IP, "成功创建用户%s,操作IP地址:%s", user.Username, user.IP)
 	return utils.NewSuccessResponse(nil)
 }
 
 /*
 对于分布式条件下应该加分布式锁
 */
-func UpdateInfo(user *dao.User, remoteIP string) (response utils.Response) {
+func UpdateInfo(user *dao.User) (response utils.Response) {
 	single, err := dao.QueryUser(&dao.User{
 		Username: user.Username,
 	})
@@ -109,7 +109,7 @@ func UpdateInfo(user *dao.User, remoteIP string) (response utils.Response) {
 		response = utils.NewFailedResponse("创建失败")
 		return
 	}
-	dao.Printf(single.Authority, remoteIP, "成功修改%v信息为%v,操作IP地址为:%s", single, user, remoteIP)
+	dao.Printf(single.Authority, user.IP, "成功修改%v信息为%v,操作IP地址为:%s", single, user, user.)
 	return utils.NewSuccessResponse("修改成功")
 }
 
