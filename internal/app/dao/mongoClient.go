@@ -33,7 +33,6 @@ func init() {
 	if mongoConfig.Init == "false" {
 		InitMogoSchema()
 	}
-
 }
 
 func newMongoConn(dbName string) *mongo.Database {
