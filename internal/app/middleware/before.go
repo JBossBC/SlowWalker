@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,7 +29,4 @@ func BeforeHandler(ctx *gin.Context) {
 			}
 		}
 	}
-
-	fmt.Println("中间件1没有出差错")
-
 }

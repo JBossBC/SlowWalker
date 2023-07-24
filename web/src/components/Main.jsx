@@ -3,8 +3,6 @@ import { DesktopOutlined,ExclamationCircleOutlined} from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme,message } from 'antd';
 import {Backend} from "../App"
 import axios from 'axios'
-
-
 // const items1 = ['1', '2', '3'].map((key) => ({
 //   key,
 //   label: `nav ${key}`,
@@ -54,9 +52,6 @@ const Main = () => {
         }
       })
     }
-
-    initMain(); //1
-
   },[])
   return (
     <Layout>
@@ -89,7 +84,6 @@ const Main = () => {
             padding: '0 24px 24px',
           }}
         >
-          
           <Breadcrumb
             style={{
               margin: '16px 0',

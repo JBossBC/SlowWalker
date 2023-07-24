@@ -23,13 +23,8 @@ func main() {
 	mobileRoute(engine)
 	auditRoute(engine)
 	ruleRoute(engine)
-
-	gin.DisableBindValidation()
-
 	engine.Run(fmt.Sprintf(":%s", config.ServerConf.Port))
-
 }
-
 func mobileRoute(engine *gin.Engine) {
 	group := engine.Group("/phone")
 	group.Handle(http.MethodGet, "/send", controller.SendMessage)
@@ -45,7 +40,7 @@ func auditRoute(engine *gin.Engine) {
 	group := engine.Group("/log")
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
-	group.Use(middleware.RBACMiddleware) //使用了三个中间件
+	group.Use(middleware.RBACMiddleware)
 	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
 	group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
 }
