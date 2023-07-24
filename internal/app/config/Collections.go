@@ -36,6 +36,7 @@ var DEFAULT_COLLECTIONS_CONFIG = fmt.Sprint(".", string(filepath.Separator), "co
 
 func init() {
 	file, err := os.Open(DEFAULT_COLLECTIONS_CONFIG)
+	//file, err := os.Open("C:\\Users\\hyh666\\Desktop\\replitWeb1\\configs\\db.xml")
 	if err != nil {
 		panic(fmt.Sprintf("cant find the collections config %s error: %s", DEFAULT_COLLECTIONS_CONFIG, err.Error()))
 	}
@@ -53,6 +54,7 @@ func init() {
 	}
 	//TODO3 how to convert the map[string]string params to map[string]any
 	CollectionConfig = newStaticMap(result)
+	fmt.Println(111111)
 }
 
 type staticMap struct {

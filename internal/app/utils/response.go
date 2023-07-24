@@ -31,8 +31,8 @@ type BaseResponse struct {
 //{}
 
 func (response BaseResponse) SerializeJSON() []byte {
-	
-	result, err := json.Marshal(response) 
+
+	result, err := json.Marshal(response)
 	if err != nil {
 		return HELPLESS_ERROR_RESPONSE
 	}
@@ -43,6 +43,14 @@ func NewSuccessResponse(data any) Response {
 		State:   true,
 		Data:    data,
 		Message: "成功",
+	}
+}
+
+func NewSuccessLogResponse(data any, count string) Response {
+	return BaseResponse{
+		State:   true,
+		Data:    data,
+		Message: count,
 	}
 }
 

@@ -132,7 +132,7 @@ func newLog(level LogLevel, operator string, ip string, message string) Log {
 func insertLog(l *Log) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	_, err := getLogCollection().InsertOne(ctx, l)
+	_, err := GetLogCollection().InsertOne(ctx, l)
 	if err != nil {
 		bLog, err := json.Marshal(l)
 		if err != nil {
@@ -147,7 +147,7 @@ func insertLog(l *Log) {
 	}
 }
 
-func getLogCollection() *mongo.Collection {
+func GetLogCollection() *mongo.Collection { //返回一个mongoDB数据库链接
 	return getMongoConn().Collection(config.CollectionConfig.Get(DEFAULT_LOG_DOCUMENT).(string))
 }
 
@@ -198,36 +198,57 @@ func getLogCollection() *mongo.Collection {
 // }
 
 // cant need to redis cache
-func FilterLogs(l *Log, page int, pageNumber int) (*[]*Log, error) {
-	var logs []*Log = make([]*Log, 0, pageNumber)
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+func FilterLogs(l *Log, page int, pageNumber int) (*[]*Log, int, error) {
+	var logs []*Log = make([]*Log, 0, pageNumber) //定义一个日志结构体类型的切片，长度为0，容量为每一页的最大显示条数
+	//最后这个函数返回的是这个切片的指针，那么就代表着，从数据库中查询到日志，每pageNumber条日志作为
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // 设置超时时间
 	defer cancel()
-	filter := bson.M{}
+
+	filter := bson.M{} //使用 bson.M{} 初始化的变量 filter   // 初始化一个空的 filter，用于存储查询条件
 	if l.IP != "" {
-		filter["ip"] = bson.M{
+		filter["ip"] = bson.M{ // 如果 IP 不为空，则添加 IP 条件
 			"$regex":   fmt.Sprintf(".*%s.*", l.IP),
 			"$options": "i",
 		}
 	}
 	if l.Operator != "" {
-		filter["operator"] = bson.M{
+		filter["operator"] = bson.M{ // 如果 Operator 不为空，则添加 Operator 条件
 			"$regex":   fmt.Sprintf(".*%s.*", l.Operator),
 			"$options": "i",
 		}
 	}
 	if l.Level != "" {
-		filter["level"] = l.Level
+		filter["level"] = l.Level // 如果 Level 不为空，则添加 Level 条件
 	}
-	result, err := getLogCollection().Find(ctx, filter, options.Find().SetLimit(int64(pageNumber)), options.Find().SetSkip(int64(page)-1))
+	//执行mongodb数据库查询，并且将查询结果存入result中
+	result, err := GetLogCollection().Find(ctx, filter, options.Find().SetLimit(int64(pageNumber)), options.Find().SetSkip(int64(page)-1))
+	//这是一个选项设置方法链，用于设置查询结果的最大返回条数。.SetLimit(int64(pageNumber)) 表示将查询结果限制为 pageNumber 条记录。
+	//这也是一个选项设置方法链，用于设置查询结果的跳过记录数。.SetSkip(int64(page)-1) 表示跳过前面 (page-1) 条记录，从第 page 条记录开始获取。
+	//比如，page=2.表示查询第二页的结果。pageNumber=20，表示该页最大展示20条数据
+
+	//获取这个log结构体对应的主人的全部日志记录
+	var count = 0
+	//fliter2 := bson.M{}
+
+	result2, err := GetLogCollection().Find(ctx, filter)
+	for result2.Next(ctx) {
+		count++
+	}
+
 	if err != nil {
 		log.Printf("query the logs(filter:%v,page: %d,pageNumber: %d) error:%s", l, page, pageNumber, err.Error())
-		return nil, err
+		return nil, 0, err
 	}
 	err = result.All(context.Background(), &logs)
+
+	//result 是 MongoDB 查询的结果对象，它拥有一些方法用于获取查询结果。
+	//.All(context.Background(), &logs) 是一个方法调用，使用 context.Background() 作为上下文对象，将查询结果解码到 logs 变量中。
+
 	if err != nil {
 		log.Println("日志数据处理出错%s", err.Error())
 	}
-	return &logs, err
+	return &logs, count, err
 	// var result = new(Log)
 	// redisKey := getLogKey(l)
 	// err := Get(redisKey, result)

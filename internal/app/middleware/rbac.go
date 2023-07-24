@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
 
@@ -22,12 +23,16 @@ the middleware must open after the jwt verify
 */
 func RBACMiddleware(context *gin.Context) {
 	role, bol := context.Get("role")
+	fmt.Println("role=", role)
 	if !bol {
+		fmt.Println("错误1")
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
 	resource, bol := context.Get("resource")
+	fmt.Println("resource=", resource)
 	if !bol {
+		fmt.Println("错误2")
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
@@ -35,10 +40,15 @@ func RBACMiddleware(context *gin.Context) {
 	// if _, ok := currencyResource[resource.(string)]; ok {
 	// 	return
 	// }
+
 	if !hasAuthority(role.(string), resource.(string)) {
 		context.AbortWithStatus(utils.AuthFailedState)
+		fmt.Println("错误3")
 		return
 	}
+
+	fmt.Println("中间件3没有出差错")
+
 }
 
 // key: the Authentication level  value: what the level want to access
@@ -47,6 +57,7 @@ func hasAuthority(key string, value string) bool {
 	// defer rw.RUnlock()
 	// _, ok := systemSource[key][value]
 	_, ok := dao.GetRule(key, value)
+	fmt.Println(ok, 99999)
 	return ok
 }
 

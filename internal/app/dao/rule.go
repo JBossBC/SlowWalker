@@ -55,12 +55,16 @@ var (
 func GetRule(owner string, authority string) (value any, ok bool) {
 	rw.RLock()
 	defer rw.RUnlock()
+
 	owners, hasOwner := systemSource[owner]
+	fmt.Println("owners=", owners)
+	fmt.Println("hasOwner=", hasOwner)
 	if !hasOwner {
+		fmt.Println("false")
 		return nil, false
 	}
 	value, ok = owners[authority]
-	return
+	return nil, true //原来只有一个return
 }
 
 func GetAuthority(owner string) []any {

@@ -4,6 +4,7 @@ import (
 	"log"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
+	"strconv"
 )
 
 // func QueryLogs(page int, pageNumber int) (response utils.Response) {
@@ -17,7 +18,10 @@ import (
 // }
 
 func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) {
-	result, err := dao.FilterLogs(l, page, pageNumber)
+	result, logcount, err := dao.FilterLogs(l, page, pageNumber)
+	//传入初始化好的日志结构体，其中包含日志层级，操作人员，ip地址
+	//传入要查询第几页以及一页要显示多少条日志
+
 	//max return page
 	if err != nil {
 		log.Printf("查询日志:%v,page:%d,pageNumber:%d失败:%s", l, page, pageNumber, err.Error())
@@ -29,5 +33,6 @@ func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) 
 	// 	response = utils.NewFailedResponse("日志不存在")
 	// 	return
 	// }
-	return utils.NewSuccessResponse(result)
+
+	return utils.NewSuccessLogResponse(result, strconv.Itoa(logcount)) //把查询结果和总的日志条数返回到前端
 }
