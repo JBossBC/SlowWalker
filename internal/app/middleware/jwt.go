@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -38,8 +38,18 @@ func Auth(ctx *gin.Context) {
 		ctx.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
+	//检查JWTToken是否已过期
+	claims, ok := token.Claims.(*utils.JwtClaims)
+	if !ok || !token.Valid {
+		ctx.AbortWithStatus(utils.AuthFailedState)
+		return
+	}
+
+	if claims.ExpiresAt < time.Now().Unix() {
+		ctx.AbortWithStatus(utils.AuthFailedState)
+		return
+	}
 	// add the jwt claims to context
 	ctx.Set("username", auth.Username)
 	ctx.Set("role", auth.Role)
-	fmt.Println(auth.Role)
 }

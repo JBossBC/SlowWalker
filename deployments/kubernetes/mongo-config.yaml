@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+   namespace: replite
+   name: mongo-auth
+stringData:
+   username: root
+   password: repliteweb6028@

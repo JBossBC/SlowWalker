@@ -19,6 +19,8 @@ func main() {
 	// engine.Use(middleware.BeforeHandler)
 	// engine.Use(middleware.Auth)
 	// engine.Use(middleware.RBACMiddleware)
+	// defend the dangerous ip to access system
+	engine.Use(middleware.IPLimiter)
 	userRoute(engine)
 	mobileRoute(engine)
 	auditRoute(engine)
