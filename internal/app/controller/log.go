@@ -25,7 +25,7 @@ const DEFAULT_PAGE = 1
 // 	if pageNumberStr == "" || err != nil {
 // 		pageNumber = DEFAULT_PAGE_NUMBER
 // 	}
-// 	_, err = ctx.Writer.Write(service.QueryLogs(int(page), int(pageNumber)).SerializeJSON())
+// 	_, err = ctx.Writer.Write(service.QueryLogs(int(page), int(pageNumber)).Serialize())
 // 	if err != nil {
 // 		log.Printf("写入response信息失败:%s", err.Error())
 // 	}
@@ -52,14 +52,14 @@ func QueryAuditLogs(ctx *gin.Context) {
 	ip := ctx.Query("ip")
 	var result []byte
 	// if level == "" && operator == "" && ip == "" {
-	// 	result = service.QueryLogs(int(page), int(pageNumber)).SerializeJSON()
+	// 	result = service.QueryLogs(int(page), int(pageNumber)).Serialize()
 	// } else {
 	l := &dao.Log{
 		Level:    dao.LogLevel(level),
 		Operator: operator,
 		IP:       ip,
 	}
-	result = service.FilterLogs(l, int(page), int(pageNumber)).SerializeJSON()
+	result = service.FilterLogs(l, int(page), int(pageNumber)).Serialize()
 	// }
 	_, err = ctx.Writer.Write(result)
 	if err != nil {
