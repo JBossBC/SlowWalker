@@ -18,7 +18,7 @@ func CreateJWT(secret string, claims jwt.Claims, expirationTime time.Time) (stri
 	// if _, ok := claims.(jwt.Claims); !ok {
 	// 	return "", errors.New("the input params cant correspond the jwt.StandardClaims")
 	// }
-	if c, ok := claims.(*JwtClaims); ok {
+	if c, ok := claims.(JwtClaims); ok {
 		c.ExpiresAt = expirationTime.Unix()
 	} else {
 		return "", errors.New("the input params cant correspond to JwtClaims")
