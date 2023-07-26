@@ -2,9 +2,11 @@ package utils
 
 import (
 	"context"
-	"crypto/sha256"
+	"crypto/sha1"
 	"fmt"
+	"log"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 )
 
 func init() {
+	singleConfig = new(config)
 	singleConfig.cancelTime = defaultCancelTime
 	singleConfig.expiresTime = defaultExpiresTime
 	singleConfig.maxOffsetTime = defaultMaxOffsetTime
@@ -80,6 +83,12 @@ func WithReties(reties int) ConfigOption {
 // WithStorageClient the must be init
 func WithStorageClient(client *redis.Client) ConfigOption {
 	return func(c *config) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		err := client.Ping(ctx).Err()
+		if err != nil {
+			panic(fmt.Sprintf("connect the redis error:%s", err.Error()))
+		}
 		c.delegate = client
 	}
 }
@@ -99,6 +108,18 @@ var (
 	once         sync.Once
 )
 
+func NewMutex(name string) *Mutex {
+	if singleConfig.delegate == nil {
+		panic("Execute the AssemblyMutex Method Must include claim WithStorageClient  before initing the lock")
+	}
+	mutex := new(Mutex)
+	mutex.config = singleConfig
+	mutex.name = name
+	mutex.delayDone = make(chan struct{})
+	mutex.ending = make(chan error)
+	return mutex
+}
+
 func (mutex *Mutex) Lock() {
 	timeOffset := mutex.config.maxOffsetTime
 	retryTimes := 0
@@ -112,12 +133,14 @@ func (mutex *Mutex) Lock() {
 					case <-mutex.delayDone:
 						return
 					default:
-						err := mutex.delay()
-						if err != nil {
-							mutex.ending <- err
-							return
-						}
-						time.Sleep(mutex.config.expiresTime / 4)
+						//TODO resolve the relay error should do
+						_ = mutex.delay()
+						// if err != nil {
+						// log.Println(err)
+						// 	mutex.ending <- err
+						// 	return
+						// }
+						time.Sleep(mutex.config.expiresTime / 5)
 					}
 				}
 			}()
@@ -130,6 +153,9 @@ func (mutex *Mutex) Lock() {
 			retryTimes = 0
 		}
 	}
+}
+func ChangeValue(name string) {
+	singleConfig.nodeID = name
 }
 
 func (mutex *Mutex) TryLock() bool {
@@ -149,11 +175,11 @@ func (mutex *Mutex) acquire() (bool, error) {
 
 // -1 resprent the delay error
 const delayScript = `
-   if (redis.call('GET',KEYS[1])==ARGS[1])then
-          return redis.call('TTL',ARGS[2])
-	else
-	      return -1
-	done	  	   
+   if redis.call('GET', KEYS[1]) == ARGV[1] then
+          return redis.call('PEXPIRE',KEYS[1],ARGV[2])
+   else
+	      return -2
+   end	  	   
 `
 const delayCacheKey = "delay"
 
@@ -161,22 +187,50 @@ func (mutex *Mutex) delay() error {
 	ctx, cancel := context.WithTimeout(context.TODO(), mutex.config.cancelTime)
 	defer cancel()
 	if _, ok := cacheHash[delayCacheKey]; !ok {
-		cmd := mutex.config.delegate.Eval(ctx, delayScript, []string{mutex.name}, mutex.config.nodeID)
-		hash := sha256.Sum256([]byte(delayScript))
-		cacheHash[delayCacheKey] = string(hash[:])
-		return cmd.Err()
+		cmd := mutex.config.delegate.Eval(ctx, delayScript, []string{mutex.name}, mutex.config.nodeID, strconv.FormatInt(int64(mutex.config.expiresTime.Milliseconds()), 10))
+		err := cmd.Err()
+		if err != nil {
+			return err
+		}
+		status, err := cmd.Int()
+		if err != nil {
+			return err
+		}
+		if status < 0 {
+			return fmt.Errorf("%s key delay error:%d", mutex.name, status)
+		}
+		hash := sha1.Sum([]byte(delayScript))
+		cacheHash[delayCacheKey] = fmt.Sprintf("%x", hash[:])
 	}
-	return mutex.config.delegate.EvalSha(ctx, cacheHash[delayCacheKey], []string{mutex.name}, mutex.config.nodeID, mutex.config.expiresTime).Err()
+	cmd := mutex.config.delegate.EvalSha(ctx, cacheHash[delayCacheKey], []string{mutex.name}, mutex.config.nodeID, strconv.FormatInt(int64(mutex.config.expiresTime.Milliseconds()), 10))
+	err := cmd.Err()
+	if err != nil {
+		return err
+	}
+	status, err := cmd.Int()
+	if err != nil {
+		return err
+	}
+	if status < 0 {
+		return fmt.Errorf("%s key delay error:%d", mutex.name, status)
+	}
+	return err
 }
 
-func (mutex *Mutex) UnLock() error {
-	return mutex.release()
+func (mutex *Mutex) UnLock() {
+	if len(mutex.delayDone) > 0 {
+		log.Println("delay error for mutex")
+		return
+	}
+	mutex.delayDone <- struct{}{}
+	mutex.release()
+
 }
 
 const releaseScript = `
-   if(redis.call('GET',KEYS[1])==ARGS[1])then
+   if redis.call('GET',KEYS[1])==ARGV[1] then
            return redis.call('DEL',KEYS[1])
-	done	   
+   end	   
 `
 
 var cacheHash = make(map[string]string)
@@ -185,16 +239,16 @@ const releaseCacheKey = "release"
 
 // const deleteCacheKey = "delete"
 
-func (mutex *Mutex) release() error {
+// if the release failed , the system cant loss any resource
+func (mutex *Mutex) release() {
 	ctx, cancel := context.WithTimeout(context.TODO(), mutex.config.cancelTime)
 	defer cancel()
 	if _, ok := cacheHash[releaseCacheKey]; !ok {
-		cmd := mutex.config.delegate.Eval(ctx, releaseScript, []string{mutex.name}, mutex.config.nodeID)
-		hash := sha256.Sum256([]byte(releaseScript))
-		cacheHash[releaseCacheKey] = string(hash[:])
-		return cmd.Err()
+		mutex.config.delegate.Eval(ctx, releaseScript, []string{mutex.name}, mutex.config.nodeID)
+		hash := sha1.Sum([]byte(releaseScript))
+		cacheHash[releaseCacheKey] = fmt.Sprintf("%x", hash[:])
 	}
-	return mutex.config.delegate.EvalSha(ctx, cacheHash[releaseCacheKey], []string{mutex.name}, mutex.config.nodeID).Err()
+	mutex.config.delegate.EvalSha(ctx, cacheHash[releaseCacheKey], []string{mutex.name}, mutex.config.nodeID)
 }
 func getMachineID() (string, error) {
 	interfaces, err := net.Interfaces()
