@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
-	"path/filepath"
 	"sync/atomic"
 	"unsafe"
 )
@@ -30,7 +29,8 @@ type Collection struct {
 	Value string `xml:"value"`
 }
 
-var DEFAULT_COLLECTIONS_CONFIG = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "collections.xml")
+// var DEFAULT_COLLECTIONS_CONFIG = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "collections.xml")
+var DEFAULT_COLLECTIONS_CONFIG = fmt.Sprint("C:\\Users\\OLLIEo\\Desktop\\repliteweb\\repliteWeb\\configs\\collections.xml")
 
 // var DEFAULT_COLLECTIONS_CONFIG = "configs/collections.xml"
 

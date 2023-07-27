@@ -7,7 +7,7 @@
   <redisConfig>
     <address>127.0.0.1:6379</address>
     <username></username>
-    <password>root</password>
+    <password></password>
     <database>9</database>
     <init></init>
   </redisConfig>

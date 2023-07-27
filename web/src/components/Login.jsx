@@ -7,7 +7,7 @@ import axios from "axios";
 import {Backend} from "../App";
 //import { useHistory } from "react-router-dom";
 
-//const localURL="http://localhost:8080/"
+const localURL="http://localhost:8080"
 //const testURL="http://112.124.53.234:8080/"
 const Login = (params) => {
     const {Token,setToken} =params;
@@ -17,18 +17,18 @@ const Login = (params) => {
     const nagivate =useNavigate();
     //const history=useHistory();
     useEffect(()=>{
-       if (Token !=""){
-       // init the token for system
-       // login 
-       nagivate('/main');
-       }
+        if (Token !=""){
+            // init the token for system
+            // login
+            nagivate('/main');
+        }
     },[])
     const onFinish = async (value) => {
         const { username, password } = value; // Obtain the value of the form input
         try {
             setLoading(true);
             setDisableAll(true); // 禁用其他链接和按钮
-            const response = await axios.get( backendURL+ "/user/login?username=" + username + "&password=" + password)
+            const response = await axios.get( localURL+ "/user/login?username=" + username + "&password=" + password)
             const {state, message: resMessage} = response.data;
             //先检查所有错误并处理
             if ( !state) {
