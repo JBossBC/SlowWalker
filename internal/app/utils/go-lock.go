@@ -92,6 +92,9 @@ func WithStorageClient(client *redis.Client) ConfigOption {
 		c.delegate = client
 	}
 }
+func ChangeValue(id string) {
+	singleConfig.nodeID = id
+}
 
 // AssemblyMutex the mutex config init
 func AssemblyMutex(options ...ConfigOption) {
@@ -120,6 +123,22 @@ func NewMutex(name string) *Mutex {
 	return mutex
 }
 
+// func (mutex *Mutex) RollBack(any) {
+
+// }
+
+// func (mutex *Mutex) Call(any) {
+
+// }
+
+// TODO is discard is true, this represent the distribted lock is failed in the progress
+func (mutex *Mutex) Discard() bool {
+	if len(mutex.ending) > 0 {
+		return true
+	}
+	return false
+}
+
 func (mutex *Mutex) Lock() {
 	timeOffset := mutex.config.maxOffsetTime
 	retryTimes := 0
@@ -133,14 +152,14 @@ func (mutex *Mutex) Lock() {
 					case <-mutex.delayDone:
 						return
 					default:
-						//TODO resolve the relay error should do
-						mutex.delay()
-						// if err != nil {
-						// log.Println(err)
-						// 	mutex.ending <- err
-						// 	return
-						// }
-						time.Sleep(mutex.config.expiresTime / 5)
+						//TODO resolve the relay error should do: set rollback signal
+						err := mutex.delay()
+						if err != nil {
+							// log.Println(err)
+							mutex.ending <- err
+							return
+						}
+						time.Sleep(mutex.config.expiresTime / 3)
 					}
 				}
 			}()
@@ -259,8 +278,6 @@ func getMachineID() (string, error) {
 			if err != nil {
 				return "", err
 			}
-
-			// 查找第一个有效的MAC地址
 			for _, addr := range addrs {
 				if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 					mac := iface.HardwareAddr.String()
@@ -272,5 +289,5 @@ func getMachineID() (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("无法获取机器的唯一标识")
+	return "", fmt.Errorf("cant get the valid MAC for node")
 }
