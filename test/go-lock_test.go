@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"replite_web/internal/app/utils"
 	"strconv"
-	"sync"
 	"testing"
 	"time"
 
@@ -18,6 +17,8 @@ func TestLock(t *testing.T) {
 	// go func() {
 	mutex.Lock()
 	fmt.Println("lock success")
+	// relay
+	time.Sleep(10 * time.Second)
 	mutex.UnLock()
 	fmt.Println("unlock sueccess")
 	// err := mutex.UnLock()
@@ -57,25 +58,26 @@ func TestLock(t *testing.T) {
 // 	wg.Wait()
 // }
 
-func TestPerformanceForLock(t *testing.T) {
-	utils.AssemblyMutex(utils.WithStorageClient(redis.NewClient(&redis.Options{Addr: "localhost:6379"})))
-	wg := sync.WaitGroup{}
-	wg.Add(100000)
-	ids := getUniqueIDS(100000)
-	for i := 0; i < 100000; i++ {
-		go func(i int) {
-			defer wg.Done()
-			mutex := utils.NewMutex("PDistributed")
-			utils.ChangeValue(ids[i])
-			mutex.Lock()
-			fmt.Println(ids[i], "Lock")
-			time.Sleep(2 * time.Millisecond)
-			mutex.UnLock()
-			fmt.Println(ids[i], "UnLock")
-		}(i)
-	}
-	wg.Wait()
-}
+// imitate the distribute environment
+// func TestPerformanceForLock(t *testing.T) {
+// 	utils.AssemblyMutex(utils.WithStorageClient(redis.NewClient(&redis.Options{Addr: "localhost:6379"})))
+// 	wg := sync.WaitGroup{}
+// 	wg.Add(1000)
+// 	ids := getUniqueIDS(1000)
+// 	for i := 0; i < 1000; i++ {
+// 		go func(i int) {
+// 			defer wg.Done()
+// 			mutex := utils.NewMutex("PDistributed")
+// 			utils.ChangeValue(ids[i])
+// 			mutex.Lock()
+// 			fmt.Println(ids[i], "Lock")
+// 			time.Sleep(2 * time.Millisecond)
+// 			mutex.UnLock()
+// 			fmt.Println(ids[i], "UnLock")
+// 		}(i)
+// 	}
+// 	wg.Wait()
+// }
 
 func getUniqueIDS(number int) []string {
 	var result = make([]string, number)

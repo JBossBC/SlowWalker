@@ -134,7 +134,7 @@ func (mutex *Mutex) Lock() {
 						return
 					default:
 						//TODO resolve the relay error should do
-						_ = mutex.delay()
+						mutex.delay()
 						// if err != nil {
 						// log.Println(err)
 						// 	mutex.ending <- err
@@ -153,9 +153,6 @@ func (mutex *Mutex) Lock() {
 			retryTimes = 0
 		}
 	}
-}
-func ChangeValue(name string) {
-	singleConfig.nodeID = name
 }
 
 func (mutex *Mutex) TryLock() bool {

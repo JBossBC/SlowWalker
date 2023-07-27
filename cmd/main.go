@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/controller"
+	"replite_web/internal/app/dao"
 	"replite_web/internal/app/middleware"
+	"replite_web/internal/app/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +15,8 @@ import (
 func main() {
 	// init the config file
 	// config.Init()
+	// init go-lock config
+	utils.AssemblyMutex(utils.WithStorageClient(dao.GetRedisClient()))
 	engine := gin.New()
 	engine.Use(middleware.ProxyMiddleware)
 	engine.Use(middleware.CORS)
