@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -9,7 +10,7 @@ import (
 // the zero copy to download file
 func WriteFile(stream http.ResponseWriter, fileName string) {
 	_, err := os.Stat(fileName)
-	if _, ok := err.(*os.PathError); !ok {
+	if errors.Is(err, &os.PathError{}) {
 		stream.Write(NewFailedResponse("下载失败").Serialize())
 		return
 	}

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -41,7 +42,7 @@ var (
 
 func init() {
 	file, err := os.Open(ERROR_LOG_STORAGE)
-	if _, ok := err.(*os.PathError); ok {
+	if errors.Is(err, &os.PathError{}) {
 		return
 	}
 	fileInfo, _ := file.Stat()
