@@ -7,32 +7,31 @@ import axios from "axios";
 import {Backend} from "../App";
 //import { useHistory } from "react-router-dom";
 
-//const localURL="http://localhost:8080/"
+const localURL="http://localhost:8080"
 //const testURL="http://112.124.53.234:8080/"
-const Login = () => {
+const Login = (params) => {
+    const {Token,setToken} =params;
     const [loading, setLoading] = useState(false);
     const [disableAll, setDisableAll] = useState(false);
     const backendURL = useContext(Backend);
     const nagivate =useNavigate();
     //const history=useHistory();
     useEffect(()=>{
-       let  token=sessionStorage.getItem("repliteweb");
-       if(token == undefined ||token == ""){
-        return
-       }
-       // init the token for system
-       // login 
-       nagivate('/main');
+        if (Token !=""){
+            // init the token for system
+            // login
+            nagivate('/main');
+        }
     },[])
     const onFinish = async (value) => {
         const { username, password } = value; // Obtain the value of the form input
         try {
             setLoading(true);
             setDisableAll(true); // 禁用其他链接和按钮
-            const response = await axios.get( backendURL+ "/user/login?username=" + username + "&password=" + password)
+            const response = await axios.get( localURL+ "/user/login?username=" + username + "&password=" + password)
             const {state, message: resMessage} = response.data;
             //先检查所有错误并处理
-            if (response.status != "200" || !state) {
+            if ( !state) {
                 //登录失败
                 let Message = resMessage;
                 if (Message == undefined || message == "") {
@@ -48,31 +47,14 @@ const Login = () => {
             与 Local Storage 不同，会话存储只在当前会话期间有效，
             当浏览器标签页或窗口关闭时会被清除。同样存在安全风险和 XSS 攻击的风险。*/
             sessionStorage.setItem('repliteweb', jwt);
+            setToken(jwt);
             message.success(resMessage).then(()=>nagivate("/main"));
-            // TODO: 跳转到首页或其他页面
-            //history.push("/main");
-            // window.location.href = "/main";
         } finally {
-            //TODO:自旋
             setLoading(false);
             setDisableAll(false); // 解除禁用其他链接和按钮
         }
     };
 
-    /* const showConfirm = () => {
-         Modal.confirm({
-             title: "确认要退出吗？",
-             content: "退出后将不再保留登录状态。",
-             okText: "确认",
-             cancelText: "取消",
-             onOk: () => {
-                 // 清除浏览器中的JWT Token
-                 localStorage.removeItem("jwtToken");
-
-                 // TODO: 跳转到登录页面或其他操作
-             },
-         });
-     };*/
     return (
         <div style={{paddingRight:"32px",paddingLeft:"32px",maxWidth:"100%",maxHeight:"100%"}} >
             <div style={{width:"100%",height:"20%"}}>

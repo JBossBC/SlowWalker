@@ -19,7 +19,7 @@ func init() {
 }
 
 type Response interface {
-	SerializeJSON() []byte
+	Serialize() []byte
 }
 
 type BaseResponse struct {
@@ -30,9 +30,9 @@ type BaseResponse struct {
 
 //{}
 
-func (response BaseResponse) SerializeJSON() []byte {
-	
-	result, err := json.Marshal(response) 
+func (response BaseResponse) Serialize() []byte {
+
+	result, err := json.Marshal(response)
 	if err != nil {
 		return HELPLESS_ERROR_RESPONSE
 	}
@@ -57,6 +57,6 @@ func NewFailedResponse(message string) Response {
 func Not_Granted_Error(request *http.Request) []byte {
 	log.Printf("禁止访问 %v", request)
 	response := NewFailedResponse("你没有权限访问")
-	data := response.SerializeJSON()
+	data := response.Serialize()
 	return data
 }

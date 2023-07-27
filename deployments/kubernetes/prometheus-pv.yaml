@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+   namespace: replite
+   name: prometheus-data
+spec:
+   accessModes:  ["ReadWriteOnce"]
+   local:
+      path: "/opt/prometheus-data"
+   nodeAffinity:
+     required:
+      nodeSelectorTerms:    
+        - matchExpressions:
+             - key: replite
+               operator: In
+               values: 
+               - prometheus-data       
+   volumeMode: Filesystem  
+   capacity:
+     storage: 10Gi
+   storageClassName: fast

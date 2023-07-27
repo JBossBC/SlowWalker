@@ -1,112 +1,78 @@
-import React, { useContext,useEffect } from 'react';
-import { DesktopOutlined,ExclamationCircleOutlined} from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme,message } from 'antd';
-import {Backend} from "../App"
-import axios from 'axios'
-// const items1 = ['1', '2', '3'].map((key) => ({
-//   key,
-//   label: `nav ${key}`,
-// }));
-// const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map((icon, index) => {
-//   const key = String(index + 1);
-//   return {
-//     key: `sub${key}`,
-//     icon: React.createElement(icon),
-//     label: `subnav ${key}`,
-//     children: new Array(4).fill(null).map((_, j) => {
-//       const subKey = index * 4 + j + 1;
-//       return {
-//         key: subKey,
-//         label: `option${subKey}`,
-//       };
-//     }),
-//   };
-// });
+import React from 'react';
+import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
+import { Layout, Menu, Breadcrumb, theme } from 'antd';
 
 const { Header, Content, Sider } = Layout;
-const itemsForIcon = {"function":DesktopOutlined,"system":ExclamationCircleOutlined}
 
-
-//TODO 对每一个功能添加对应的类别
-// const menuItems = [DesktopOutlined,ExclamationCircleOutlined].map((icon,index)=>{
-//    const key=String(index+1);
-//    return {
-       
-//    }
-// })
+const items2 = [
+    {
+        key: 'sub1',
+        icon: <UserOutlined />,
+        label: '功能',
+        children: [],
+    },
+    {
+        key: 'sub2',
+        icon: <LaptopOutlined />,
+        label: '系统',
+        children: [],
+    },
+];
 
 const Main = () => {
-  const BackendURL = useContext(Backend)
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-  useEffect(()=>{
-    async function initMain(){
-      // get the authorization data
-      await axios.get(BackendURL+"/rule/query").then((response)=>{
-        let data =response.data;
-        if (response.status != '200' ||data.state!=true){
-          message.error("加载首页出错");
-          // 返回首页
+    const {
+        token: { colorBgContainer },
+    } = theme.useToken();
 
-          return
+    const [selectedMenuKey, setSelectedMenuKey] = React.useState('');
+    const [breadcrumbItem, setBreadcrumbItem] = React.useState('');
+
+    const handleClick = ({ key }) => {
+        const [prefix, suffix] = key.split('/');
+        let updatedBreadcrumbItem = '';
+
+        if (prefix === 'sub1') {
+            updatedBreadcrumbItem = `功能/${suffix.replace('option', '选项')}`;
+        } else if (prefix === 'sub2') {
+            updatedBreadcrumbItem = `系统/${suffix.replace('option', '选项')}`;
         }
-      })
-    }
-  },[])
-  return (
-    <Layout>
-      <Header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-      </Header>
-      <Layout>
-        <Sider
-          width={200}
-          style={{
-            background: colorBgContainer,
-          }}
-        >
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
-            style={{
-              height: '100%',
-              borderRight: 0,
-            }}
-          />
-        </Sider>
-        <Layout
-          style={{
-            padding: '0 24px 24px',
-          }}
-        >
-          <Breadcrumb
-            style={{
-              margin: '16px 0',
-            }}
-          >
-            <Breadcrumb.Item>首页</Breadcrumb.Item>
-            <Breadcrumb.Item>List</Breadcrumb.Item>
-            <Breadcrumb.Item>App</Breadcrumb.Item>
-          </Breadcrumb>
-          <Content
-            style={{
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-              background: colorBgContainer,
-            }}
-          >
-            Content
-          </Content>
+
+        setSelectedMenuKey(key);
+        setBreadcrumbItem(updatedBreadcrumbItem);
+    };
+
+    return (
+        <Layout>
+            <Header style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="demo-logo"></div>
+            </Header>
+            <Layout>
+                <Sider width={200} style={{ background: colorBgContainer }}>
+                    <Menu
+                        mode="inline"
+                        selectedKeys={[selectedMenuKey]}
+                        defaultOpenKeys={['sub1']}
+                        style={{ height: '100%', borderRight: 0 }}
+                        onSelect={handleClick}
+                        items={items2}
+                    />
+                </Sider>
+                <Layout style={{ padding: '0 24px 24px' }}>
+                    <Breadcrumb style={{ margin: '16px 0' }}>
+                        {breadcrumbItem ? (
+                            <Breadcrumb.Item>{breadcrumbItem}</Breadcrumb.Item>
+                        ) : (
+                            <Breadcrumb.Item>首页</Breadcrumb.Item>
+                        )}
+                    </Breadcrumb>
+                    <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
+                        {selectedMenuKey && <div>您选择的是：{selectedMenuKey}</div>}
+                        {!selectedMenuKey && <div>欢迎访问首页</div>}
+                    </Content>
+                </Layout>
+            </Layout>
         </Layout>
-      </Layout>
-    </Layout>
-  );
+    );
 };
+
 export default Main;

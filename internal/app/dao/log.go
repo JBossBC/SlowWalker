@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
@@ -273,6 +274,26 @@ func FilterLogs(l *Log, page int, pageNumber int) (*[]*Log, error) {
 	// 	log.Printf("create the logs %v cache error: %s", result, err.Error())
 	// }
 	// return *result, nil
+}
+
+const NoLength = math.MinInt
+
+// TODO no test to aggregate
+func AggregateLogSum() (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	cur, err := getLogCollection().Aggregate(ctx, mongo.Pipeline{{{"total", bson.D{{"$sum", "_id"}}}}})
+	if err != nil {
+		log.Printf("查询日志总条数失败:%s", err.Error())
+		return NoLength, err
+	}
+	var result map[string]int = make(map[string]int)
+	err = cur.Decode(&result)
+	if err != nil {
+		log.Printf("解析mongoDB返回值错误(%v):%s", cur, err.Error())
+		return NoLength, err
+	}
+	return result["total"], nil
 }
 
 // func queryMaxPage(pageNumber int) int {

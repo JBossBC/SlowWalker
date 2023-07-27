@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"log"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
@@ -27,12 +28,14 @@ const DEFAULT_USER_EXPIRE_TIME = 5 * time.Minute
 var INVALID_REDIS_USERS_VALUE = struct{}{}
 var emptyUser = User{}
 
+// TODO add the ip to user field
 type User struct {
 	Username    string `json:"username" bson:"username"`
 	Password    string `json:"password" bson:"password"`
 	Authority   string `json:"athority" bson:"authority"`
 	PhoneNumber string `json:"phoneNumber" bson:"phoneNumber"`
 	Code        string `json:"-" bson:"-"`
+	IP          string `json:"-" bson:"-"`
 }
 
 const DEFAULT_USER_COLLECTION = "user"
@@ -52,9 +55,17 @@ func CreateUser(user *User) error {
 	Create(getUserKey(user.Username), user, DEFAULT_USER_EXPIRE_TIME)
 	return err
 }
+
+// 保证一致性
 func UpdateUser(user *User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
+	redisKey := getUserKey(user.Username)
+	err := Del(redisKey)
+	if err != nil && err != redis.Nil {
+		log.Printf("删除redis缓存(%s)失败:%s", redisKey, err.Error())
+		return errors.New("修改失败")
+	}
 	//to keep the operation atomic
 	result := getUserCollection().FindOneAndUpdate(ctx, bson.M{"username": user.Username}, user)
 	if result.Err() != nil {
@@ -62,14 +73,14 @@ func UpdateUser(user *User) error {
 		return result.Err()
 	}
 	updateUser := new(User)
-	err := result.Decode(updateUser)
+	err = result.Decode(updateUser)
 	if err != nil {
 		log.Printf("解析mongoDB修改后的document异常:%s", err.Error())
 		return err
 	}
-	err = Create(getUserKey(user.Username), updateUser, DEFAULT_USER_EXPIRE_TIME)
+	err = Create(redisKey, updateUser, DEFAULT_USER_EXPIRE_TIME)
 	if err != nil {
-		log.Printf("创建redis缓存(%v)失败:%s", updateUser, err.Error())
+		log.Printf("创建redis缓存(key:%s,value:%v)失败:%s", redisKey, updateUser, err.Error())
 	}
 	return err
 }

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
 )
@@ -16,18 +15,31 @@ import (
 // 	return utils.NewSuccessResponse(result)
 // }
 
+type FilterLogView struct {
+	Data  any `json:"data"`
+	Total int `json:"total"`
+}
+
 func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) {
 	result, err := dao.FilterLogs(l, page, pageNumber)
 	//max return page
 	if err != nil {
-		log.Printf("查询日志:%v,page:%d,pageNumber:%d失败:%s", l, page, pageNumber, err.Error())
-		response = utils.NewFailedResponse("系统出错")
+		// log.Printf("查询日志:%v,page:%d,pageNumber:%d失败:%s", l, page, pageNumber, err.Error())
+		response = utils.NewFailedResponse("查询失败")
 		return
 	}
-
+	total, err := dao.AggregateLogSum()
+	if err != nil {
+		response = utils.NewFailedResponse("查询失败")
+		return
+	}
+	view := &FilterLogView{
+		Total: total,
+		Data:  result,
+	}
 	// if result.IsEmpty() {
 	// 	response = utils.NewFailedResponse("日志不存在")
 	// 	return
 	// }
-	return utils.NewSuccessResponse(result)
+	return utils.NewSuccessResponse(view)
 }
