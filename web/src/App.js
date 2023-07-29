@@ -24,11 +24,11 @@ function App(){
     <Router>
      <Backend.Provider value={defaultBackendURL}>
       <Routes>
-      <Route path="/" Component={Index(Token,setToken)}/>
-      <Route path="/login" Component={Index(Token,setToken)}/>
-      <Route path="/register" Component={Register}/>
-      <Route path="/main" Component={Main}/>
-       <Route path="*" Component={NotFound}/>
+      <Route path="/" element={Index(Token,setToken)}/>
+      <Route path="/login" element={Index(Token,setToken)}/>
+      <Route path="/register" element={Register}/>
+      <Route path="/main" element={Main}/>
+       <Route path="*" element={NotFound}/>
        </Routes>
        </Backend.Provider>
     </Router>
