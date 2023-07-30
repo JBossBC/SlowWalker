@@ -56,6 +56,30 @@ var default_audit_schema = []any{
 	},
 }
 
+var default_platform_schema = []PlatForm{
+	&BasePlatForm{
+		CoreType:    None,
+		MechineType: Undefiend,
+		Command:     "",
+	},
+	&LinuxPlatForm{
+		BasePlatForm{
+			CoreType:    CPU,
+			MechineType: Linux,
+			Command:     "./",
+		},
+	},
+	&WindowsPlatForm{
+		
+	},
+
+	// &LocalPlatForm{
+	// 	CoreType:    None,
+	// 	MechineType: Undefiend,
+	// 	Command:     "",
+	// },
+}
+
 // *********************************************** init the database to use **************************************************************//
 func InitMogoSchema() {
 	// initDB()

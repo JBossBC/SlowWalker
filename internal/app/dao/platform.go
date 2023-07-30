@@ -1,4 +1,4 @@
-package infrastructure
+package dao
 
 import (
 	"errors"
@@ -9,8 +9,9 @@ type OSType string
 type Core string
 
 const (
-	GPU Core = "GPU"
-	CPU Core = "CPU"
+	GPU  Core = "GPU"
+	CPU  Core = "CPU"
+	None Core = "none"
 )
 const (
 	Undefiend OSType = "undefined"
@@ -18,19 +19,19 @@ const (
 	Windows   OSType = "windows"
 )
 
-var singlePlatform map[OSType]map[Core]PlatForm
+var singlePlatform map[OSType]PlatForm
 
 type PlatForm interface {
-	GetCoreType() Core
+	GetCoreType() []Core
 	GetOSType() OSType
-	GetExecPrefix(string) string
+	GetExecPrefix() string
 	PushTask(Operate) error
 }
 
-type basePlatForm struct {
-	CoreType Core
+type BasePlatForm struct {
+	CoreType []Core
 	// the exec prefix , the resprent the function to execution prefix
-	Command     map[string]string
+	Command     string
 	MechineType OSType
 }
 
@@ -39,52 +40,51 @@ func PushTask(operate Operate) {
 	platform := GetLinuxPlatform(CPU)
 	platform.PushTask(operate)
 }
-func (base *basePlatForm) GetOSType() OSType {
+func (base *BasePlatForm) GetOSType() OSType {
 	return base.MechineType
 }
 
-func (base *basePlatForm) GetCoreType() Core {
+func (base *BasePlatForm) GetCoreType() []Core {
 	return base.CoreType
 }
 
-func (base *basePlatForm) GetExecPrefix(function string) string {
-	return base.Command[function]
+func (base *BasePlatForm) GetExecPrefix() string {
+	return base.Command
 }
 
-func (base *basePlatForm) PushTask(op Operate) error {
+func (base *BasePlatForm) PushTask(op Operate) error {
 	return errors.New("error system call")
 }
 
 type LocalPlatForm struct {
-	basePlatForm
+	BasePlatForm
 }
 
-func (local *LocalPlatForm) GetOSType() OSType {
+// func (local *LocalPlatForm) GetOSType() OSType {
 
-}
-func (base *LocalPlatForm) GetCoreType() Core {
+// }
+// func (base *LocalPlatForm) GetCoreType() Core {
 
-}
+// }
 
 type WindowsPlatForm struct {
-	basePlatForm
+	BasePlatForm
 }
 
 func GetWindowsPlatform(core Core) *WindowsPlatForm {
-
-	return singlePlatform[Windows][core].((*WindowsPlatForm))
+	return singlePlatform[Windows].(*WindowsPlatForm)
 }
 
 func (windows *WindowsPlatForm) PushTask(op Operate) error {
-
+	cmd := []string{windows.Command}
 }
 
 type LinuxPlatForm struct {
-	basePlatForm
+	BasePlatForm
 }
 
 func GetLinuxPlatform(core Core) *LinuxPlatForm {
-	return singlePlatform[Linux][core].((*LinuxPlatForm))
+	return singlePlatform[Linux].(*LinuxPlatForm)
 }
 
 func (linux *LinuxPlatForm) PushTask(op Operate) error {

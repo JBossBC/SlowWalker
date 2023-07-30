@@ -1,4 +1,4 @@
-package infrastructure
+package dao
 
 type Operate interface {
 	// Valid() bool
@@ -7,7 +7,8 @@ type Operate interface {
 type BaseOperate struct {
 	Operator string         `json:"operator"`
 	Params   map[string]any `json:"params"`
-	Function string         `json:"function"`
+	//operate function according to the rule collection
+	Function string `json:"function"`
 	// websocket connection callback func, make sure the message be consumed
 	CallBack func(any) any `json:"-"`
 }

@@ -13,5 +13,9 @@
     <name>log</name>   <!-- the name  is relative to server-->
     <value>log</value>   <!-- the value is relative to mongo database-->
     </table>
+    <table>
+        <name>funcmap</name>
+        <value>funcmap</value>
+    </table>
     
 </mongoTables>
