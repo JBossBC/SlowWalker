@@ -5,6 +5,7 @@ import (
 	// "net/http"
 	// _ "net/http/pprof"
 
+	"fmt"
 	"replite_web/internal/app/utils"
 	"strconv"
 	"testing"
@@ -17,24 +18,26 @@ func TestLock(t *testing.T) {
 
 	utils.AssemblyMutex(utils.WithStorageClient(redis.NewClient(&redis.Options{Addr: "localhost:6379", DB: 8})))
 	mutex := utils.NewMutex("lock")
-	// blockSingal := make(chan struct{})
+	blockSingal := make(chan struct{})
 	// go func() {
-	for i := 0; i < 10; i++ {
-		// now := time.Now()
-		mutex.Lock()
-		// fmt.Println("lock success")
-		// relay
-		// time.Sleep(10 * time.Second)
-		mutex.UnLock()
-		// fmt.Println(time.Now().Sub(now).Microseconds())
-		// fmt.Println("unlock sueccess")
-	}
+	// for i := 0; i < 10; i++ {
+	// now := time.Now()
+	mutex.Lock()
+	fmt.Println("lock success")
+	//..... 15s
+	mutex.UnLock()
+	// relay
+	// time.Sleep(10 * time.Second)
+	// mutex.UnLock()
+	// fmt.Println(time.Now().Sub(now).Microseconds())
+	// fmt.Println("unlock sueccess")
+	// }
 	// err := mutex.UnLock()
 	// if err != nil {
 	// 	panic(err)
 	// }
 	// }()
-	// <-blockSingal
+	<-blockSingal
 }
 
 // func TestUnLock(t *testing.T) {

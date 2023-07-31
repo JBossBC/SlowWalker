@@ -149,12 +149,21 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 	}
 	documentID := primitive.NewObjectID()
 	funcMap := GetFuncMap(op.GetFunction())
-	args := make([]string, 0, 3)
-	args = append(args, funcMap.Command)
-	args = append(args, op.GetParams()...)
+	// args := make([]string, 0, 3)
+	// args = append(args, funcMap.Command)
+	// args = append(args, op.GetParams()...)
+	task := new(Task)
+	task.Operate = op
+	task.PlatForm = local
+	task.State = Ongoing
+	task.ID = documentID
+	err := CreateTask(*task)
+	if err != nil {
+		return err
+	}
 	// starting the goroutinue to execute the operate
 	go func(id primitive.ObjectID) {
-		cmd := exec.Command(funcMap.Command, args...)
+		cmd := exec.Command(funcMap.Command, op.GetParams()...)
 		msg, err := cmd.Output()
 		state := Success
 		if err != nil {
@@ -166,12 +175,7 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 		}
 		// err := cmd.Run()
 	}(documentID)
-	task := new(Task)
-	task.Operate = op
-	task.PlatForm = local
-	task.State = Ongoing
-	task.ID = documentID
-	return CreateTask(*task)
+	return nil
 }
 
 func GetLocalPlatForm() *LocalPlatForm {
