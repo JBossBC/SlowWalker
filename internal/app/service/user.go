@@ -109,7 +109,7 @@ func UpdateInfo(user *dao.User) (response utils.Response) {
 		response = utils.NewFailedResponse("创建失败")
 		return
 	}
-	dao.Printf(single.Authority, user.IP, "成功修改%v信息为%v,操作IP地址为:%s", single, user, user.)
+	dao.Printf(single.Authority, user.IP, "成功修改%v信息为%v,操作IP地址为:%s", single, user, user.IP)
 	return utils.NewSuccessResponse("修改成功")
 }
 

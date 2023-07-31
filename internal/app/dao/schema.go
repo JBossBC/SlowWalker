@@ -56,6 +56,27 @@ var default_audit_schema = []any{
 	},
 }
 
+// TODO test to init
+var default_platform_schema = []PlatForm{
+	&RemotePlatForm{
+		BasePlatForm{
+			CoreType:    []Core{None},
+			MechineType: Undefiend,
+		},
+	},
+	// &RemotePlatForm{
+	// 	BasePlatForm{
+
+	// 	}
+	// }
+
+	// &LocalPlatForm{
+	// 	CoreType:    None,
+	// 	MechineType: Undefiend,
+	// 	Command:     "",
+	// },
+}
+
 // *********************************************** init the database to use **************************************************************//
 func InitMogoSchema() {
 	// initDB()

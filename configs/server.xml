@@ -9,5 +9,12 @@
       <secret>GrWrRf60wewqtreGMQuJslHuXbknEg</secret>
       <templateCode>SMS_461895959</templateCode>
     </sms>
+    <kafka>
+        <broker></broker>
+        <broker></broker>
+        <broker></broker>
+        <topic>task</topic>
+        <topic></topic>
+    </kafka>
     <!-- including the development and test envrionment and online envrionment-->
 </server>

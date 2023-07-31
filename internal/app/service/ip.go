@@ -24,7 +24,7 @@ const Warn_IP_MAX = 8
 
 // be used to defend the dangerous ip to access system by global middleware
 func IsWarnIP(ip string) bool {
-	return dao.QueryIP(getWarnIPkey(ip)) <= Warn_IP_MAX
+	return dao.QueryIP(getWarnIPkey(ip)) >= Warn_IP_MAX
 }
 func Incre_Warning_IP(ip string) bool {
 	return dao.InsertIP(getWarnIPkey(ip))
