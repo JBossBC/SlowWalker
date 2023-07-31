@@ -1,3 +1,4 @@
+
 import React, {useContext, useEffect, useState} from 'react';
 import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Breadcrumb, theme } from 'antd';
@@ -5,7 +6,6 @@ import axios from "axios";
 import {Backend} from "../App";
 
 const { Header, Content, Sider } = Layout;
-const localURL = "http://localhost:8080";
 //const testURL = "http://112.124.53.234:8080";d
 const Main = () => {
     const { token: { colorBgContainer } } = theme.useToken();
@@ -99,7 +99,6 @@ const Main = () => {
                 </Layout>
             </Layout>
         </Layout>
-    );
+  );
 };
-
 export default Main;

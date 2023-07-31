@@ -30,7 +30,7 @@ const defaultCancelTime = 1 * time.Second
 
 const defaultExpiresTime = 3 * time.Second
 
-const defaultMaxOffsetTime = 10 * time.Millisecond
+const defaultMaxOffsetTime = 100 * time.Millisecond
 const defaultReties = 2
 
 type Mutex struct {
@@ -91,9 +91,6 @@ func WithStorageClient(client *redis.Client) ConfigOption {
 		}
 		c.delegate = client
 	}
-}
-func ChangeValue(id string) {
-	singleConfig.nodeID = id
 }
 
 // AssemblyMutex the mutex config init
