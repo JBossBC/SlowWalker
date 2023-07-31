@@ -14,13 +14,12 @@ type Operate interface {
 	GetFunction() string
 	GetOperator() string
 	GetParams() []string
-	GetCommand() string
 	// GetCallBack() func(any) any
 	GetOperateType() OperateType
 }
 
 type BaseOperate struct {
-	Command  string   `json:"command"`
+	// Command  string   `json:"command"`
 	Operator string   `json:"operator"`
 	Params   []string `json:"params"`
 	//operate function according to the rule collection
@@ -68,12 +67,11 @@ func WithParams(params []string) OperateOption {
 // 	}
 // }
 
-func NewOperate(operator string, function string, command string, options ...OperateOption) BaseOperate {
+func NewOperate(operator string, function string, options ...OperateOption) BaseOperate {
 	base := new(BaseOperate)
 	for i := 0; i < len(options); i++ {
 		options[i](base)
 	}
-	base.Command = command
 	base.Operator = operator
 	base.Function = function
 	return *base

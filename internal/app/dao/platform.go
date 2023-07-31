@@ -1,14 +1,18 @@
 package dao
 
 import (
+	"context"
 	"errors"
 	"log"
 	"os/exec"
 	"replite_web/internal/app/utils"
 	"runtime"
+	"time"
 
+	"github.com/segmentio/kafka-go"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/protobuf/proto"
 )
 
 func init() {
@@ -94,9 +98,45 @@ type RemotePlatForm struct {
 	BasePlatForm
 }
 
-func (remote *RemotePlatForm) PushTask(op Operate) error {
+const TaskTopic = "task"
 
-	return nil
+func getTaskWriter() *kafka.Writer {
+	return GetTopicConn(TaskTopic)
+}
+
+const default_kafka_times = 5 * time.Second
+
+func (remote *RemotePlatForm) PushTask(op Operate) error {
+	ctx, cancel := context.WithTimeout(context.Background(), default_kafka_times)
+	defer cancel()
+	documentID := primitive.NewObjectID()
+	image := new(TaskImage)
+	image.ID = documentID[:]
+	var exec = make([]string, 0, 3)
+	funcMap := GetFuncMap(op.GetFunction())
+	exec = append(exec, funcMap.Command)
+	exec = append(exec, op.GetParams()...)
+	image.Exec = exec
+	imageBytes, err := proto.Marshal(image)
+	if err != nil {
+		log.Printf("protocol Buffer marshal failed:%s", err.Error())
+		return err
+	}
+	err = getTaskWriter().WriteMessages(ctx, kafka.Message{
+		Key:   []byte("task"),
+		Value: imageBytes,
+	})
+	if err != nil {
+		log.Printf("push kafka failed:%s", err.Error())
+		return err
+	}
+	task := new(Task)
+	task.PlatForm = remote
+	task.Operate = op
+	task.State = Ongoing
+	task.ID = documentID
+	//create task success
+	return CreateTask(*task)
 }
 
 type LocalPlatForm struct {
@@ -107,22 +147,14 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 	if op.GetOperateType() != ShortTerm {
 		return errors.New("local platform only support the short term task ")
 	}
-	task := new(Task)
-	task.Operate = op
-	task.PlatForm = local
-	task.State = Ongoing
-	task.ID = primitive.NewObjectID()
-	err := CreateTask(*task)
-	if err != nil {
-		return err
-	}
+	documentID := primitive.NewObjectID()
 	funcMap := GetFuncMap(op.GetFunction())
 	args := make([]string, 0, 3)
-	args = append(args, funcMap.ExecFile)
+	args = append(args, funcMap.Command)
 	args = append(args, op.GetParams()...)
 	// starting the goroutinue to execute the operate
 	go func(id primitive.ObjectID) {
-		cmd := exec.Command(op.GetCommand(), args...)
+		cmd := exec.Command(funcMap.Command, args...)
 		msg, err := cmd.Output()
 		state := Success
 		if err != nil {
@@ -130,11 +162,16 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 		}
 		err = UpdateTask(id, bson.M{"message": msg, "state": state})
 		if err != nil {
-			log.Printf("update task state(id:%s,message:%s,state:%s) error:%s", id, msg, state, err.Error())
+			log.Printf("update task state(id:%s,message:%s,state:%s) error:%s", string(id[:]), msg, state, err.Error())
 		}
 		// err := cmd.Run()
-	}(task.ID)
-	return nil
+	}(documentID)
+	task := new(Task)
+	task.Operate = op
+	task.PlatForm = local
+	task.State = Ongoing
+	task.ID = documentID
+	return CreateTask(*task)
 }
 
 func GetLocalPlatForm() *LocalPlatForm {

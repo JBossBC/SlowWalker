@@ -4,7 +4,6 @@ option go_package = "./";
 
 message TaskImage{
     bytes ID =1;
-    string State =2;
-    string Message =3;
+    repeated string Exec =2;
 }
 

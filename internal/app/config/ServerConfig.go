@@ -11,11 +11,17 @@ import (
 //this meaning the server config
 
 type ServerConfig struct {
-	XMLName     xml.Name   `xml:"server"`
-	Secret      string     `xml:"secret"`
-	Port        string     `xml:"port"`
-	SMSConfig   *SMSConfig `xml:"sms"`
-	Environment string     `xml:"environment"`
+	XMLName     xml.Name     `xml:"server"`
+	Secret      string       `xml:"secret"`
+	Port        string       `xml:"port"`
+	SMSConfig   *SMSConfig   `xml:"sms"`
+	Environment string       `xml:"environment"`
+	Kafka       *KafkaConfig `xml:"kafka"`
+}
+
+type KafkaConfig struct {
+	Broker []string `xml:"broker"`
+	Topic  []string `xml:"topic"`
 }
 
 type SMSConfig struct {

@@ -43,8 +43,9 @@ func init() {
 // the use function  connect with the exec file relative location
 type FuncMap struct {
 	Function string `json:"function" bson:"function"`
-	ExecFile string `json:"execfile" bson:"execfile"`
-	Type     Core   `json:"type" bson:"type"`
+	// the function should execution command,isolated operate system
+	Command string `json:"execfile" bson:"execfile"`
+	Type    Core   `json:"type" bson:"type"`
 }
 
 func CreateFuncMap(funcmap FuncMap) error {
