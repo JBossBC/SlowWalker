@@ -56,31 +56,19 @@ var default_audit_schema = []any{
 	},
 }
 
+// TODO test to init
 var default_platform_schema = []PlatForm{
 	&RemotePlatForm{
-		CoreType:    []Core{None},
-		MechineType: Undefiend,
-		Command:     "",
-	},
-	&RemotePlatForm{
 		BasePlatForm{
-			CoreType:    []Core{CPU, GPU},
-			MechineType: Linux,
-			Command:     "",
+			CoreType:    []Core{None},
+			MechineType: Undefiend,
 		},
 	},
-	&RemotePlatForm{
-		BasePlatForm{
-			CoreType:    []Core{CPU, GPU},
-			MechineType: Windows,
-			Command:     "",
-		},
-	},
-	&RemotePlatForm{
-		BasePlatForm{
+	// &RemotePlatForm{
+	// 	BasePlatForm{
 
-		}
-	}
+	// 	}
+	// }
 
 	// &LocalPlatForm{
 	// 	CoreType:    None,

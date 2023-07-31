@@ -17,5 +17,9 @@
         <name>funcmap</name>
         <value>funcmap</value>
     </table>
+    <table>
+        <name>task</name>
+        <value>task</value>
+    </table>
     
 </mongoTables>

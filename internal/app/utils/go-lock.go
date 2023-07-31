@@ -92,9 +92,6 @@ func WithStorageClient(client *redis.Client) ConfigOption {
 		c.delegate = client
 	}
 }
-func ChangeValue(id string) {
-	singleConfig.nodeID = id
-}
 
 // AssemblyMutex the mutex config init
 func AssemblyMutex(options ...ConfigOption) {
