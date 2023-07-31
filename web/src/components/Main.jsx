@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Breadcrumb, theme } from 'antd';
@@ -98,7 +99,6 @@ const Main = () => {
                 </Layout>
             </Layout>
         </Layout>
-    );
+  );
 };
-
 export default Main;
