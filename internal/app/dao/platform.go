@@ -56,37 +56,41 @@ func (base *BasePlatForm) PushTask(op Operate) error {
 	return errors.New("error system call")
 }
 
+type RemotePlatForm struct {
+	BasePlatForm
+}
+
 type LocalPlatForm struct {
 	BasePlatForm
 }
 
-// func (local *LocalPlatForm) GetOSType() OSType {
+// // func (local *LocalPlatForm) GetOSType() OSType {
+
+// // }
+// // func (base *LocalPlatForm) GetCoreType() Core {
+
+// // }
+
+// type WindowsPlatForm struct {
+// 	BasePlatForm
+// }
+
+func GetWindowsPlatform(core Core) *RemotePlatForm {
+	return singlePlatform[Windows].(*RemotePlatForm)
+}
+
+// func (windows *WindowsPlatForm) PushTask(op Operate) error {
+// 	cmd := []string{windows.Command}
+// }
+
+// type LinuxPlatForm struct {
+// 	BasePlatForm
+// }
+
+func GetLinuxPlatform(core Core) *RemotePlatForm {
+	return singlePlatform[Linux].(*RemotePlatForm)
+}
+
+// func (linux *LinuxPlatForm) PushTask(op Operate) error {
 
 // }
-// func (base *LocalPlatForm) GetCoreType() Core {
-
-// }
-
-type WindowsPlatForm struct {
-	BasePlatForm
-}
-
-func GetWindowsPlatform(core Core) *WindowsPlatForm {
-	return singlePlatform[Windows].(*WindowsPlatForm)
-}
-
-func (windows *WindowsPlatForm) PushTask(op Operate) error {
-	cmd := []string{windows.Command}
-}
-
-type LinuxPlatForm struct {
-	BasePlatForm
-}
-
-func GetLinuxPlatform(core Core) *LinuxPlatForm {
-	return singlePlatform[Linux].(*LinuxPlatForm)
-}
-
-func (linux *LinuxPlatForm) PushTask(op Operate) error {
-
-}

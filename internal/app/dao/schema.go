@@ -57,21 +57,30 @@ var default_audit_schema = []any{
 }
 
 var default_platform_schema = []PlatForm{
-	&BasePlatForm{
-		CoreType:    None,
+	&RemotePlatForm{
+		CoreType:    []Core{None},
 		MechineType: Undefiend,
 		Command:     "",
 	},
-	&LinuxPlatForm{
+	&RemotePlatForm{
 		BasePlatForm{
-			CoreType:    CPU,
+			CoreType:    []Core{CPU, GPU},
 			MechineType: Linux,
-			Command:     "./",
+			Command:     "",
 		},
 	},
-	&WindowsPlatForm{
-		
+	&RemotePlatForm{
+		BasePlatForm{
+			CoreType:    []Core{CPU, GPU},
+			MechineType: Windows,
+			Command:     "",
+		},
 	},
+	&RemotePlatForm{
+		BasePlatForm{
+
+		}
+	}
 
 	// &LocalPlatForm{
 	// 	CoreType:    None,
