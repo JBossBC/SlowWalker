@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
-	"path/filepath"
 )
 
 //this meaning the server config
@@ -33,7 +32,8 @@ type SMSConfig struct {
 
 var ServerConf *ServerConfig
 
-var DEFUALT_SERVER_CONFIG_FILE = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "server.xml")
+// var DEFUALT_SERVER_CONFIG_FILE = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "server.xml")
+var DEFUALT_SERVER_CONFIG_FILE = fmt.Sprint("C:\\Users\\OLLIEo\\Desktop\\repliteweb\\repliteWeb\\configs\\server.xml")
 
 //  init the envrionment to make configuration
 

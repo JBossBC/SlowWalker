@@ -8,11 +8,10 @@ import { message } from "antd";
 const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStorage.getItem("repliteweb"):"";
 axios.defaults.headers.common["Authorization"] = `Bearer ${defaultToken}`;
 
-const defaultBackendURL = "http://112.124.53.234:8080";
+const defaultBackendURL = "http://localhost:8080";
 export const Backend = React.createContext(defaultBackendURL);
 function App(){
   const navigate =useNavigate();
-  
   const {Token,setToken} = useState(defaultToken);
   axios.interceptors.response.use(null,(error)=>{
     if (error.response.state ==304){
@@ -39,6 +38,7 @@ function App(){
        </Backend.Provider>
     </Router>
   )
+
 }
 
 export default App;

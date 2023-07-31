@@ -1,106 +1,99 @@
-import React from 'react';
-import { LaptopOutlined, NotificationOutlined, UserOutlined } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
+import { Layout, Menu, Breadcrumb, theme } from 'antd';
+import axios from "axios";
 
 const { Header, Content, Sider } = Layout;
-
-const items1 = ['1', '2', '3'].map((key) => ({
-    key,
-    label: `nav ${key}`,
-}));
-
-const items2 = [
-    {
-        key: 'sub1',
-        icon: <UserOutlined />,
-        label: '功能',
-        children: new Array(4).fill(null).map((_, j) => {
-            const subKey = j + 1;
-            return {
-                key: `sub1/option${subKey}`,
-                label: `选项${subKey}`,
-            };
-        }),
-    },
-    {
-        key: 'sub2',
-        icon: <LaptopOutlined />,
-        label: '系统',
-        children: new Array(4).fill(null).map((_, j) => {
-            const subKey = j + 1;
-            return {
-                key: `sub2/option${subKey}`,
-                label: `选项${subKey}`,
-            };
-        }),
-    },
-];
-
+const localURL = "http://localhost:8080";
+//const testURL = "http://112.124.53.234:8080";d
 const Main = () => {
-    const {
-        token: { colorBgContainer },
-    } = theme.useToken();
+    const { token: { colorBgContainer } } = theme.useToken();
 
-    const [selectedMenuKeys, setSelectedMenuKeys] = React.useState([]);
-    const [breadcrumbItems, setBreadcrumbItems] = React.useState([]);
+    const [selectedMenuKey, setSelectedMenuKey] = useState('');
+    const [breadcrumbItem, setBreadcrumbItem] = useState('');
+    const [menuItems, setMenuItems] = useState([]);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const response = await axios.get(localURL + "/rule/query");
+            const { state, data } = response.data;
+            console.log(data);
+            if (state) {
+                const items = [];
+
+                Object.keys(data).forEach((key) => {
+                    const subItems = Object.keys(data[key]).map((subKey) => ({
+                        key: `sub/${key}/${subKey}`,
+                        label: subKey,
+                    }));
+
+                    items.push({
+                        key: `sub/${key}`,
+                        icon: key === 'function' ? <UserOutlined /> : <LaptopOutlined />,
+                        label: key === 'function' ? '功能' : '系统',
+                        children: subItems,
+                    });
+                });
+
+                setMenuItems(items);
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
 
     const handleClick = ({ key }) => {
-        const [prefix, suffix] = key.split('/');
-        let updatedBreadcrumbItems = [];
+        const [prefix, type, suffix] = key.split('/');
+        let updatedBreadcrumbItem = '';
 
-        if (prefix === 'sub1') {
-            updatedBreadcrumbItems = [
-                {
-                    key: `sub1/${suffix}`,
-                    label: `功能/${suffix.replace('option', '选项')}`,
-                },
-            ];
-        } else if (prefix === 'sub2') {
-            updatedBreadcrumbItems = [
-                {
-                    key: `sub2/${suffix}`,
-                    label: `系统/${suffix.replace('option', '选项')}`,
-                },
-            ];
+        if (prefix === 'sub') {
+            updatedBreadcrumbItem = `首页/${type === 'function' ? '功能' : '系统'}/${suffix.replace('option', '选项')}`;
         }
 
-        setSelectedMenuKeys([key]);
-        setBreadcrumbItems(updatedBreadcrumbItems);
+        setSelectedMenuKey(key);
+        setBreadcrumbItem(updatedBreadcrumbItem);
     };
 
     return (
         <Layout>
             <Header style={{ display: 'flex', alignItems: 'center' }}>
                 <div className="demo-logo"></div>
-                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']} items={items1} />
             </Header>
             <Layout>
-                <Sider width={200} style={{ background: colorBgContainer }}>
-                    <Menu
-                        mode="inline"
-                        selectedKeys={selectedMenuKeys}
-                        defaultOpenKeys={['sub1']}
-                        style={{ height: '100%', borderRight: 0 }}
-                        onSelect={handleClick}
-                        items={items2}
-                    />
-                </Sider>
+                {menuItems.length > 0 && (
+                    <Sider width={200} style={{ background: colorBgContainer }}>
+                        <Menu
+                            mode="inline"
+                            selectedKeys={[selectedMenuKey]}
+                            defaultOpenKeys={menuItems.map((item) => item.key)}
+                            style={{ height: '100%', borderRight: 0 }}
+                            onClick={handleClick}
+                        >
+                            {menuItems.map((item) => (
+                                <Menu.SubMenu key={item.key} icon={item.icon} title={item.label} items={item.children}>
+                                    {item.children.map((subItem) => (
+                                        <Menu.Item key={subItem.key}>{subItem.label}</Menu.Item>
+                                    ))}
+                                </Menu.SubMenu>
+                            ))}
+                        </Menu>
+                    </Sider>
+                )}
                 <Layout style={{ padding: '0 24px 24px' }}>
                     <Breadcrumb style={{ margin: '16px 0' }}>
-                        {breadcrumbItems.length > 0 ? (
-                            breadcrumbItems.map((item) => (
-                                <Breadcrumb.Item key={item.key}>{item.label}</Breadcrumb.Item>
-                            ))
+                        {breadcrumbItem ? (
+                            <Breadcrumb.Item>{breadcrumbItem}</Breadcrumb.Item>
                         ) : (
                             <Breadcrumb.Item>首页</Breadcrumb.Item>
                         )}
                     </Breadcrumb>
                     <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
-                        {selectedMenuKeys.length > 0 ? (
-                            <div>您选择的是：{selectedMenuKeys[0]}</div>
-                        ) : (
-                            <div>欢迎访问首页</div>
-                        )}
+                        {selectedMenuKey && <div>您选择的是：{selectedMenuKey}</div>}
+                        {!selectedMenuKey && <div>欢迎访问首页</div>}
                     </Content>
                 </Layout>
             </Layout>

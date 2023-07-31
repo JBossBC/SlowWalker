@@ -192,7 +192,7 @@ const delayScript = `
           return redis.call('PEXPIRE',KEYS[1],ARGV[2])
    else
 	      return -2
-   end	  	   
+   end
 `
 const delayCacheKey = "delay"
 
@@ -243,7 +243,7 @@ func (mutex *Mutex) UnLock() {
 const releaseScript = `
    if redis.call('GET',KEYS[1])==ARGV[1] then
            return redis.call('DEL',KEYS[1])
-   end	   
+   end
 `
 
 var cacheHash = make(map[string]string)
