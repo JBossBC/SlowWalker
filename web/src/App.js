@@ -27,7 +27,7 @@ function App(){
                     <Route path="/" element={<Index Token={Token} setToken={setToken} />} /> {/* 使用element属性 */}
                     <Route path="/login" element={<Index Token={Token} setToken={setToken} />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/main" component={<Main />} />
+                    <Route path="/main" element={<Main />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </Backend.Provider>
