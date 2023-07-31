@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "./";
+
+message TaskImage{
+    bytes ID =1;
+    repeated string Exec =2;
+}
+
