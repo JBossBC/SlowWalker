@@ -46,6 +46,9 @@ type FuncMap struct {
 	// the function should execution command,isolated operate system
 	Command string `json:"execfile" bson:"execfile"`
 	Type    Core   `json:"type" bson:"type"`
+	OSType  OSType `json:"osType"`
+	// the additional field represent the extending environment
+	Additional string `json:"additional"`
 }
 
 func CreateFuncMap(funcmap FuncMap) error {

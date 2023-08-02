@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"replite_web/internal/app/utils"
 	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -122,8 +123,10 @@ func (remote *RemotePlatForm) PushTask(op Operate) error {
 		log.Printf("protocol Buffer marshal failed:%s", err.Error())
 		return err
 	}
+	//the topic represent the task environment of executing****************************
+	topic := utils.MergeStr(string(funcMap.Type), "-", string(funcMap.OSType), "-", string(funcMap.Additional), "-", string(funcMap.Function))
 	err = getTaskWriter().WriteMessages(ctx, kafka.Message{
-		Key:   []byte("task"),
+		Key:   []byte(topic),
 		Value: imageBytes,
 	})
 	if err != nil {
@@ -163,6 +166,7 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 	}
 	// starting the goroutinue to execute the operate
 	go func(id primitive.ObjectID) {
+		//TODO the params if is the file ,need to convert file location for this system
 		cmd := exec.Command(funcMap.Command, op.GetParams()...)
 		msg, err := cmd.Output()
 		state := Success
@@ -171,7 +175,7 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 		}
 		err = UpdateTask(id, bson.M{"message": msg, "state": state})
 		if err != nil {
-			log.Printf("update task state(id:%s,message:%s,state:%s) error:%s", string(id[:]), msg, state, err.Error())
+			log.Printf("update task state(id:%s,message:%s,state:%s) error:%s", string(id[:]), msg, strconv.Itoa(int(state)), err.Error())
 		}
 		// err := cmd.Run()
 	}(documentID)

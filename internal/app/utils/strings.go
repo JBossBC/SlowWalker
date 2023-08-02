@@ -10,7 +10,7 @@ func MergeStr(value ...string) string {
 		if str == "" {
 			str = "*"
 		}
-		sb.WriteString(value[i])
+		sb.WriteString(str)
 	}
 	return sb.String()
 }

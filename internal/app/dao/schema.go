@@ -64,6 +64,12 @@ var default_platform_schema = []PlatForm{
 			MechineType: Undefiend,
 		},
 	},
+	&RemotePlatForm{
+		BasePlatForm{
+			CoreType:    []Core{CPU},
+			MechineType: Linux,
+		},
+	},
 	// &RemotePlatForm{
 	// 	BasePlatForm{
 

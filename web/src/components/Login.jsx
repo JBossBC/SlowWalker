@@ -6,9 +6,6 @@ import React, { useState,useContext,useEffect} from "react";
 import axios from "axios";
 import {Backend} from "../App";
 //import { useHistory } from "react-router-dom";
-
-const localURL="http://localhost:8080"
-//const testURL="http://112.124.53.234:8080/"
 const Login = (params) => {
     const {Token,setToken} =params;
     const [loading, setLoading] = useState(false);
@@ -28,7 +25,7 @@ const Login = (params) => {
         try {
             setLoading(true);
             setDisableAll(true); // 禁用其他链接和按钮
-            const response = await axios.get( localURL+ "/user/login?username=" + username + "&password=" + password)
+            const response = await axios.get( backendURL+ "/user/login?username=" + username + "&password=" + password)
             const {state, message: resMessage} = response.data;
             //先检查所有错误并处理
             if ( !state) {

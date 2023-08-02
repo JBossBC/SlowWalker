@@ -29,8 +29,8 @@ function App(){
     <Router>
      <Backend.Provider value={defaultBackendURL}>
       <Routes>
-      <Route path="/" element={Index(Token,setToken)}/>
-      <Route path="/login" element={Index(Token,setToken)}/>
+      <Route path="/" element={Index({Token,setToken})}/>
+      <Route path="/login" element={Index({Token,setToken})}/>
       <Route path="/register" element={Register}/>
       <Route path="/main" element={Main}/>
        <Route path="*" element={NotFound}/>
