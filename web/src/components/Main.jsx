@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
-import { Layout, Menu, Breadcrumb, theme } from 'antd';
+import { Layout, Menu, Breadcrumb, theme,message} from 'antd';
 import axios from "axios";
+import { useNavigate } from 'react-router';
 
 const { Header, Content, Sider } = Layout;
 const localURL = "http://localhost:8080";
@@ -13,11 +14,11 @@ const Main = () => {
     const [selectedMenuKey, setSelectedMenuKey] = useState('');
     const [breadcrumbItem, setBreadcrumbItem] = useState('');
     const [menuItems, setMenuItems] = useState([]);
-
+    const navigate=useNavigate();
     useEffect(() => {
         fetchData();
+        
     }, []);
-
     const fetchData = async () => {
         try {
             const response = await axios.get(localURL + "/rule/query");
