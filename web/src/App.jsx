@@ -11,12 +11,13 @@ axios.defaults.headers.common["Authorization"] = `Bearer ${defaultToken}`;
 const defaultBackendURL = "http://localhost:8080";
 export const Backend = React.createContext(defaultBackendURL);
 function App(){
-  const navigate =useNavigate();
+  // const navigate =useNavigate();
+  // console.log(navigate);
   const {Token,setToken} = useState(defaultToken);
   axios.interceptors.response.use(null,(error)=>{
     if (error.response.state ==304){
       sessionStorage.removeItem("repliteweb");
-      navigate("/");
+      // navigate("/")
     }
      message.error("系统出错");
      console.log(error);

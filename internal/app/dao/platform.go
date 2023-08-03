@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os/exec"
 	"replite_web/internal/app/utils"
@@ -123,6 +124,15 @@ func (remote *RemotePlatForm) PushTask(op Operate) error {
 		log.Printf("protocol Buffer marshal failed:%s", err.Error())
 		return err
 	}
+	task := new(Task)
+	task.PlatForm = remote
+	task.Operate = op
+	task.State = Ongoing
+	task.ID = documentID
+	err = CreateTask(*task)
+	if err != nil {
+		return err
+	}
 	//the topic represent the task environment of executing****************************
 	topic := utils.MergeStr(string(funcMap.Type), "-", string(funcMap.OSType), "-", string(funcMap.Additional), "-", string(funcMap.Function))
 	err = getTaskWriter().WriteMessages(ctx, kafka.Message{
@@ -130,16 +140,14 @@ func (remote *RemotePlatForm) PushTask(op Operate) error {
 		Value: imageBytes,
 	})
 	if err != nil {
+		//RollBack this task
+		DeleteTask(*task)
+
 		log.Printf("push kafka failed:%s", err.Error())
 		return err
 	}
-	task := new(Task)
-	task.PlatForm = remote
-	task.Operate = op
-	task.State = Ongoing
-	task.ID = documentID
 	//create task success
-	return CreateTask(*task)
+	return nil
 }
 
 type LocalPlatForm struct {
@@ -171,9 +179,10 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 		msg, err := cmd.Output()
 		state := Success
 		if err != nil {
+			log.Println("执行Task出错:", msg)
 			state = Failed
 		}
-		err = UpdateTask(id, bson.M{"message": msg, "state": state})
+		err = UpdateTask(id, bson.M{"message": fmt.Sprintf("任务执行失败:%s", msg), "state": state})
 		if err != nil {
 			log.Printf("update task state(id:%s,message:%s,state:%s) error:%s", string(id[:]), msg, strconv.Itoa(int(state)), err.Error())
 		}

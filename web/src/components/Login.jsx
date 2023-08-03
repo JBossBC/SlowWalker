@@ -11,13 +11,14 @@ const Login = (params) => {
     const [loading, setLoading] = useState(false);
     const [disableAll, setDisableAll] = useState(false);
     const backendURL = useContext(Backend);
-    const nagivate =useNavigate();
+    // const nagivate =useNavigate();
+    // console.log(nagivate);
     //const history=useHistory();
     useEffect(()=>{
         if (Token !=""){
             // init the token for system
             // login
-            nagivate('/main');
+            // nagivate('/main');
         }
     },[])
     const onFinish = async (value) => {
