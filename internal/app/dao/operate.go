@@ -16,6 +16,7 @@ type Operate interface {
 	GetParams() []string
 	// GetCallBack() func(any) any
 	GetOperateType() OperateType
+	GetMedium() []string
 }
 
 type BaseOperate struct {
@@ -28,10 +29,15 @@ type BaseOperate struct {
 	// CallBack func(any) `json:"-"`
 	// the operateType
 	OperateType OperateType `json:"operatetype"`
+	// the share resource for need to handler
+	Medium []string `json:"medium"`
 }
 
 func (base *BaseOperate) GetOperateType() OperateType {
 	return base.OperateType
+}
+func (base *BaseOperate) GetMedium() []string {
+	return base.Medium
 }
 
 func (base *BaseOperate) GetFunction() string {
@@ -57,6 +63,12 @@ type OperateOption func(*BaseOperate)
 func WithParams(params []string) OperateOption {
 	return func(op *BaseOperate) {
 		op.Params = params
+	}
+}
+
+func WithMedium(medium []string) OperateOption {
+	return func(op *BaseOperate) {
+		op.Medium = medium
 	}
 }
 

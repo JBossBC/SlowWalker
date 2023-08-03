@@ -6,7 +6,7 @@ import { NotFound,Index,Register, Main } from "./components";
 import { message } from "antd";
 // init the axios interceptors from error handle
 const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStorage.getItem("repliteweb"):"";
-axios.defaults.headers.common["Authorization"] = `Bearer ${defaultToken}`;
+// axios.defaults.headers.common["Authorization"] = `Bearer ${defaultToken}`;
 
 const defaultBackendURL = "http://localhost:8080";
 export const Backend = React.createContext(defaultBackendURL);

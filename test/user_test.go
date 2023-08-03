@@ -36,6 +36,11 @@ func TestCreateAccount(t *testing.T) {
 	Response3 := utils.NewFailedResponse("用户名已存在")
 	Response4 := utils.NewFailedResponse("验证码出错")
 	Response5 := utils.NewFailedResponse("创建失败")
+	// base, ok := response.(utils.BaseResponse)
+	// if !ok || base.State != true {
+	// 	panic("测试出错")
+	// }
+
 	if response == Response1 {
 		t.Fatalf("注册次数太多,请等一会再试")
 	} else if response == Response2 {

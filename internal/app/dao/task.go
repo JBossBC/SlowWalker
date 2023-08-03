@@ -52,6 +52,13 @@ func CreateTask(task Task) error {
 	return nil
 }
 
+func DeleteTask(task Task) error {
+	ctx, cancel := context.WithTimeout(context.Background(), default_task_times)
+	defer cancel()
+	_, err := getTaskCollection().DeleteOne(ctx, bson.M{"_id": task.ID})
+	return err
+}
+
 func UpdateTask(taskid primitive.ObjectID, fields bson.M) error {
 	// if task.State != Ongoing {
 	// 	return errors.New("the update state must be ongoing")
