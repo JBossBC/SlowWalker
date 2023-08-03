@@ -1,16 +1,16 @@
 
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Breadcrumb, theme,message} from 'antd';
 import axios from "axios";
 import { useNavigate } from 'react-router';
+import {Backend} from "../App";
 
 const { Header, Content, Sider } = Layout;
-const localURL = "http://localhost:8080";
 //const testURL = "http://112.124.53.234:8080";d
 const Main = () => {
     const { token: { colorBgContainer } } = theme.useToken();
-
+   const backURL =useContext(Backend)
     const [selectedMenuKey, setSelectedMenuKey] = useState('');
     const [breadcrumbItem, setBreadcrumbItem] = useState('');
     const [menuItems, setMenuItems] = useState([]);
@@ -21,7 +21,7 @@ const Main = () => {
     }, []);
     const fetchData = async () => {
         try {
-            const response = await axios.get(localURL + "/rule/query");
+            const response = await axios.get(backURL + "/rule/query");
             const { state, data } = response.data;
             console.log(data);
             if (state) {
