@@ -12,7 +12,7 @@ const instance =axios.create({
   instance.interceptors.request.use(function(request){
     let token=sessionStorage.getItem("repliteweb")!=undefined?sessionStorage.getItem("repliteweb"):"";
     if (token!=""){
-        request.headers.Authorization = token;
+        request.headers.Authorization ='Bearer '+token;
     }
     return request;
 },(error)=>Promise.reject(error));
