@@ -1,5 +1,5 @@
 
-// import { message } from 'antd';
+import { message } from 'antd';
 import axios from 'axios';
 const backendURL = "http://localhost:8080";
 const instance =axios.create({
@@ -25,6 +25,6 @@ instance.interceptors.response.use((response)=>{
       }
     //    message.error("系统出错啦.....");
     return response;
-},(error)=>Promise.reject(error));
+},(error)=>{message.error("系统出错啦");return Promise.reject(error)});
 
  export default instance ;
