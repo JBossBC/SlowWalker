@@ -18,7 +18,7 @@ const instance =axios.create({
 },(error)=>Promise.reject(error));
 
 instance.interceptors.response.use((response)=>{
-    console.log(response);
+
     if (response.state ==304){
         sessionStorage.removeItem("repliteweb");
         // navigate("/login");
