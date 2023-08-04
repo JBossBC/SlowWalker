@@ -1,4 +1,5 @@
 
+import { message } from 'antd';
 import axios from 'axios';
 const backendURL = "http://localhost:8080";
 const instance =axios.create({
@@ -8,12 +9,22 @@ const instance =axios.create({
   
 
 
-axios.interceptors.response.use(null,(error)=>{
-      if (error.response.state ==304){
+  instance.interceptors.request.use(function(request){
+    let token=sessionStorage.getItem("repliteweb")!=undefined?sessionStorage.getItem("repliteweb"):"";
+    if (token!=""){
+        request.headers.Authorization = token;
+    }
+    return request;
+},(error)=>Promise.reject(error));
+
+instance.interceptors.response.use((response)=>{
+    console.log(response);
+    if (response.state ==304){
         sessionStorage.removeItem("repliteweb");
         // navigate("/login");
       }
-       message.error("系统出错啦.....");
-       console.log(error);
-       return Promise.reject(error);
-    })
+    //    message.error("系统出错啦.....");
+    return response;
+},(error)=>{message.error("系统出错啦");return Promise.reject(error)});
+
+ export default instance ;

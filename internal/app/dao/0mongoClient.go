@@ -25,7 +25,7 @@ func init() {
 	}
 	err = tempClient.Ping(context.TODO(), nil)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("ping mongoDB error:%s", err.Error()))
 	}
 	log.Printf("Connected to MongoDB")
 	mClient = tempClient
@@ -41,6 +41,8 @@ func newMongoConn(dbName string) *mongo.Database {
 func getMongoConn() *mongo.Database {
 	return newMongoConn(config.DBConfig.MongoConfig.Database)
 }
-func getMongoClient() *mongo.Client {
+
+// release to external struct using
+func GetMongoClient() *mongo.Client {
 	return mClient
 }

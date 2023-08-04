@@ -3,22 +3,17 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import {useNavigate}  from 'react-router-dom';
 import logo from "../public/logo.png";
 import React, { useState,useContext,useEffect} from "react";
-import axios from "axios";
-import {Backend} from "../App";
+import axios from "../utils/axios";
 //import { useHistory } from "react-router-dom";
-const Login = (params) => {
-    const {Token,setToken} =params;
+const Login = () => {
     const [loading, setLoading] = useState(false);
     const [disableAll, setDisableAll] = useState(false);
-    const backendURL = useContext(Backend);
-    const nagivate =useNavigate();
-    // console.log(nagivate);
-    //const history=useHistory();
+    const navigate =useNavigate();
     useEffect(()=>{
-        if (Token !=""){
+        if (sessionStorage.getItem("repliteweb")!=undefined&&sessionStorage.getItem("repliteweb") !=""){
             // init the token for system
             // login
-            nagivate('/main');
+            navigate('/main');
         }
     },[])
     const onFinish = async (value) => {
@@ -26,10 +21,18 @@ const Login = (params) => {
         try {
             setLoading(true);
             setDisableAll(true); // 禁用其他链接和按钮
-            const response = await axios.get( backendURL+ "/user/login?username=" + username + "&password=" + password)
+            const response = await axios.get("/user/login",{params:{
+                "username":username,
+                "password":password,
+            }});
+            if (response.status!=200){
+                   message.error("系统出错啦");
+                   return;
+            }
             const {state, message: resMessage} = response.data;
+
             //先检查所有错误并处理
-            if ( !state) {
+            if (!state ) {
                 //登录失败
                 let Message = resMessage;
                 if (Message == undefined || message == "") {
@@ -40,13 +43,8 @@ const Login = (params) => {
             }
             // 登录成功，保存JWT Token到浏览器
             const jwt = String(response.headers.get('Authorization')).replace("Bearer ","");
-            //localStorage.setItem("jwtToken", jwt);
-            /*使用浏览器的会话存储（session Storage）来存储 JWT Token。
-            与 Local Storage 不同，会话存储只在当前会话期间有效，
-            当浏览器标签页或窗口关闭时会被清除。同样存在安全风险和 XSS 攻击的风险。*/
             sessionStorage.setItem('repliteweb', jwt);
-            setToken(jwt);
-            message.success(resMessage).then(()=>nagivate("/main"));
+            message.success(resMessage).then(()=>navigate("/main"));
         } finally {
             setLoading(false);
             setDisableAll(false); // 解除禁用其他链接和按钮
