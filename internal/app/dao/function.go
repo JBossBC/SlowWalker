@@ -28,7 +28,7 @@ func init() {
 		panic(err)
 	}
 	funcmapSlice := make([]FuncMap, 10)
-	err = cur.All(ctx, funcmapSlice)
+	err = cur.All(ctx, &funcmapSlice)
 	if err != nil {
 		panic(fmt.Sprintf("analysis the funcmap collection error:%s", err.Error()))
 	}

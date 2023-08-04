@@ -40,7 +40,7 @@ func init() {
 				//renew the systemSource
 				getRulesToMap()
 			default:
-				time.Sleep(10 * time.Minute)
+				time.Sleep(1 * time.Hour)
 			}
 		}
 	}()

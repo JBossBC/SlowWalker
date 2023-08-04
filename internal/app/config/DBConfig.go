@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type DataBase struct {
@@ -26,8 +27,7 @@ type RedisConfig struct {
 	Init     string `xml:"init"`
 }
 
-// var DEFAULT_DB_CONFIG = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "db.xml")
-var DEFAULT_DB_CONFIG = fmt.Sprint("C:\\Users\\OLLIEo\\Desktop\\repliteweb\\repliteWeb\\configs\\db.xml")
+var DEFAULT_DB_CONFIG = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "db.xml")
 
 var DBConfig *DataBase
 

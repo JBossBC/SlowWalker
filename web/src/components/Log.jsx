@@ -1,8 +1,8 @@
-import axios from 'axios';
-import React,{useState, useEffect,useContext} from 'react';
-import { Empty, Space, Table, Tag,Button } from 'antd';
+import axios from '../utils/axios';
+import React,{useState, useEffect} from 'react';
+import { Empty, Space, Table, Tag,Button,message } from 'antd';
 import moment from 'moment';
-import {Backend} from "../App"
+import { useNavigate } from 'react-router';
 /** 	PRINT LogLevel = "print"
 	WARN  LogLevel = "warn"
 	ERROR LogLevel = "error"
@@ -98,8 +98,8 @@ const getNewParams = (params) =>({   //当变量参数更新时修改参数
 }); 
 
 const Log= ()=>{
+    const navigate=useNavigate();
     const [hasData,setHasData]= useState(false); 
-    const backendURL = useContext(Backend);
     const [data, setData] = useState([]); //默认data数据为空数组
     const [loading, setLoading] = useState(false); //调用fetchlog函数加载数据时为true，加载完毕为false
     const [tableParams, setTableParams] = useState({  //设置变量参数
@@ -112,20 +112,24 @@ const Log= ()=>{
     const fetchData = async() => {
       try {
         setLoading(true); //当调用fetchData这个异步函数时，表示要进行数据的重载
-        const response = await axios.get(backendURL+ "/log/query", {
+        const response = await axios.get("/log/query", {
           params: getNewParams(tableParams),
-          headers:{
-            'Authorization':'Bearer '+sessionStorage.getItem("repliteweb")
-          }
         });
-        console.log(tableParams)
-        console.log(response)
-        console.log(response.data)
-        console.log()
-        if (response.status == '200') {
+        const {state, message: resMessage} = response.data;
+        if ( response.status!=200||!state ) {
+          //登录失败
+          let Message = resMessage;
+          if (Message == undefined || message == "") {
+              Message = "系统错误";
+          }
+          message.error(Message).then(()=>{
+              if (response.status==304){
+                  navigate('/');
+              }
+          });
+          return
+      }
           setData(response.data.data);
-          console.log("there")
-          console.log(data)
           setLoading(false);
           setHasData(true);
           setTableParams({
@@ -135,7 +139,7 @@ const Log= ()=>{
               total: response.data.total,
             },
           });
-        }
+        
       }catch (error){
         setLoading(false);
         console.log(error); //这里可以加一个提示框显示查询报错
