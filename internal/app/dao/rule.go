@@ -40,7 +40,7 @@ func init() {
 				//renew the systemSource
 				getRulesToMap()
 			default:
-				time.Sleep(10 * time.Minute)
+				time.Sleep(1 * time.Hour)
 			}
 		}
 	}()
@@ -60,7 +60,7 @@ func GetRule(owner string, authority string) (value any, ok bool) {
 		return nil, false
 	}
 	value, ok = owners[authority]
-	return
+	return value, true //修改，原为return
 }
 
 func GetAuthority(owner string) []any {

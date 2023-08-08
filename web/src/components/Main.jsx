@@ -1,26 +1,29 @@
 
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
-import { Layout, Menu, Breadcrumb, theme } from 'antd';
-import axios from "axios";
+import { Layout, Menu, Breadcrumb, theme,message} from 'antd';
+import axios from "../utils/axios";
+import { useNavigate } from 'react-router';
+import {Backend} from "../App";
+import { Outlet } from 'react-router-dom';
+import Log from './Log';
 
 const { Header, Content, Sider } = Layout;
-const localURL = "http://localhost:8080";
 //const testURL = "http://112.124.53.234:8080";d
 const Main = () => {
     const { token: { colorBgContainer } } = theme.useToken();
-
     const [selectedMenuKey, setSelectedMenuKey] = useState('');
     const [breadcrumbItem, setBreadcrumbItem] = useState('');
     const [menuItems, setMenuItems] = useState([]);
-
+    const navigate=useNavigate();
+    const [showLog, setShowLog] = useState(false); // 定义showLog状态变量，默认值为false
     useEffect(() => {
         fetchData();
+        
     }, []);
-
     const fetchData = async () => {
         try {
-            const response = await axios.get(localURL + "/rule/query");
+            const response = await axios.get("/rule/query");
             const { state, data } = response.data;
             console.log(data);
             if (state) {
@@ -57,8 +60,16 @@ const Main = () => {
 
         setSelectedMenuKey(key);
         setBreadcrumbItem(updatedBreadcrumbItem);
-    };
+        
+        console.log(key)
 
+        if (key === 'sub/system/log') {
+            console.log("1111111111111111111111111111")
+            setShowLog(true); // 点击log菜单项时将showLog设置为true
+        } else {
+            setShowLog(false); // 点击其他菜单项时将showLog设置为false
+        }
+    };
     return (
         <Layout>
             <Header style={{ display: 'flex', alignItems: 'center' }}>
@@ -93,8 +104,8 @@ const Main = () => {
                         )}
                     </Breadcrumb>
                     <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
-                        {selectedMenuKey && <div>您选择的是：{selectedMenuKey}</div>}
-                        {!selectedMenuKey && <div>欢迎访问首页</div>}
+                    {selectedMenuKey === 'sub/system/log' && showLog && <Log />} {/* 当选择的菜单项为log时，显示日志组件 */}
+                        {!selectedMenuKey && <div>欢迎访问首页6666</div>}
                     </Content>
                 </Layout>
             </Layout>

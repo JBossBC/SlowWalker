@@ -28,7 +28,7 @@ func init() {
 		panic(err)
 	}
 	funcmapSlice := make([]FuncMap, 10)
-	err = cur.All(ctx, funcmapSlice)
+	err = cur.All(ctx, &funcmapSlice)
 	if err != nil {
 		panic(fmt.Sprintf("analysis the funcmap collection error:%s", err.Error()))
 	}
@@ -46,6 +46,9 @@ type FuncMap struct {
 	// the function should execution command,isolated operate system
 	Command string `json:"execfile" bson:"execfile"`
 	Type    Core   `json:"type" bson:"type"`
+	OSType  OSType `json:"osType"`
+	// the additional field represent the extending environment
+	Additional string `json:"additional"`
 }
 
 func CreateFuncMap(funcmap FuncMap) error {
