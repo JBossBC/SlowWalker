@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
@@ -52,5 +51,4 @@ func Auth(ctx *gin.Context) {
 	// add the jwt claims to context
 	ctx.Set("username", auth.Username)
 	ctx.Set("role", auth.Role)
-	fmt.Println("ware2")
 }

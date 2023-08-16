@@ -314,11 +314,8 @@ func AggregateLogSum() (int32, error) { //new add
 			return -1, err
 		}
 		total = result["total"].(int32)
-		fmt.Println("日志文档总数为：", total)
 	}
-
 	return total, nil
-
 }
 
 // func queryMaxPage(pageNumber int) int {

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
 
@@ -25,13 +24,11 @@ func RBACMiddleware(context *gin.Context) {
 	role, bol := context.Get("role")
 	if !bol {
 		context.AbortWithStatus(utils.AuthFailedState)
-		fmt.Println("g1")
 		return
 	}
-	resource, bol := context.Get("username") //原始为resource
+	resource, bol := context.Get("resource")
 	if !bol {
 		context.AbortWithStatus(utils.AuthFailedState)
-		fmt.Println("g2")
 		return
 	}
 	// currency resource skip the rbac
@@ -40,10 +37,8 @@ func RBACMiddleware(context *gin.Context) {
 	// }
 	if !hasAuthority(role.(string), resource.(string)) {
 		context.AbortWithStatus(utils.AuthFailedState)
-		fmt.Println("g3")
 		return
 	}
-	fmt.Println("ware3")
 }
 
 // key: the Authentication level  value: what the level want to access
