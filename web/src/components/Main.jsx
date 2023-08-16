@@ -64,7 +64,6 @@ const Main = () => {
         console.log(key)
 
         if (key === 'sub/system/log') {
-            console.log("1111111111111111111111111111")
             setShowLog(true); // 点击log菜单项时将showLog设置为true
         } else {
             setShowLog(false); // 点击其他菜单项时将showLog设置为false
