@@ -21,5 +21,9 @@
         <name>task</name>
         <value>task</value>
     </table>
+    <table>
+        <name>funcview</name>
+        <value>funcview</value>
+    </table>
     
 </mongoTables>
