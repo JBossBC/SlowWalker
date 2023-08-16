@@ -20,6 +20,7 @@ type FuncView struct {
 	Params      string `json:"params" bson:"params"`
 	Sign        bool   `json:"sign" bson:"sign"`
 	EmptyPrefix bool   `json:"emptyPrefix" bson:"emptyPrefix"`
+	IsMedium    bool   `json:"isMedium" bson:"isMedium"`
 }
 
 func getFuncViewCollection() *mongo.Collection {

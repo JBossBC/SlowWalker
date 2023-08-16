@@ -20,6 +20,7 @@ type Operate interface {
 }
 
 type BaseOperate struct {
+	Operate
 	// Command  string   `json:"command"`
 	Operator string `json:"operator"`
 	// the complete params including the params template and actual params for the inputing of user
@@ -34,20 +35,20 @@ type BaseOperate struct {
 	Medium []string `json:"medium"`
 }
 
-func (base *BaseOperate) GetOperateType() OperateType {
+func (base BaseOperate) GetOperateType() OperateType {
 	return base.OperateType
 }
-func (base *BaseOperate) GetMedium() []string {
+func (base BaseOperate) GetMedium() []string {
 	return base.Medium
 }
 
-func (base *BaseOperate) GetFunction() string {
+func (base BaseOperate) GetFunction() string {
 	return base.Function
 }
-func (base *BaseOperate) GetOperator() string {
+func (base BaseOperate) GetOperator() string {
 	return base.Operator
 }
-func (base *BaseOperate) GetParams() []string {
+func (base BaseOperate) GetParams() []string {
 	return base.Params
 }
 

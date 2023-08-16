@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
+	"strings"
 )
 
 // the params resprent the user params view
-func ExecTask(operate string,ip string, function string, params map[string]any) (response utils.Response) {
+func ExecTask(operate string, ip string, function string, params map[string]string) (response utils.Response) {
 	views, err := dao.GetFuncViews(function)
 	if err != nil {
 		return utils.NewFailedResponse("系统错误")
 	}
+	var mediumParams = make([]string, 0, len(params))
 	// params pre-inspect
 	for i := 0; i < len(views); i++ {
 		var tmp = views[i]
@@ -21,34 +23,43 @@ func ExecTask(operate string,ip string, function string, params map[string]any) 
 			}
 		}
 	}
-	for key,_:=range params{
-		var tmp=params[i]
-		var valid =false
-		for j:=0;j<len(views);j++{
-			if strings.Compare(views[j].View,key) == 0{
-				valid=true
+	for key, value := range params {
+		var valid = false
+		for j := 0; j < len(views); j++ {
+			var tmp = views[j]
+			if strings.Compare(tmp.View, key) == 0 {
+				if tmp.IsMedium {
+					mediumParams = append(mediumParams, value)
+				}
+				valid = true
 				break
-			}  
+			}
 		}
-		if !valid{
-			dao.Errorf(operate,ip,"操作者使用了无效的参数:%s",function)
+		if !valid {
+			dao.Errorf(operate, ip, "操作者使用了无效的参数:%s", function)
 			return utils.NewFailedResponse("参数错误")
 		}
 	}
 	// init operate
 	funcmap := dao.GetFuncMap(function)
-	if funcmap == nil{
-		dao.Errorf(operate,ip,"操作者正在使用未知功能:%s",function)
-		return utils.NewFailedResponse("没有上传对应函数功能");
+	if funcmap == nil {
+		dao.Errorf(operate, ip, "操作者正在使用未知功能:%s", function)
+		return utils.NewFailedResponse("没有上传对应函数功能")
 	}
-	var completeParams:=make([]string,0,len(params))
+	var completeParams = make([]string, 0, len(params))
 	//the params has included in views  for this stage
-	for key,_:=range params{
-		views[key]
+	for key, value := range params {
+		for i := 0; i < len(views); i++ {
+			var tmp = views[i]
+			if strings.Compare(key, tmp.View) == 0 {
+				completeParams = append(completeParams, tmp.Params, value)
+			}
+		}
 	}
-	op := new(dao.BaseOperate)
-	op.Function=function
-	op.Params = completeParams
-	
+	err = dao.GetLinuxPlatform().PushTask(dao.NewOperate(operate, function, dao.WithParams(completeParams), dao.WithMedium(mediumParams)))
+	if err != nil {
+		return utils.NewFailedResponse("任务发送失败")
+	}
+	return utils.NewSuccessResponse("创建任务成功")
 
 }
