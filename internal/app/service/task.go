@@ -8,7 +8,7 @@ import (
 )
 
 // the params resprent the user params view
-func ExecTask(operate string, ip string, function string, params map[string]string) (response utils.Response) {
+func ExecTask(operate string, ip string, function string, params map[string]string, isLocal bool) (response utils.Response) {
 	views, err := dao.GetFuncViews(function)
 	if err != nil {
 		return utils.NewFailedResponse("系统错误")
@@ -63,3 +63,24 @@ func ExecTask(operate string, ip string, function string, params map[string]stri
 	return utils.NewSuccessResponse("创建任务成功")
 
 }
+
+type PlatformChain interface {
+	setNext(PlatformChain) PlatformChain
+	Handle()
+}
+
+type PlatformChainImpl struct {
+	next PlatformChain
+}
+
+func (chain *PlatformChainImpl) setNext(platform PlatformChain) PlatformChain {
+	chain.next = platform
+	return platform
+}
+
+func (chain *PlatformChainImpl) Handle(){
+	
+}
+
+// TODO how to design the flexiable function to add
+func CreateTask()
