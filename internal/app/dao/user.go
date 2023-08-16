@@ -28,7 +28,6 @@ const DEFAULT_USER_EXPIRE_TIME = 5 * time.Minute
 var INVALID_REDIS_USERS_VALUE = struct{}{}
 var emptyUser = User{}
 
-// TODO add the ip to user field
 type User struct {
 	Username    string `json:"username" bson:"username"`
 	Password    string `json:"password" bson:"password"`
@@ -94,7 +93,7 @@ func DeleteUser(user *User) error {
 		log.Printf("删除User document出错,影响document数量%d:%s", result.DeletedCount, err.Error())
 		return err
 	}
-	// del redis key
+	// del redis key,should defer delete if concurrency scene
 	err = Del(getUserKey(user.Username))
 	if err != nil {
 		log.Printf("删除redis缓存(%s)出错:%s", user.Username, err.Error())

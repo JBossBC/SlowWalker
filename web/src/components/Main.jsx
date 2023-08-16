@@ -1,62 +1,99 @@
-import React from 'react';
+
+import React, {useContext, useEffect, useState} from 'react';
 import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
-import { Layout, Menu, Breadcrumb, theme } from 'antd';
+import { Layout, Menu, Breadcrumb, theme,message} from 'antd';
+import axios from "../utils/axios";
+import { useNavigate } from 'react-router';
+import Log from './Log';
+import { useTranslation } from 'react-i18next';
+
 
 const { Header, Content, Sider } = Layout;
-
-const items2 = [
-    {
-        key: 'sub1',
-        icon: <UserOutlined />,
-        label: '功能',
-        children: [],
-    },
-    {
-        key: 'sub2',
-        icon: <LaptopOutlined />,
-        label: '系统',
-        children: [],
-    },
-];
-
+//const testURL = "http://112.124.53.234:8080";d
 const Main = () => {
-    const {
-        token: { colorBgContainer },
-    } = theme.useToken();
+    const {t} = useTranslation('cn');
+    const { token: { colorBgContainer } } = theme.useToken();
+    const [selectedMenuKey, setSelectedMenuKey] = useState('');
+    const [breadcrumbItem, setBreadcrumbItem] = useState('');
+    const [menuItems, setMenuItems] = useState([]);
+    const navigate=useNavigate();
+    const [showLog, setShowLog] = useState(false); // 定义showLog状态变量，默认值为false
+    useEffect(() => {
+        fetchData()
+    }, []);
+    const fetchData = async () => {
+        try {
+            const response = await axios.get("/rule/query");
+            const { state, data } = response.data;
+            console.log(data);
+            if (state) {
+                const items = [];
 
-    const [selectedMenuKey, setSelectedMenuKey] = React.useState('');
-    const [breadcrumbItem, setBreadcrumbItem] = React.useState('');
+                Object.keys(data).forEach((key) => {
+                    const subItems = Object.keys(data[key]).map((subKey) => ({
+                        key: `${key}/${subKey}`,
+                        label: t(data[key]),
+                    }));
+
+                    items.push({
+                        key: `sub/${key}`,
+                        icon: key === 'function' ? <UserOutlined /> : <LaptopOutlined />,
+                        label: key === 'function' ? '功能' : '系统',
+                        children: subItems,
+                    });
+                });
+
+                setMenuItems(items);
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    };
 
     const handleClick = ({ key }) => {
-        const [prefix, suffix] = key.split('/');
+        const [prefix, type, suffix] = key.split('/');
         let updatedBreadcrumbItem = '';
 
-        if (prefix === 'sub1') {
-            updatedBreadcrumbItem = `功能/${suffix.replace('option', '选项')}`;
-        } else if (prefix === 'sub2') {
-            updatedBreadcrumbItem = `系统/${suffix.replace('option', '选项')}`;
+        if (prefix === 'sub') {
+            updatedBreadcrumbItem = `首页/${type === 'function' ? '功能' : '系统'}/${suffix.replace('option', '选项')}`;
         }
 
         setSelectedMenuKey(key);
         setBreadcrumbItem(updatedBreadcrumbItem);
-    };
+        
+        console.log(key)
 
+        if (key === 'sub/system/log') {
+            setShowLog(true); // 点击log菜单项时将showLog设置为true
+        } else {
+            setShowLog(false); // 点击其他菜单项时将showLog设置为false
+        }
+    };
     return (
         <Layout>
             <Header style={{ display: 'flex', alignItems: 'center' }}>
                 <div className="demo-logo"></div>
             </Header>
             <Layout>
-                <Sider width={200} style={{ background: colorBgContainer }}>
-                    <Menu
-                        mode="inline"
-                        selectedKeys={[selectedMenuKey]}
-                        defaultOpenKeys={['sub1']}
-                        style={{ height: '100%', borderRight: 0 }}
-                        onSelect={handleClick}
-                        items={items2}
-                    />
-                </Sider>
+                {menuItems.length > 0 && (
+                    <Sider width={200} style={{ background: colorBgContainer }}>
+                        <Menu
+                            mode="inline"
+                            selectedKeys={[selectedMenuKey]}
+                            defaultOpenKeys={menuItems.map((item) => item.key)}
+                            style={{ height: '100%', borderRight: 0 }}
+                            onClick={handleClick}
+                        >
+                            {menuItems.map((item) => (
+                                <Menu.SubMenu key={item.key} icon={item.icon} title={item.label} items={item.children}>
+                                    {item.children.map((subItem) => (
+                                        <Menu.Item key={subItem.key}>{subItem.label}</Menu.Item>
+                                    ))}
+                                </Menu.SubMenu>
+                            ))}
+                        </Menu>
+                    </Sider>
+                )}
                 <Layout style={{ padding: '0 24px 24px' }}>
                     <Breadcrumb style={{ margin: '16px 0' }}>
                         {breadcrumbItem ? (
@@ -66,13 +103,12 @@ const Main = () => {
                         )}
                     </Breadcrumb>
                     <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
-                        {selectedMenuKey && <div>您选择的是：{selectedMenuKey}</div>}
-                        {!selectedMenuKey && <div>欢迎访问首页</div>}
+                    {selectedMenuKey === 'sub/system/log' && showLog && <Log />} {/* 当选择的菜单项为log时，显示日志组件 */}
+                        {!selectedMenuKey && <div>欢迎访问首页6666</div>}
                     </Content>
                 </Layout>
             </Layout>
         </Layout>
-    );
+  );
 };
-
 export default Main;

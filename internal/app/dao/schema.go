@@ -56,6 +56,33 @@ var default_audit_schema = []any{
 	},
 }
 
+// TODO test to init
+var default_platform_schema = []PlatForm{
+	&RemotePlatForm{
+		BasePlatForm{
+			CoreType:    []Core{None},
+			MechineType: Undefiend,
+		},
+	},
+	&RemotePlatForm{
+		BasePlatForm{
+			CoreType:    []Core{CPU},
+			MechineType: Linux,
+		},
+	},
+	// &RemotePlatForm{
+	// 	BasePlatForm{
+
+	// 	}
+	// }
+
+	// &LocalPlatForm{
+	// 	CoreType:    None,
+	// 	MechineType: Undefiend,
+	// 	Command:     "",
+	// },
+}
+
 // *********************************************** init the database to use **************************************************************//
 func InitMogoSchema() {
 	// initDB()
@@ -63,6 +90,7 @@ func InitMogoSchema() {
 	// 为了防止在分布式条件下，更新后的其他服务器配置文件未能及时更新从而导致的数据错误,只在user collections 中追加user数据
 	initUserSchema()
 	// initLogSchema()
+	initFuncMapSchema()
 	//renew the db.xml the init state
 	go func() {
 		config.DBConfig.MongoConfig.Init = "true"
@@ -143,6 +171,16 @@ var default_users_schema = []any{
 	},
 }
 
+var default_funcmaps_schema = []any{
+	FuncMap{
+		Function:   "null",
+		Command:    "null",
+		OSType:     Undefiend,
+		Type:       None,
+		Additional: "null",
+	},
+}
+
 func initUserSchema() {
 	// var users = []any{}
 	_, err := getUserCollection().InsertMany(context.Background(), default_users_schema)
@@ -158,6 +196,14 @@ func initUserSchema() {
 	// if err != nil {
 	// 	panic(fmt.Sprintf("insert the user schema collection error: %v", err))
 	// }
+}
+func initFuncMapSchema() {
+
+	_, err := getFuncMapCollection().InsertMany(context.Background(), default_funcmaps_schema)
+	if err != nil {
+		panic(fmt.Sprintf("初始化funcmap document失败:%s", err.Error()))
+	}
+	log.Printf("成功初始化funcmap collections:%v", default_funcmaps_schema...)
 }
 
 // func initLogSchema() {

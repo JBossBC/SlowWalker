@@ -16,8 +16,8 @@ import (
 // }
 
 type FilterLogView struct {
-	Data  any `json:"data"`
-	Total int `json:"total"`
+	Data  any   `json:"data"`
+	Total int32 `json:"total"`
 }
 
 func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) {

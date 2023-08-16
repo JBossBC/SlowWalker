@@ -29,6 +29,7 @@ func main() {
 	mobileRoute(engine)
 	auditRoute(engine)
 	ruleRoute(engine)
+	funcRoute(engine)
 	engine.Run(fmt.Sprintf(":%s", config.ServerConf.Port))
 }
 func mobileRoute(engine *gin.Engine) {
@@ -55,4 +56,12 @@ func ruleRoute(engine *gin.Engine) {
 	group := engine.Group("/rule")
 	group.Use(middleware.Auth)
 	group.Handle(http.MethodGet, "/query", controller.QueryRuleAuthorization)
+}
+
+func funcRoute(engine *gin.Engine) {
+	group := engine.Group("func")
+	group.Use(middleware.BeforeHandler)
+	group.Use(middleware.Auth)
+	group.Use(middleware.RBACMiddleware)
+	group.Handle(http.MethodGet, "/execute", controller.ExecTask)
 }

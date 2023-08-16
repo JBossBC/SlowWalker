@@ -23,6 +23,7 @@ func init() {
 	if err != nil {
 		panic(fmt.Sprintf("init the mutex unique nodeId false:%s", err.Error()))
 	}
+	
 	singleConfig.nodeID = nodeID
 }
 
@@ -30,7 +31,7 @@ const defaultCancelTime = 1 * time.Second
 
 const defaultExpiresTime = 3 * time.Second
 
-const defaultMaxOffsetTime = 10 * time.Millisecond
+const defaultMaxOffsetTime = 100 * time.Millisecond
 const defaultReties = 2
 
 type Mutex struct {
@@ -39,15 +40,18 @@ type Mutex struct {
 	name      string
 	config    *config
 	ending    chan error
+	mutex     sync.Mutex
+	// id        int32
 }
 
 type config struct {
 	cancelTime    time.Duration
 	maxOffsetTime time.Duration
 	expiresTime   time.Duration
-	reties        int
+	reties        int32
 	delegate      *redis.Client
 	nodeID        string
+	// id            int32
 }
 
 type ConfigOption func(*config)
@@ -74,7 +78,7 @@ func WithMaxOffsetTime(maxOffsetTime time.Duration) ConfigOption {
 }
 
 // WithReties be set to priority about  the gradient decreases for the interval of requesting lock,After how many repetitions
-func WithReties(reties int) ConfigOption {
+func WithReties(reties int32) ConfigOption {
 	return func(c *config) {
 		c.reties = reties
 	}
@@ -91,9 +95,6 @@ func WithStorageClient(client *redis.Client) ConfigOption {
 		}
 		c.delegate = client
 	}
-}
-func ChangeValue(id string) {
-	singleConfig.nodeID = id
 }
 
 // AssemblyMutex the mutex config init
@@ -118,6 +119,8 @@ func NewMutex(name string) *Mutex {
 	mutex := new(Mutex)
 	mutex.config = singleConfig
 	mutex.name = name
+	mutex.mutex = sync.Mutex{}
+	// mutex.id = atomic.AddInt32(&singleConfig.id, 1)
 	mutex.delayDone = make(chan struct{})
 	mutex.ending = make(chan error)
 	return mutex
@@ -141,7 +144,7 @@ func (mutex *Mutex) Discard() bool {
 
 func (mutex *Mutex) Lock() {
 	timeOffset := mutex.config.maxOffsetTime
-	retryTimes := 0
+	var retryTimes int32 = 0
 	for {
 		ok := mutex.TryLock()
 		if ok {
@@ -183,6 +186,7 @@ func (mutex *Mutex) TryLock() bool {
 }
 
 func (mutex *Mutex) acquire() (bool, error) {
+	mutex.mutex.Lock()
 	ctx, cancel := context.WithTimeout(context.Background(), mutex.config.cancelTime)
 	defer cancel()
 	cmd := mutex.config.delegate.SetNX(ctx, mutex.name, mutex.config.nodeID, mutex.config.expiresTime)
@@ -257,6 +261,7 @@ const releaseCacheKey = "release"
 
 // if the release failed , the system cant loss any resource
 func (mutex *Mutex) release() {
+	defer mutex.mutex.Unlock()
 	ctx, cancel := context.WithTimeout(context.TODO(), mutex.config.cancelTime)
 	defer cancel()
 	if _, ok := cacheHash[releaseCacheKey]; !ok {
@@ -265,6 +270,7 @@ func (mutex *Mutex) release() {
 		cacheHash[releaseCacheKey] = fmt.Sprintf("%x", hash[:])
 	}
 	mutex.config.delegate.EvalSha(ctx, cacheHash[releaseCacheKey], []string{mutex.name}, mutex.config.nodeID)
+
 }
 func getMachineID() (string, error) {
 	interfaces, err := net.Interfaces()

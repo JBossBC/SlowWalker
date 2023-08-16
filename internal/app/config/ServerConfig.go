@@ -5,16 +5,23 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 //this meaning the server config
 
 type ServerConfig struct {
-	XMLName     xml.Name   `xml:"server"`
-	Secret      string     `xml:"secret"`
-	Port        string     `xml:"port"`
-	SMSConfig   *SMSConfig `xml:"sms"`
-	Environment string     `xml:"environment"`
+	XMLName     xml.Name     `xml:"server"`
+	Secret      string       `xml:"secret"`
+	Port        string       `xml:"port"`
+	SMSConfig   *SMSConfig   `xml:"sms"`
+	Environment string       `xml:"environment"`
+	Kafka       *KafkaConfig `xml:"kafka"`
+}
+
+type KafkaConfig struct {
+	Broker []string `xml:"broker"`
+	Topic  []string `xml:"topic"`
 }
 
 type SMSConfig struct {
@@ -26,8 +33,7 @@ type SMSConfig struct {
 
 var ServerConf *ServerConfig
 
-// var DEFUALT_SERVER_CONFIG_FILE = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "server.xml")
-var DEFUALT_SERVER_CONFIG_FILE = fmt.Sprint("C:\\Users\\OLLIEo\\Desktop\\repliteweb\\repliteWeb\\configs\\server.xml")
+var DEFUALT_SERVER_CONFIG_FILE = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "server.xml")
 
 //  init the envrionment to make configuration
 

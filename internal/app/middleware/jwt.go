@@ -44,7 +44,7 @@ func Auth(ctx *gin.Context) {
 		ctx.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
-	if claims.ExpiresAt < time.Now().Unix() {
+	if claims.ExpiresAt > time.Now().Unix() {
 		ctx.AbortWithStatus(utils.AuthFailedState)
 		return
 	}

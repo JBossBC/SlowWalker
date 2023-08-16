@@ -1,8 +1,7 @@
 import React, { useEffect } from "react"
 import { useState,useContext } from 'react';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import {Backend} from "../App"
+import axios from '../utils/axios';
 import {
     Button,
     Checkbox,
@@ -46,7 +45,7 @@ import {
   const { Option } = Select;
 const Register=()=>{
     const [form] = Form.useForm();
-    const backendURL = useContext(Backend);
+    // const backendURL = useContext(Backend);
     const navigate = useNavigate();
     //allow to send code
     const [sendCode,setSendCode]=useState(false);
@@ -71,7 +70,7 @@ const Register=()=>{
           form.append("password",values.password);
           form.append("phone",values.phone);
           form.append("code",values.captcha);
-          const response = await axios.post(backendURL+'/user/register', form,{
+          const response = await axios.post('/user/register', form,{
             headers:{
               'Content-Type':'multipart/form-data'
             }
@@ -107,7 +106,7 @@ const Register=()=>{
           return
         }
         try {
-          const response = await axios.get(backendURL+'/phone/send', {
+          const response = await axios.get('/phone/send', {
           params: {
               phoneNumber: form.getFieldValue('phone')  //获取phone这个字段的值，携带参数的axios的get请求就等于http://localhost:8080/phone/send?phone=1234567890
           }
