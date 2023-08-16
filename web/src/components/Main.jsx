@@ -17,12 +17,9 @@ const Main = () => {
     const [breadcrumbItem, setBreadcrumbItem] = useState('');
     const [menuItems, setMenuItems] = useState([]);
     const navigate=useNavigate();
-
     const [showLog, setShowLog] = useState(false); // 定义showLog状态变量，默认值为false
-
     useEffect(() => {
-        fetchData();
-        
+        fetchData()
     }, []);
     const fetchData = async () => {
         try {

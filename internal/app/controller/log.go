@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/service"
@@ -33,9 +32,6 @@ const DEFAULT_PAGE = 1
 // }
 
 func QueryAuditLogs(ctx *gin.Context) {
-
-	fmt.Println("查询日志")
-
 	//TODO according to the authriorty or IP to query the log
 	level := ctx.Query("level")
 	operator := ctx.Query("operator")
