@@ -117,10 +117,12 @@ const Log= ()=>{
           params: getNewParams(tableParams),
         });
         const {state, message: resMessage} = response.data;
+
         console.log(response.data.state)
         if (!response.data.state) {
           //登录失败
           console.log("log2")
+
           let Message = resMessage;
           if (Message == undefined || message == "") {
               Message = "系统错误";
@@ -137,6 +139,7 @@ const Log= ()=>{
           console.log(response.data.data)
           setData(response.data.data.data);
           console.log(data)
+
           setLoading(false);
           setHasData(true);
           setTableParams({

@@ -146,3 +146,30 @@ func Create(key string, value any, expire time.Duration) error {
 	}
 	return GetRedisClient().SetEx(ctx, key, str, expire).Err()
 }
+
+func IncludeValueForSet(key string, value any) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	return GetRedisClient().SIsMember(ctx, key, value).Val()
+}
+func GetSet(key string, value []any) (err error) {
+	defer func() {
+		if panicError := recover(); panicError != nil {
+			err = fmt.Errorf("%v", panicError)
+		}
+	}()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	return GetRedisClient().GetSet(ctx, key, value).Err()
+}
+
+// if key is exist,the function will addition data
+func CreateSet(key string, value []any, expire time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	tx := GetRedisClient().Pipeline()
+	tx.SAdd(ctx, key, value...)
+	tx.Expire(ctx, key, expire)
+	_, err := tx.Exec(ctx)
+	return err
+}

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: replite
+  name: mongo-data0
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: fast
+  local:
+    path: /data/db0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+       - matchExpressions:
+       # node需要匹配标签
+            - key: replite
+              operator: In
+              values:
+                - db
+

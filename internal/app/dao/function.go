@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"log"
 	"replite_web/internal/app/config"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var mapfuncCache map[string]FuncMap
+var mapfuncCache map[string]*FuncMap
 
 const funcmapTable = "funcmap"
 
@@ -27,12 +28,12 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	funcmapSlice := make([]FuncMap, 10)
+	funcmapSlice := make([]*FuncMap, 10)
 	err = cur.All(ctx, &funcmapSlice)
 	if err != nil {
 		panic(fmt.Sprintf("analysis the funcmap collection error:%s", err.Error()))
 	}
-	mapfuncCache = make(map[string]FuncMap)
+	mapfuncCache = make(map[string]*FuncMap)
 	// build the index about the funcmap
 	for i := 0; i < len(funcmapSlice); i++ {
 		var funcmap = funcmapSlice[i]
@@ -45,8 +46,10 @@ type FuncMap struct {
 	Function string `json:"function" bson:"function"`
 	// the function should execution command,isolated operate system
 	Command string `json:"execfile" bson:"execfile"`
-	Type    Core   `json:"type" bson:"type"`
-	OSType  OSType `json:"osType"`
+	// // the params template params
+	// Params []string `json:"params" bson:"params"`
+	Type   Core   `json:"type" bson:"type"`
+	OSType OSType `json:"osType"`
 	// the additional field represent the extending environment
 	Additional string `json:"additional"`
 }
@@ -59,7 +62,7 @@ func CreateFuncMap(funcmap FuncMap) error {
 		return err
 	}
 	// add success ,update the cache
-	mapfuncCache[funcmap.Function] = funcmap
+	mapfuncCache[funcmap.Function] = &funcmap
 	return nil
 }
 
@@ -75,6 +78,21 @@ func DeleteFuncMap(funcmap FuncMap) error {
 	return nil
 }
 
-func GetFuncMap(function string) FuncMap {
-	return mapfuncCache[function]
+func GetFuncMap(function string) (fm *FuncMap) {
+	if fm, ok := mapfuncCache[function]; ok {
+		return fm
+	}
+	ctx, cancel := context.WithTimeout(context.TODO(), default_funcmap_times)
+	defer cancel()
+	single := getFuncMapCollection().FindOne(ctx, bson.M{"function": function})
+	if single.Err() != nil {
+		log.Printf("query funcmap(%s) error:%s", function, single.Err().Error())
+		return nil
+	}
+	err := single.Decode(&fm)
+	if err != nil {
+		return nil
+	}
+	mapfuncCache[function] = fm
+	return fm
 }
