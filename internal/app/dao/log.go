@@ -278,22 +278,47 @@ func FilterLogs(l *Log, page int, pageNumber int) (*[]*Log, error) {
 
 const NoLength = math.MinInt
 
-// TODO no test to aggregate
-func AggregateLogSum() (int, error) {
+// // TODO no test to aggregate
+//
+//	func AggregateLogSum() (int, error) {
+//		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+//		defer cancel()
+//		cur, err := getLogCollection().Aggregate(ctx, mongo.Pipeline{{{"total", bson.D{{"$sum", "_id"}}}}})
+//		if err != nil {
+//			log.Printf("查询日志总条数失败:%s", err.Error())
+//			return NoLength, err
+//		}
+//		var result map[string]int = make(map[string]int)
+//		err = cur.Decode(&result)
+//		if err != nil {
+//			log.Printf("解析mongoDB返回值错误(%v):%s", cur, err.Error())
+//			return NoLength, err
+//		}
+//		return result["total"], nil
+//	}
+func AggregateLogSum() (int32, error) { //new add
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	cur, err := getLogCollection().Aggregate(ctx, mongo.Pipeline{{{"total", bson.D{{"$sum", "_id"}}}}})
+	pipeLine := mongo.Pipeline{{{"$group", bson.D{{"_id", "ip"}, {"total", bson.D{{"$sum", 1}}}}}}}
+	res, err := getLogCollection().Aggregate(ctx, pipeLine)
 	if err != nil {
-		log.Printf("查询日志总条数失败:%s", err.Error())
-		return NoLength, err
+		log.Println(err)
+		return -1, err
 	}
-	var result map[string]int = make(map[string]int)
-	err = cur.Decode(&result)
-	if err != nil {
-		log.Printf("解析mongoDB返回值错误(%v):%s", cur, err.Error())
-		return NoLength, err
+	var total int32
+	for res.Next(ctx) {
+		var result bson.M
+		err := res.Decode(&result)
+		if err != nil {
+			log.Println(err)
+			return -1, err
+		}
+		total = result["total"].(int32)
+		fmt.Println("日志文档总数为：", total)
 	}
-	return result["total"], nil
+
+	return total, nil
+
 }
 
 // func queryMaxPage(pageNumber int) int {

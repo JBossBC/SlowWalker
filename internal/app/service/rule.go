@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
 )
@@ -20,5 +21,6 @@ func QueryRuleAuthorization(role string) (response utils.Response) {
 		}
 		result[rule.Type][rule.Authority] = nil
 	}
+	fmt.Println(utils.NewSuccessResponse(result))
 	return utils.NewSuccessResponse(result)
 }

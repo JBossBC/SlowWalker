@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,5 +30,7 @@ func BeforeHandler(ctx *gin.Context) {
 			}
 		}
 	}
+	fmt.Println("ware1")
 }
+
 // RBAC  /context

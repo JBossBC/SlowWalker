@@ -110,14 +110,19 @@ const Log= ()=>{
     })
     
     const fetchData = async() => {
+      console.log("log1")
       try {
         setLoading(true); //当调用fetchData这个异步函数时，表示要进行数据的重载
         const response = await axios.get("/log/query", {
           params: getNewParams(tableParams),
         });
         const {state, message: resMessage} = response.data;
-        if ( response.status!=200||!state ) {
+
+        console.log(response.data.state)
+        if (!response.data.state) {
           //登录失败
+          console.log("log2")
+
           let Message = resMessage;
           if (Message == undefined || message == "") {
               Message = "系统错误";
@@ -128,15 +133,20 @@ const Log= ()=>{
               }
           });
           return
-      }
-          setData(response.data.data);
+        }
+      
+          console.log(response.data)
+          console.log(response.data.data)
+          setData(response.data.data.data);
+          console.log(data)
+
           setLoading(false);
           setHasData(true);
           setTableParams({
             ...tableParams,
             pagination: {
               ...tableParams.pagination,
-              total: response.data.total,
+              total: response.data.data.total,
             },
           });
         
@@ -181,3 +191,4 @@ const Log= ()=>{
     />:<Empty/>);
 };
 export default Log
+

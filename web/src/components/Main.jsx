@@ -4,7 +4,9 @@ import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Breadcrumb, theme,message} from 'antd';
 import axios from "../utils/axios";
 import { useNavigate } from 'react-router';
+import Log from './Log';
 import { useTranslation } from 'react-i18next';
+
 
 const { Header, Content, Sider } = Layout;
 //const testURL = "http://112.124.53.234:8080";d
@@ -15,6 +17,9 @@ const Main = () => {
     const [breadcrumbItem, setBreadcrumbItem] = useState('');
     const [menuItems, setMenuItems] = useState([]);
     const navigate=useNavigate();
+
+    const [showLog, setShowLog] = useState(false); // 定义showLog状态变量，默认值为false
+
     useEffect(() => {
         fetchData();
         
@@ -58,8 +63,15 @@ const Main = () => {
 
         setSelectedMenuKey(key);
         setBreadcrumbItem(updatedBreadcrumbItem);
-    };
+        
+        console.log(key)
 
+        if (key === 'sub/system/log') {
+            setShowLog(true); // 点击log菜单项时将showLog设置为true
+        } else {
+            setShowLog(false); // 点击其他菜单项时将showLog设置为false
+        }
+    };
     return (
         <Layout>
             <Header style={{ display: 'flex', alignItems: 'center' }}>
@@ -94,8 +106,8 @@ const Main = () => {
                         )}
                     </Breadcrumb>
                     <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
-                        {selectedMenuKey && <div>您选择的是：{selectedMenuKey}</div>}
-                        {!selectedMenuKey && <div>欢迎访问首页</div>}
+                    {selectedMenuKey === 'sub/system/log' && showLog && <Log />} {/* 当选择的菜单项为log时，显示日志组件 */}
+                        {!selectedMenuKey && <div>欢迎访问首页6666</div>}
                     </Content>
                 </Layout>
             </Layout>

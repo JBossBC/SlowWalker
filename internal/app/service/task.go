@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+package service
+=======
 package service
 
 import (
@@ -63,3 +66,4 @@ func ExecTask(operate string, ip string, function string, params map[string]stri
 	return utils.NewSuccessResponse("创建任务成功")
 
 }
+>>>>>>> c378b46238addcc9e928f3c98dba2148025b2edd
