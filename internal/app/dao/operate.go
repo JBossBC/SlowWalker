@@ -21,8 +21,9 @@ type Operate interface {
 
 type BaseOperate struct {
 	// Command  string   `json:"command"`
-	Operator string   `json:"operator"`
-	Params   []string `json:"params"`
+	Operator string `json:"operator"`
+	// the complete params including the params template and actual params for the inputing of user
+	Params []string `json:"params"`
 	//operate function according to the rule collection
 	Function string `json:"function"`
 	// // websocket connection callback func, make sure the message be consumed

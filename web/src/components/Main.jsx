@@ -4,11 +4,12 @@ import { LaptopOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Breadcrumb, theme,message} from 'antd';
 import axios from "../utils/axios";
 import { useNavigate } from 'react-router';
-import {Backend} from "../App";
+import { useTranslation } from 'react-i18next';
 
 const { Header, Content, Sider } = Layout;
 //const testURL = "http://112.124.53.234:8080";d
 const Main = () => {
+    const {t} = useTranslation('cn');
     const { token: { colorBgContainer } } = theme.useToken();
     const [selectedMenuKey, setSelectedMenuKey] = useState('');
     const [breadcrumbItem, setBreadcrumbItem] = useState('');
@@ -28,8 +29,8 @@ const Main = () => {
 
                 Object.keys(data).forEach((key) => {
                     const subItems = Object.keys(data[key]).map((subKey) => ({
-                        key: `sub/${key}/${subKey}`,
-                        label: subKey,
+                        key: `${key}/${subKey}`,
+                        label: t(data[key]),
                     }));
 
                     items.push({
