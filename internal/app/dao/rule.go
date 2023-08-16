@@ -60,7 +60,7 @@ func GetRule(owner string, authority string) (value any, ok bool) {
 		return nil, false
 	}
 	value, ok = owners[authority]
-	return value, true //修改，原为return
+	return
 }
 
 func GetAuthority(owner string) []any {
