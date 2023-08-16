@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+package service
+=======
 package service
 
 import (
