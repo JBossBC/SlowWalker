@@ -50,6 +50,7 @@ func QueryAuditLogs(ctx *gin.Context) {
 		pageNumber = DEFAULT_PAGE_NUMBER
 	}
 	ip := ctx.Query("ip")
+	message := ctx.Query("message") //new add
 	var result []byte
 	// if level == "" && operator == "" && ip == "" {
 	// 	result = service.QueryLogs(int(page), int(pageNumber)).Serialize()
@@ -58,7 +59,12 @@ func QueryAuditLogs(ctx *gin.Context) {
 		Level:    dao.LogLevel(level),
 		Operator: operator,
 		IP:       ip,
+		Message:  message,
 	}
+	//if (l.Message != "") || (l.IP != "") || (l.Operator != "") || (l.Level != "") {
+	//	//进行条件查询
+	//}
+	//进行普通的查询
 	result = service.FilterLogs(l, int(page), int(pageNumber)).Serialize()
 	// }
 	_, err = ctx.Writer.Write(result)
@@ -66,3 +72,11 @@ func QueryAuditLogs(ctx *gin.Context) {
 		log.Printf("写入response信息失败:%s", err.Error())
 	}
 }
+
+//不行，这里查询出来理论上也要进行分页的，就是用上面的
+//func ConditionalQueryLogs(ctx *gin.Context) {
+//	level := ctx.Query("level")
+//	operator := ctx.Query("operator")
+//	ip := ctx.Query("ip")
+//	...
+//}

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
 
@@ -24,11 +25,13 @@ func RBACMiddleware(context *gin.Context) {
 	role, bol := context.Get("role")
 	if !bol {
 		context.AbortWithStatus(utils.AuthFailedState)
+		fmt.Println("g1")
 		return
 	}
 	resource, bol := context.Get("resource")
 	if !bol {
 		context.AbortWithStatus(utils.AuthFailedState)
+		fmt.Println("g3333")
 		return
 	}
 	// currency resource skip the rbac

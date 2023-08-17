@@ -219,6 +219,12 @@ func FilterLogs(l *Log, page int, pageNumber int) (*[]*Log, error) {
 	if l.Level != "" {
 		filter["level"] = l.Level
 	}
+	if l.Message != "" { //对message进行模糊匹配,new add
+		filter["message"] = bson.M{
+			"$regex":   fmt.Sprintf(".*%s.*", l.Message),
+			"$options": "i",
+		}
+	}
 	result, err := getLogCollection().Find(ctx, filter, options.Find().SetLimit(int64(pageNumber)), options.Find().SetSkip(int64(page)-1))
 	if err != nil {
 		log.Printf("query the logs(filter:%v,page: %d,pageNumber: %d) error:%s", l, page, pageNumber, err.Error())
@@ -316,6 +322,10 @@ func AggregateLogSum() (int32, error) { //new add
 		total = result["total"].(int32)
 	}
 	return total, nil
+}
+
+func DeleteLog() { //做成批量删除
+	//前端传输什么过来呢？
 }
 
 // func queryMaxPage(pageNumber int) int {
