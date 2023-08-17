@@ -61,10 +61,6 @@ func QueryAuditLogs(ctx *gin.Context) {
 		IP:       ip,
 		Message:  message,
 	}
-	//if (l.Message != "") || (l.IP != "") || (l.Operator != "") || (l.Level != "") {
-	//	//进行条件查询
-	//}
-	//进行普通的查询
 	result = service.FilterLogs(l, int(page), int(pageNumber)).Serialize()
 	// }
 	_, err = ctx.Writer.Write(result)
@@ -73,10 +69,3 @@ func QueryAuditLogs(ctx *gin.Context) {
 	}
 }
 
-//不行，这里查询出来理论上也要进行分页的，就是用上面的
-//func ConditionalQueryLogs(ctx *gin.Context) {
-//	level := ctx.Query("level")
-//	operator := ctx.Query("operator")
-//	ip := ctx.Query("ip")
-//	...
-//}

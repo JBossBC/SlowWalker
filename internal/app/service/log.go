@@ -22,7 +22,6 @@ type FilterLogView struct {
 
 func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) {
 	result, err := dao.FilterLogs(l, page, pageNumber)
-	//result, err := dao.ConditionalQueryLogs(l) //add
 	//max return page
 	if err != nil {
 		// log.Printf("查询日志:%v,page:%d,pageNumber:%d失败:%s", l, page, pageNumber, err.Error())
@@ -45,7 +44,4 @@ func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) 
 	return utils.NewSuccessResponse(view)
 }
 
-//好像不需要新写
-//func ConditionalFilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) {
-//
-//}
+

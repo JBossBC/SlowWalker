@@ -324,10 +324,6 @@ func AggregateLogSum() (int32, error) { //new add
 	return total, nil
 }
 
-func DeleteLog() { //做成批量删除
-	//前端传输什么过来呢？
-}
-
 // func queryMaxPage(pageNumber int) int {
 
 // }
