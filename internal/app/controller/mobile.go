@@ -14,7 +14,7 @@ func SendMessage(ctx *gin.Context) {
 		ctx.AbortWithStatus(utils.BadReqest)
 		return
 	}
-	bytes := service.SendMessage(phone, ctx.RemoteIP()).Serialize()
+	bytes := service.GetMobileService().SendMessage(phone, ctx.RemoteIP()).Serialize()
 	_, err := ctx.Writer.Write(bytes)
 	if err != nil {
 		log.Printf("写入response信息失败:%s", err.Error())

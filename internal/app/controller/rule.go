@@ -14,7 +14,7 @@ func QueryRuleAuthorization(ctx *gin.Context) {
 		ctx.AbortWithStatus(utils.SystemError)
 		return
 	}
-	_, err := ctx.Writer.Write(service.QueryRuleAuthorization(role.(string)).Serialize())
+	_, err := ctx.Writer.Write(service.GetRuleService().QueryRuleAuthorization(role.(string)).Serialize())
 	if err != nil {
 		log.Printf("写入response信息失败:%s", err.Error())
 	}

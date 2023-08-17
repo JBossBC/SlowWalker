@@ -59,7 +59,7 @@ func QueryAuditLogs(ctx *gin.Context) {
 		Operator: operator,
 		IP:       ip,
 	}
-	result = service.FilterLogs(l, int(page), int(pageNumber)).Serialize()
+	result = service.GetLogService().FilterLogs(l, int(page), int(pageNumber)).Serialize()
 	// }
 	_, err = ctx.Writer.Write(result)
 	if err != nil {

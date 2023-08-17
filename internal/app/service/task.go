@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-package service
-=======
 package service
 
 import (
@@ -8,10 +5,26 @@ import (
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
 	"strings"
+	"sync"
 )
 
+type taskService struct {
+}
+
+var (
+	taskSvc  *taskService
+	taskOnce sync.Once
+)
+
+func GetTaskService() *taskService {
+	taskOnce.Do(func() {
+		taskSvc = new(taskService)
+	})
+	return taskSvc
+}
+
 // the params resprent the user params view
-func ExecTask(operate string, ip string, function string, params map[string]string, isLocal bool) (response utils.Response) {
+func (task *taskService) ExecTask(operate string, ip string, function string, params map[string]string, isLocal bool) (response utils.Response) {
 	views, err := dao.GetFuncViews(function)
 	if err != nil {
 		return utils.NewFailedResponse("系统错误")
@@ -67,6 +80,9 @@ func ExecTask(operate string, ip string, function string, params map[string]stri
 
 }
 
+// TODO how to design the flexiable function to add
+func (task *taskService) CreateTask()
+
 type PlatformChain interface {
 	setNext(PlatformChain) PlatformChain
 	Handle()
@@ -81,9 +97,6 @@ func (chain *PlatformChainImpl) setNext(platform PlatformChain) PlatformChain {
 	return platform
 }
 
-func (chain *PlatformChainImpl) Handle(){
-	
-}
+func (chain *PlatformChainImpl) Handle() {
 
-// TODO how to design the flexiable function to add
-func CreateTask()
+}

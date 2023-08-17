@@ -3,7 +3,23 @@ package service
 import (
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
+	"sync"
 )
+
+type logService struct {
+}
+
+var (
+	logSvc  *logService
+	logOnce sync.Once
+)
+
+func GetLogService() *logService {
+	logOnce.Do(func() {
+		logSvc = new(logService)
+	})
+	return logSvc
+}
 
 // func QueryLogs(page int, pageNumber int) (response utils.Response) {
 // 	result, err := dao.QueryLogs(page, pageNumber)
@@ -20,7 +36,7 @@ type FilterLogView struct {
 	Total int32 `json:"total"`
 }
 
-func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) {
+func (log *logService) FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) {
 	result, err := dao.FilterLogs(l, page, pageNumber)
 	//max return page
 	if err != nil {

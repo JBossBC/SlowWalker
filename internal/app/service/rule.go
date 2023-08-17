@@ -4,13 +4,29 @@ import (
 	"fmt"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
+	"sync"
 )
+
+type ruleService struct {
+}
+
+var (
+	ruleSvc  *ruleService
+	ruleOnce sync.Once
+)
+
+func GetRuleService() *ruleService {
+	ruleOnce.Do(func() {
+		ruleSvc = new(ruleService)
+	})
+	return ruleSvc
+}
 
 type QueryView struct {
 	Data map[string]map[string]any `json:"data"`
 }
 
-func QueryRuleAuthorization(role string) (response utils.Response) {
+func(rule *ruleService) QueryRuleAuthorization(role string) (response utils.Response) {
 	allRule := dao.GetAuthority(role)
 	// classifyAuthorization
 	var result = make(map[string]map[string]any)

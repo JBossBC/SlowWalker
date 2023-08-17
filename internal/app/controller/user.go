@@ -22,7 +22,7 @@ func Login(ctx *gin.Context) {
 		Password: password,
 		IP:       ctx.RemoteIP(),
 	}
-	result, jwtStr := service.LoginAccount(user)
+	result, jwtStr := service.GetUserService().LoginAccount(user)
 	resultByte := result.Serialize()
 	// if err != nil {
 	// 	_, err := ctx.Writer.Write(utils.HELPLESS_ERROR_RESPONSE)
@@ -53,7 +53,7 @@ func Register(ctx *gin.Context) {
 		Authority:   DEFUALT_AUTHORITY_LEVEL,
 		IP:          ctx.RemoteIP(),
 	}
-	_, err := ctx.Writer.Write(service.CreateAccount(user).Serialize())
+	_, err := ctx.Writer.Write(service.GetUserService().CreateAccount(user).Serialize())
 	if err != nil {
 		log.Printf("写入response信息失败:%s", err.Error())
 	}

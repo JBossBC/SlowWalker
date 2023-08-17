@@ -5,10 +5,23 @@ import (
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/utils"
+	"sync"
 	"time"
 )
 
-type user struct {
+type userService struct {
+}
+
+var (
+	userSvc  *userService
+	userOnce sync.Once
+)
+
+func GetUserService() *userService {
+	userOnce.Do(func() {
+		userSvc = new(userService)
+	})
+	return userSvc
 }
 
 // var (
@@ -22,7 +35,7 @@ type user struct {
 //		})
 //		return userService
 //	}
-func LoginAccount(user *dao.User) (response utils.Response, jwtStr string) {
+func (userSvc *userService) LoginAccount(user *dao.User) (response utils.Response, jwtStr string) {
 	single, err := dao.QueryUser(&dao.User{
 		Username: user.Username,
 	})
@@ -47,7 +60,7 @@ func LoginAccount(user *dao.User) (response utils.Response, jwtStr string) {
 	return utils.NewSuccessResponse("登录成功"), jwtStr
 
 }
-func CreateAccount(user *dao.User) (response utils.Response) {
+func (userSvc *userService) CreateAccount(user *dao.User) (response utils.Response) {
 	// whether the username  exists
 	if !IsValidRegisterInternal(user.IP) {
 		response = utils.NewFailedResponse("注册次数太多,请等一会再试")
@@ -91,7 +104,7 @@ func CreateAccount(user *dao.User) (response utils.Response) {
 /*
 对于分布式条件下应该加分布式锁
 */
-func UpdateInfo(user *dao.User) (response utils.Response) {
+func (userSvc *userService) UpdateInfo(user *dao.User) (response utils.Response) {
 	single, err := dao.QueryUser(&dao.User{
 		Username: user.Username,
 	})
@@ -113,7 +126,7 @@ func UpdateInfo(user *dao.User) (response utils.Response) {
 	return utils.NewSuccessResponse("修改成功")
 }
 
-func QueryUser(user *dao.User) (response utils.Response) {
+func (userSvc *userService) QueryUser(user *dao.User) (response utils.Response) {
 	single, err := dao.QueryUser(user)
 	if err != nil {
 		response = utils.NewFailedResponse("系统错误")
@@ -122,7 +135,7 @@ func QueryUser(user *dao.User) (response utils.Response) {
 	return utils.NewSuccessResponse(single)
 }
 
-func QueryUsers(page int, pageNumber int) (response utils.Response) {
+func (userSvc *userService) QueryUsers(page int, pageNumber int) (response utils.Response) {
 	all, err := dao.QueryUsers(page, pageNumber)
 	if err != nil {
 		response = utils.NewFailedResponse("查询失败")
@@ -131,7 +144,7 @@ func QueryUsers(page int, pageNumber int) (response utils.Response) {
 	return utils.NewSuccessResponse(all)
 }
 
-func DeleteUser(user *dao.User) (response utils.Response) {
+func (userSvc *userService) DeleteUser(user *dao.User) (response utils.Response) {
 	err := dao.DeleteUser(user)
 	if err != nil {
 		response = utils.NewFailedResponse("删除失败")

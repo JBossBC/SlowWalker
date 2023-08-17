@@ -6,16 +6,32 @@ import (
 	"replite_web/internal/app/infrastructure"
 	"replite_web/internal/app/utils"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
+type mobileService struct {
+}
+
+var (
+	mobileSvc  *mobileService
+	mobileOnce sync.Once
+)
+
+func GetMobileService() *mobileService {
+	mobileOnce.Do(func() {
+		mobileSvc = new(mobileService)
+	})
+	return mobileSvc
+}
+
 const DEFAULT_CODE_VALID_TIME = 1 * time.Minute
 
 const DEFAULT_REDIS_PHONE_CODE_PREFIX = "phoneCode-"
 
-func SendMessage(phone string, ip string) (response utils.Response) {
+func (mobile *mobileService) SendMessage(phone string, ip string) (response utils.Response) {
 	redisKey := getPhoneCodeKey(phone)
 	// add the repeat send message failed
 	_, err := dao.GetStr(redisKey)
