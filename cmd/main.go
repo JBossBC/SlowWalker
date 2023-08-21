@@ -48,8 +48,9 @@ func auditRoute(engine *gin.Engine) {
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
+	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
 	group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
-
+	group.Handle(http.MethodPost, "/remove", controller.RemoveAuditLogs) //设置删除
 }
 
 func ruleRoute(engine *gin.Engine) {

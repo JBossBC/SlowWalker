@@ -3,8 +3,7 @@ import './App.css';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
-import { NotFound,Index,Register, Main, Log } from "./components";
-import { message } from "antd";
+import { NotFound,Index,Register, Main } from "./components";
 import { initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import messages from "./utils/translations.json";
@@ -15,8 +14,19 @@ const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStor
 
 // const defaultBackendURL = "http://localhost:8080";
 // export const Backend = React.createContext(defaultBackendURL);
-function App(){
 
+// i18n.use(initReactI18next).init(
+//    {
+//     resources:{
+        
+//     },
+//     lng: 'cn',
+//     interpolation: {
+//         escapeValue: false // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
+//       }
+//    }
+// )
+function App(){
     return (
         <Router>
            {/* <I18nextProvider i18n={i18n}> */}
@@ -29,9 +39,9 @@ function App(){
                     <Route path="*" element={<NotFound />} />
                 </Routes>
                 {/* </I18nextProvider> */}
+
             {/* </Backend.Provider> */}
         </Router>
     );
 }
-
 export default App;

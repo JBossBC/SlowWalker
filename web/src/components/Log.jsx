@@ -1,8 +1,10 @@
 import axios from '../utils/axios';
 import React,{useState, useEffect} from 'react';
-import { Empty, Space, Table, Tag,Button,message } from 'antd';
+import { Empty, Space, Table, Tag,Button,message, Form, Col, Input, Row, Select, theme } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { useNavigate } from 'react-router';
+
 /** 	PRINT LogLevel = "print"
 	WARN  LogLevel = "warn"
 	ERROR LogLevel = "error"
@@ -10,28 +12,28 @@ import { useNavigate } from 'react-router';
 	PANIC LogLevel = "panic"
     */
 const  levelForColor = {"print":"success","info":"blue","error":"error","warn":"warning","panic":"red"}
-
+const { Option } = Select;
 const columns = [
-    {
-        title: '日志等级',
-        key: 'level',
-        dataIndex: 'level',
-        sorter: true,
-        filters: [
-          {text:'print', value: 'print'},
-          {text:'info', value:'info'},
-          {text:'error', value:'error'},
-          {text:'warn', value:'warn'},
-          {text:'paince', value:'panic'}
-        ],
-        render: (_, { level }) => {
-              return (
-                <Tag color={levelForColor[level]} key={levelForColor[level]}>
-                  {level.toUpperCase()}
-                </Tag>
-              );
-        },
-      },
+  {
+    title: '日志等级',
+    key: 'level',
+    dataIndex: 'level',
+    sorter: true,
+    filters: [
+      {text:'print', value: 'print'},
+      {text:'info', value:'info'},
+      {text:'error', value:'error'},
+      {text:'warn', value:'warn'},
+      {text:'paince', value:'panic'}
+    ],
+    render: (_, { level }) => {
+          return (
+            <Tag color={levelForColor[level]} key={levelForColor[level]}>
+              {level.toUpperCase()}
+            </Tag>
+          );
+    },
+  },
   {
     title: '操作IP',
     dataIndex: 'ip',
@@ -61,7 +63,7 @@ const columns = [
       <Space size="middle">
         {/* <a>Invite {record.name}</a> */}
         {/* <a>Delete</a> */}
-        <Button>删除</Button>
+        <Button onClick={() => Log.handleRemove(record)}>删除</Button>
       </Space>
     ),
   },
@@ -91,6 +93,8 @@ const columns = [
 // ];
 
 
+
+
 const getNewParams = (params) =>({   //当变量参数更新时修改参数
   pageNumber: params.pagination && params.pagination.pageSize,
   page: params.pagination && params.pagination.current,
@@ -98,6 +102,10 @@ const getNewParams = (params) =>({   //当变量参数更新时修改参数
 }); 
 
 const Log= ()=>{
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);//设置批量选择的数组
+    const [form] = Form.useForm(); 
+    const {token} = theme.useToken();
+    const [expand, setExpand] = useState(false); 
     const navigate=useNavigate();
     const [hasData,setHasData]= useState(false); 
     const [data, setData] = useState([]); //默认data数据为空数组
@@ -108,11 +116,13 @@ const Log= ()=>{
         pageNumber: 5,
       }
     })
-    
     const fetchData = async() => {
       console.log("log1")
+      setLoading(true);
+      setHasData(false);
       try {
         setLoading(true); //当调用fetchData这个异步函数时，表示要进行数据的重载
+        setSelectedRowKeys([]); //默认选择为空
         const response = await axios.get("/log/query", {
           params: getNewParams(tableParams),
         });
@@ -156,6 +166,22 @@ const Log= ()=>{
       }
     };
 
+    const handleRemove = async () => {
+      try {
+        const response = await axios.post('/log/remove', selectedRowKeys); //直接传递数组过去
+
+        if (response.data.success) {
+          fetchData(); // 删除成功后重新加载数据
+          message.success('删除成功');
+        } else {
+          message.error(response.data.message || '删除失败');
+        }
+        
+      } catch (error) {
+        message.error('删除失败');
+      }
+    };
+
     useEffect(() => {
       fetchData();
     },[JSON.stringify(tableParams.pagination)]);
@@ -181,14 +207,161 @@ const Log= ()=>{
 
     };
 
-    return(hasData?
-    <Table 
-      columns={columns} 
-      dataSource={data}
-      pagination={tableParams.pagination}
-      loading={loading}
-      onChange={tableParamsChange}
-    />:<Empty/>);
+    const onSelectchange = (newSelectedRowKeys) => { //new add
+      selectedRowKeys(newSelectedRowKeys);
+    }
+    const rowSelection = {
+      selectedRowKeys,
+      onchange:onSelectchange,
+    }
+    const hasSelected = selectedRowKeys.length > 0;
+
+    //以下为处理搜索的：
+    const formStyle = {   //设置样式
+      maxWidth: 'none',
+      background: token.colorFillAlter,
+      borderRadius: token.borderRadiusLG,
+      padding: 24,
+    };
+    
+    const getFields = () => {
+      const children = []
+      children.push(
+        <Col span={8} >
+          <Form.Item
+            name = {`message`}
+            label = {`message`}
+            rules={[
+              {
+                required:true,
+                message:"Input something!",
+              },
+            ]}
+          >
+            <Input placeholder="placeholder"/>
+          </Form.Item>
+
+          <Form.Item
+            name = {`ip`}
+            label = {`ip`}
+            rules={[
+              {
+                required:true,
+                message:"Input something!",
+              },
+            ]}
+          >
+            <Input placeholder="placeholder"/>
+          </Form.Item>
+
+          <Form.Item
+            name = {`operator`}
+            label = {`operator`}
+            rules={[
+              {
+                required:true,
+                message:"Input something!",
+              },
+            ]}
+          >
+            <Input placeholder="placeholder"/>
+          </Form.Item>
+
+          <Form.Item
+            name = {`level`}
+            label = {`level`}
+            rules={[
+              {
+                required:true,
+                message:"Select something!",
+              },
+            ]}
+            initialValue="1"
+          >
+            <Select>
+              <Option value="1">print</Option>
+              <Option value="2">warn</Option>
+              <Option value="3">error</Option>
+              <Option value="4">info</Option>
+              <Option value="5">panic</Option>
+            </Select>
+          </Form.Item>
+        </Col> 
+      );
+      return children
+    };
+
+    const onFinish = (values) => {
+      fetchData(values); // 调用fetchData函数，并传递搜索参数
+      console.log('Received values of form: ', values);
+    }
+
+
+
+    return (
+      hasData? (
+      <div>
+        <div
+          style={{
+            marginBottom: 16,
+          }}
+        >
+          <Button type="primary" onClick={handleRemove} disabled={!hasSelected} loading={loading}>
+            Remove
+          </Button>
+          <span
+            style={{
+              marginLeft: 8,
+            }}
+          >
+            {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
+          </span>
+        </div>
+        <Table 
+        columns={columns} 
+        dataSource={data}
+        pagination={tableParams.pagination}
+        loading={loading}
+        onChange={tableParamsChange}
+        rowSelection={rowSelection} // 添加rowSelection属性，启用选择功能
+        />
+
+        <Form form={form} name="advanced_search" style={formStyle} onFinish={onFinish}>
+        <Row gutter={24}>{getFields()}</Row>
+        <div
+          style={{
+            textAlign: 'right',
+          }}
+        >
+        <Space size="small">
+          <Button type="primary" htmlType="submit">
+            Search
+          </Button>
+          <Button
+            onClick={() => {
+              form.resetFields();
+            }}
+          >
+            Clear
+          </Button>
+          <a
+            style={{
+              fontSize: 12,
+            }}
+            onClick={() => {
+              setExpand(!expand);
+            }}
+          >
+            <DownOutlined rotate={expand ? 180 : 0} /> Collapse
+                </a>
+              </Space>
+            </div>
+          </Form>
+
+
+      </div>
+    ) : null
+  );
 };
 export default Log
 

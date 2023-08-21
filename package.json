@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "i18next": "^23.4.4",
     "react-i18next": "^13.0.3",
     "react-intl": "^6.4.4"
   }
