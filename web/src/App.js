@@ -2,12 +2,10 @@ import {BrowserRouter as Router,Route,Routes,useNavigate}  from "react-router-do
 import './App.css';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-
 import { NotFound,Index,Register, Main } from "./components";
 import { initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import messages from "./utils/translations.json";
-
 // init the axios interceptors from error handle
 const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStorage.getItem("repliteweb"):"";
 // axios.defaults.headers.common["Authorization"] = `Bearer ${defaultToken}`;

@@ -296,8 +296,6 @@ const Log= ()=>{
       console.log('Received values of form: ', values);
     }
 
-
-
     return (
       hasData? (
       <div>
