@@ -15,17 +15,17 @@ const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStor
 // const defaultBackendURL = "http://localhost:8080";
 // export const Backend = React.createContext(defaultBackendURL);
 
-// i18n.use(initReactI18next).init(
-//    {
-//     resources:{
+i18n.use(initReactI18next).init(
+   {
+    resources:{
         
-//     },
-//     lng: 'cn',
-//     interpolation: {
-//         escapeValue: false // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
-//       }
-//    }
-// )
+    },
+    lng: 'cn',
+    interpolation: {
+        escapeValue: false // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
+      }
+   }
+)
 function App(){
     return (
         <Router>
