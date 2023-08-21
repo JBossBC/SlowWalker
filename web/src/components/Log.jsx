@@ -324,7 +324,7 @@ const Log= ()=>{
         loading={loading}
         onChange={tableParamsChange}
         rowSelection={rowSelection} // 添加rowSelection属性，启用选择功能
-        />
+        />:<Empty/>
 
         <Form form={form} name="advanced_search" style={formStyle} onFinish={onFinish}>
         <Row gutter={24}>{getFields()}</Row>
