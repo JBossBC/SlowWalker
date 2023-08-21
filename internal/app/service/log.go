@@ -43,14 +43,3 @@ func FilterLogs(l *dao.Log, page int, pageNumber int) (response utils.Response) 
 	// }
 	return utils.NewSuccessResponse(view)
 }
-
-func RemoveLogs(filters []dao.Log) (response utils.Response) {
-	err := dao.RemoveLogs(filters)
-	if err != nil {
-		response = utils.NewFailedResponse("删除失败")
-		return
-	}
-
-	return utils.NewSuccessResponse("删除成功")
-
-}

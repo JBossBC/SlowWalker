@@ -25,6 +25,7 @@ i18n.use(initReactI18next).init(
    }
 )
 function App(){
+
     return (
         <Router>
            {/* <I18nextProvider i18n={i18n}> */}
@@ -37,7 +38,6 @@ function App(){
                     <Route path="*" element={<NotFound />} />
                 </Routes>
                 {/* </I18nextProvider> */}
-
             {/* </Backend.Provider> */}
         </Router>
     );
