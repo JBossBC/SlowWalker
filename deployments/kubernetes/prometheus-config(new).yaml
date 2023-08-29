@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+   name: prometheus-config
+   namespace: kube-system
+   labels:
+      kubernetees.io/cluster-service: "true"
+      addonmanager.kubernetes.io/mode: EnsureExists
+data:
+   prometheus.yml: |
+      global:
+        scrape_interval: 30s
+      scrape_configs:
+      - job_name: prometheus 
+        static_configs:
+        - targets:
+          - localhost: 9090
+      - job_name: kubernetes-apiservers
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        - action: keep
+          regex: default;kubernetes;https
+          source_labels:
+          - _meta_kubernetes_namespace
+          - _meta_kubernetes_service_name
+          - _meta_kubernetes_endpoint_port_name
+        scheme: https 
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      - job_name: kubernetes-nodes-kubelet
+        kubernetes_sd_configs:
+        - source_labels:
+          - _meta_kubernetes_namespace
+          target_label: kubernetes_namespace
+        - source_labels:
+          - _meta_kubernetes_service_name
+          target_label: kubernetes_name
+      - job_name: kubernetes-pods 
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - _meta_kubernetes_pod_annotation_prometheus_io_scrape
+        - action: replace 
+          regex: (.+)
+          source_labels:
+          - _meta_kubernetes_pod_annotation_prometheus_io_path
+          target_label: _metrcis_path_
+        - action: replace 
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          source_labels:
+          - _address_
+          - _meta_kubernetes_pod_annotation_prometheus_io_port
+          target_label: _address_ 
+        - action: labelmap
+          regex: _meta_kubernetes_pod_label_(.+)
+        - action: replace 
+          source_labels:
+          - _meta_kubernetes_namespace
+          target_label: kubernetes_namespace
+        - action: replace
+          source_labels:
+          - _meta_kubernetes_pod_name 
+          target_label: kubernetes_pod_name                          

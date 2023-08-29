@@ -2,10 +2,14 @@ syntax = "proto3";
 
 option go_package = "./";
 
+
+
+
 message TaskImage{
     bytes ID =1;
     repeated string Exec =2;
     repeated string Mediums =3;
     repeated string Output = 4;
+    int32  OutputFlag = 5;
 }
 
