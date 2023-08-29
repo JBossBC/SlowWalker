@@ -83,4 +83,4 @@ func (chain *PlatformChainImpl) Handle() {
 }
 
 // TODO how to design the flexiable function to add
-func CreateTask()
+func CreateTask(){}
