@@ -35,7 +35,7 @@ func CreateFuncViews(funcs ...FuncView) error {
 	for i := 0; i < len(funcs); i++ {
 		replicas[i] = funcs[i]
 	}
-	_, err := getFuncMapCollection().InsertMany(ctx, replicas)
+	_, err := getFuncViewCollection().InsertMany(ctx, replicas)
 	return err
 }
 
@@ -43,9 +43,9 @@ func GetFuncViews(function string) ([]*FuncView, error) {
 	rs := make([]*FuncView, 0, 3)
 	ctx, cancel := context.WithTimeout(context.TODO(), default_funcview_times)
 	defer cancel()
-	many, err := getFuncMapCollection().Find(ctx, bson.M{"function": function})
+	many, err := getFuncViewCollection().Find(ctx, bson.M{"function": function})
 	if err != nil {
-		log.Println("查询 function(%s) 出错:%s", function, err.Error())
+		log.Printf("查询 function(%s) 出错:%s", function, err.Error())
 		return nil, err
 	}
 	err = many.All(ctx, rs)
