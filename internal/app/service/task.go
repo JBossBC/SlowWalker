@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-package service
-=======
 package service
 
 import (
@@ -81,9 +78,9 @@ func (chain *PlatformChainImpl) setNext(platform PlatformChain) PlatformChain {
 	return platform
 }
 
-func (chain *PlatformChainImpl) Handle(){
-	
+func (chain *PlatformChainImpl) Handle() {
+
 }
 
 // TODO how to design the flexiable function to add
-func CreateTask()
+func CreateTask(){}
