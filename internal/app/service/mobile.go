@@ -25,7 +25,7 @@ func SendMessage(phone string, ip string) (response utils.Response) {
 			return utils.NewFailedResponse("系统错误")
 		}
 	} else {
-		if !Incre_Warning_IP(ip) {
+		if !GetIPService().Incre_Warning_IP(ip) {
 			return utils.NewFailedResponse("系统错误")
 		}
 	}
