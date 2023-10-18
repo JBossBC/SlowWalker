@@ -70,7 +70,7 @@ func (logController *LogController) QueryAuditLogs(ctx *gin.Context) {
 	// if level == "" && operator == "" && ip == "" {
 	// 	result = service.QueryLogs(int(page), int(pageNumber)).Serialize()
 	// } else {
-	l := &dao.Log{
+	l := &dao.LogInfo{
 		Level:    dao.LogLevel(level),
 		Operator: operator,
 		IP:       ip,

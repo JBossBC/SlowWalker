@@ -25,11 +25,11 @@ func getIPService() *IPService {
 const DEFUALT_ALLOW_MAX_REGISTER_NUMBER = 1
 
 func (IP *IPService) IsValidRegisterInternal(ip string) bool {
-	return dao.QueryIP(IP.getRegisterKey(ip)) <= DEFUALT_ALLOW_MAX_REGISTER_NUMBER
+	return dao.GetIPDao().QueryIP(IP.getRegisterKey(ip)) <= DEFUALT_ALLOW_MAX_REGISTER_NUMBER
 }
 
 func (IP *IPService) RegisterSuccessHook(ip string) bool {
-	return dao.InsertIP(IP.getRegisterKey(ip))
+	return dao.GetIPDao().InsertIP(IP.getRegisterKey(ip))
 }
 
 func (IP *IPService) getRegisterKey(ip string) string {
@@ -40,10 +40,10 @@ const Warn_IP_MAX = 8
 
 // be used to defend the dangerous ip to access system by global middleware
 func (IP *IPService) IsWarnIP(ip string) bool {
-	return dao.QueryIP(IP.getWarnIPkey(ip)) >= Warn_IP_MAX
+	return dao.GetIPDao().QueryIP(IP.getWarnIPkey(ip)) >= Warn_IP_MAX
 }
 func (IP *IPService) Incre_Warning_IP(ip string) bool {
-	return dao.InsertIP(IP.getWarnIPkey(ip))
+	return dao.GetIPDao().InsertIP(IP.getWarnIPkey(ip))
 }
 
 func (IP *IPService) getWarnIPkey(ip string) string {

@@ -36,14 +36,14 @@ func ExecTask(operate string, ip string, function string, params map[string]stri
 			}
 		}
 		if !valid {
-			dao.Errorf(operate, ip, "操作者使用了无效的参数:%s", function)
+			dao.GetLogDao().Errorf(operate, ip, "操作者使用了无效的参数:%s", function)
 			return utils.NewFailedResponse("参数错误")
 		}
 	}
 	// init operate
 	funcmap := dao.GetFuncMap(function)
 	if funcmap == nil {
-		dao.Errorf(operate, ip, "操作者正在使用未知功能:%s", function)
+		dao.GetLogDao().Errorf(operate, ip, "操作者正在使用未知功能:%s", function)
 		return utils.NewFailedResponse("没有上传对应函数功能")
 	}
 	var completeParams = make([]string, 0, len(params))
@@ -83,4 +83,4 @@ func (chain *PlatformChainImpl) Handle() {
 }
 
 // TODO how to design the flexiable function to add
-func CreateTask(){}
+func CreateTask() {}

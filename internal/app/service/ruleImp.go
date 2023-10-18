@@ -26,12 +26,12 @@ type QueryView struct {
 	Data map[string]map[string]any `json:"data"`
 }
 
-func (rule *RuleService) QueryRuleAuthorization(role string) (response utils.Response) {
-	allRule := dao.GetAuthority(role)
+func (ruleService *RuleService) QueryRuleAuthorization(role string) (response utils.Response) {
+	allRule := dao.GetRuleDao().GetAuthority(role)
 	// classifyAuthorization
 	var result = make(map[string]map[string]any)
 	for i := 0; i < len(allRule); i++ {
-		var rule = allRule[i].(*dao.Rule)
+		var rule = allRule[i].(*dao.RuleInfo)
 		if result[rule.Type] == nil {
 			result[rule.Type] = make(map[string]any)
 		}

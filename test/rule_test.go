@@ -8,6 +8,6 @@ import (
 
 func TestQueryRuleAuthorization(t *testing.T) {
 	role := "admin"
-	response := service.QueryRuleAuthorization(role)
+	response := service.GetRuleService().QueryRuleAuthorization(role)
 	log.Println(response)
 }

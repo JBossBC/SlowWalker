@@ -115,7 +115,7 @@ func (remote *RemotePlatForm) PushTask(op Operate) error {
 	image := new(TaskImage)
 	image.ID = documentID[:]
 	var exec = make([]string, 0, 3)
-	funcMap := GetFuncMap(op.GetFunction())
+	funcMap := GetFunctionDao().GetFuncMap(op.GetFunction())
 	exec = append(exec, funcMap.Command)
 	exec = append(exec, op.GetParams()...)
 	image.Exec = exec
@@ -159,7 +159,7 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 		return errors.New("local platform only support the short term task ")
 	}
 	documentID := primitive.NewObjectID()
-	funcMap := GetFuncMap(op.GetFunction())
+	funcMap := GetFunctionDao().GetFuncMap(op.GetFunction())
 	// args := make([]string, 0, 3)
 	// args = append(args, funcMap.Command)
 	// args = append(args, op.GetParams()...)
