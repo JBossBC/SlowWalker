@@ -12,3 +12,14 @@ type Log interface {
 func GetLogService() Log {
 	return getLogService()
 }
+
+func RemoveLogs(filters []dao.Log) (response utils.Response) {
+	err := dao.RemoveLogs(filters)
+	if err != nil {
+		response = utils.NewFailedResponse("删除失败")
+		return
+	}
+
+	return utils.NewSuccessResponse("删除成功")
+
+}
