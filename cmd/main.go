@@ -39,8 +39,8 @@ func mobileRoute(engine *gin.Engine) {
 
 func userRoute(engine *gin.Engine) {
 	group := engine.Group("/user")
-	group.Handle(http.MethodGet, "/login", controller.Login)
-	group.Handle(http.MethodPost, "/register", controller.Register)
+	group.Handle(http.MethodGet, "/login", controller.GetUserController().Login)
+	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
 }
 
 func auditRoute(engine *gin.Engine) {
@@ -49,13 +49,13 @@ func auditRoute(engine *gin.Engine) {
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
-	group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
+	group.Handle(http.MethodGet, "/query", controller.GetLogController().QueryAuditLogs)
 }
 
 func ruleRoute(engine *gin.Engine) {
 	group := engine.Group("/rule")
 	group.Use(middleware.Auth)
-	group.Handle(http.MethodGet, "/query", controller.QueryRuleAuthorization)
+	group.Handle(http.MethodGet, "/query", controller.GetRuleController().QueryRuleAuthorization)
 }
 
 func funcRoute(engine *gin.Engine) {

@@ -9,7 +9,7 @@ import (
 
 // the params resprent the user params view
 func ExecTask(operate string, ip string, function string, params map[string]string, isLocal bool) (response utils.Response) {
-	views, err := dao.GetFuncViews(function)
+	views, err := dao.GetFuncViewDao().GetFuncViews(function)
 	if err != nil {
 		return utils.NewFailedResponse("系统错误")
 	}
@@ -41,7 +41,7 @@ func ExecTask(operate string, ip string, function string, params map[string]stri
 		}
 	}
 	// init operate
-	funcmap := dao.GetFuncMap(function)
+	funcmap := dao.GetFunctionDao().GetFuncMap(function)
 	if funcmap == nil {
 		dao.GetLogDao().Errorf(operate, ip, "操作者正在使用未知功能:%s", function)
 		return utils.NewFailedResponse("没有上传对应函数功能")
