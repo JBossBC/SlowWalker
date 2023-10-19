@@ -27,20 +27,15 @@ const FileCut = () => {
     const handleSplit = () => {
         form.validateFields().then((values) => {
             console.log(values);
-            // 执行拆分逻辑
-            // 使用fileList和outputFolderPath变量进行处理
             console.log("文件拆分");
         });
     };
 
     const handleMerge = () => {
-        // 执行合并文件逻辑
-        // 使用fileList和outputFolderPath变量进行处理
         console.log("合并文件");
     };
 
     const beforeUpload = (file) => {
-        // 限制只能选择表格文件
         const isExcel =
             file.type === 'application/vnd.ms-excel' ||
             file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';

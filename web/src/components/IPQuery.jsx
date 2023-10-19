@@ -31,38 +31,15 @@ const IPQuery = () => {
     };
 
     const handleFileUpload = (file) => {
-        /* 处理上传文件逻辑
-         可以在这里读取文件内容，并将内容设置为ipAddresses*/
-        /*const reader = new FileReader();
-              reader.onload = (event) => {
-               setIpAddresses(event.target.result);
-              };
-              reader.readAsText(file);*/
+
     };
 
     const downloadTemplate = () => {
-        /* 下载文件范本逻辑
-         可以使用window.open或axios库进行文件下载*/
-        /*  axios.get('/template-path', { responseType: 'blob' }).then((response) => {
-                   const url = window.URL.createObjectURL(new Blob([response.data]));
-                   const link = document.createElement('a');
-                   link.href = url;
-                   link.setAttribute('download', 'template.csv');
-                   document.body.appendChild(link);
-                   link.click();
-                 });*/
+
     };
 
     const exportToCSV = () => {
-        /* 导出表格为CSV文件逻辑
-         可以使用json2csv库将tableData转换为CSV格式，并进行文件下载*/
-        /*const csv = convertToCSV(tableData);
-              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.setAttribute('download', 'ip_addresses.csv');
-               link.click();*/
+
     };
 
     const columns = [
@@ -101,7 +78,7 @@ const IPQuery = () => {
                 <Button type="primary" style={{ marginRight: 10 }} onClick={handleIpQuery}>
                     <FormattedMessage id="查询" />
                 </Button>
-                {showExportButton && ( // 只有有查询结果时才显示导出按钮
+                {showExportButton && (
                     <Button type="primary" onClick={exportToCSV}>
                         <FormattedMessage id="导出查询结果" />
                         <ExportOutlined />
