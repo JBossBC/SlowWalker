@@ -63,5 +63,5 @@ func funcRoute(engine *gin.Engine) {
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
-	group.Handle(http.MethodGet, "/execute", controller.ExecTask)
+	group.Handle(http.MethodGet, "/execute", controller.GetTaskController().ExecTask)
 }
