@@ -7,7 +7,7 @@ import (
 )
 
 func TestMapsFormat(t *testing.T) {
-	result := utils.Format(dao.Rule{Name: "xiyang", Authority: "xiyang"})
+	result := utils.Format(dao.RuleInfo{Name: "xiyang", Authority: "xiyang"})
 	if result == nil {
 		t.Fatal("format model error ")
 	}

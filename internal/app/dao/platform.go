@@ -115,7 +115,7 @@ func (remote *RemotePlatForm) PushTask(op Operate) error {
 	image := new(TaskImage)
 	image.ID = documentID[:]
 	var exec = make([]string, 0, 3)
-	funcMap := GetFuncMap(op.GetFunction())
+	funcMap := GetFunctionDao().GetFuncMap(op.GetFunction())
 	exec = append(exec, funcMap.Command)
 	exec = append(exec, op.GetParams()...)
 	image.Exec = exec
@@ -124,12 +124,12 @@ func (remote *RemotePlatForm) PushTask(op Operate) error {
 		log.Printf("protocol Buffer marshal failed:%s", err.Error())
 		return err
 	}
-	task := new(Task)
+	task := new(TaskInfo)
 	task.PlatForm = remote
 	task.Operate = op
 	task.State = Ongoing
 	task.ID = documentID
-	err = CreateTask(*task)
+	err = GetTaskDao().CreateTask(*task)
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func (remote *RemotePlatForm) PushTask(op Operate) error {
 	})
 	if err != nil {
 		//RollBack this task
-		DeleteTask(*task)
+		GetTaskDao().DeleteTask(*task)
 
 		log.Printf("push kafka failed:%s", err.Error())
 		return err
@@ -159,16 +159,16 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 		return errors.New("local platform only support the short term task ")
 	}
 	documentID := primitive.NewObjectID()
-	funcMap := GetFuncMap(op.GetFunction())
+	funcMap := GetFunctionDao().GetFuncMap(op.GetFunction())
 	// args := make([]string, 0, 3)
 	// args = append(args, funcMap.Command)
 	// args = append(args, op.GetParams()...)
-	task := new(Task)
+	task := new(TaskInfo)
 	task.Operate = op
 	task.PlatForm = local
 	task.State = Ongoing
 	task.ID = documentID
-	err := CreateTask(*task)
+	err := GetTaskDao().CreateTask(*task)
 	if err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func (local *LocalPlatForm) PushTask(op Operate) error {
 			log.Println("执行Task出错:", msg)
 			state = Failed
 		}
-		err = UpdateTask(id, bson.M{"message": fmt.Sprintf("任务执行失败:%s", msg), "state": state})
+		err = GetTaskDao().UpdateTask(id, bson.M{"message": fmt.Sprintf("任务执行失败:%s", msg), "state": state})
 		if err != nil {
 			log.Printf("update task state(id:%s,message:%s,state:%s) error:%s", string(id[:]), msg, strconv.Itoa(int(state)), err.Error())
 		}
