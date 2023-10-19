@@ -34,7 +34,7 @@ func main() {
 }
 func mobileRoute(engine *gin.Engine) {
 	group := engine.Group("/phone")
-	group.Handle(http.MethodGet, "/send", controller.SendMessage)
+	group.Handle(http.MethodGet, "/send", controller.GetMobileController().SendMessage)
 }
 
 func userRoute(engine *gin.Engine) {
