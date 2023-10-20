@@ -1,22 +1,11 @@
 package controller
 
-import (
-	"log"
-	"replite_web/internal/app/service"
-	"replite_web/internal/app/utils"
+import "github.com/gin-gonic/gin"
 
-	"github.com/gin-gonic/gin"
-)
+type Mobile interface {
+	SendMessage(ctx *gin.Context)
+}
 
-func SendMessage(ctx *gin.Context) {
-	phone := ctx.Query("phoneNumber")
-	if !utils.IsValidPhoneNumber(phone) {
-		ctx.AbortWithStatus(utils.BadReqest)
-		return
-	}
-	bytes := service.SendMessage(phone, ctx.RemoteIP()).Serialize()
-	_, err := ctx.Writer.Write(bytes)
-	if err != nil {
-		log.Printf("写入response信息失败:%s", err.Error())
-	}
+func GetMobileController() Mobile {
+	return getMobileController()
 }

@@ -9,7 +9,7 @@ import (
 
 // be known as the protection of  important interface
 func IPLimiter(ctx *gin.Context) {
-	if service.IsWarnIP(ctx.RemoteIP()) {
+	if service.GetIPService().IsWarnIP(ctx.RemoteIP()) {
 		ctx.AbortWithStatus(utils.ForbiddenAccess)
 		return
 	}

@@ -46,7 +46,7 @@ func hasAuthority(key string, value string) bool {
 	// rw.RLock()
 	// defer rw.RUnlock()
 	// _, ok := systemSource[key][value]
-	_, ok := dao.GetRule(key, value)
+	_, ok := dao.GetRuleDao().GetRule(key, value)
 	return ok
 }
 
