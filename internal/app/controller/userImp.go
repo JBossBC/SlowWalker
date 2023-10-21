@@ -32,7 +32,7 @@ func (userController *UserController) Login(ctx *gin.Context) {
 		ctx.AbortWithStatus(utils.BadReqest)
 		return
 	}
-	user := &dao.User{
+	user := &dao.UserInfo{
 		Username: username,
 		Password: password,
 		IP:       ctx.RemoteIP(),
@@ -60,7 +60,7 @@ func (userController *UserController) Register(ctx *gin.Context) {
 	password := ctx.PostForm("password")
 	phone := ctx.PostForm("phone")
 	code := ctx.PostForm("code")
-	user := &dao.User{
+	user := &dao.UserInfo{
 		Username:    username,
 		Password:    password,
 		PhoneNumber: phone,

@@ -6,12 +6,12 @@ import (
 )
 
 type User interface {
-	LoginAccount(user *dao.User) (response utils.Response, jwtStr string)
-	CreateAccount(user *dao.User) (response utils.Response)
-	UpdateInfo(user *dao.User) (response utils.Response)
-	QueryUser(user *dao.User) (response utils.Response)
+	LoginAccount(user *dao.UserInfo) (response utils.Response, jwtStr string)
+	CreateAccount(user *dao.UserInfo) (response utils.Response)
+	UpdateInfo(user *dao.UserInfo) (response utils.Response)
+	QueryUser(user *dao.UserInfo) (response utils.Response)
 	QueryUsers(page int, pageNumber int) (response utils.Response)
-	DeleteUser(user *dao.User) (response utils.Response)
+	DeleteUser(user *dao.UserInfo) (response utils.Response)
 }
 
 func GetUserService() User {

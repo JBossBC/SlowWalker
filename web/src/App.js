@@ -4,7 +4,6 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 import { NotFound,Index,Register, Main } from "./components";
-import { message } from "antd";
 import { IntlProvider, useIntl,FormattedMessage } from "react-intl";
 import messages from "./utils/language";
 import { Select } from "antd";
@@ -28,6 +27,7 @@ function App() {
     }, []);
 
     const currentMessages = messages[locale];
+
 
     return (
         <IntlProvider locale={locale} messages={currentMessages}>

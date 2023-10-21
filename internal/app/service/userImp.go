@@ -24,8 +24,8 @@ func getUserService() *UserService {
 	return userService
 }
 
-type user struct {
-}
+// type user struct {
+// }
 
 // var (
 // 	userService *user
@@ -38,8 +38,8 @@ type user struct {
 //		})
 //		return userService
 //	}
-func (userService *UserService) LoginAccount(user *dao.User) (response utils.Response, jwtStr string) {
-	single, err := dao.QueryUser(&dao.User{
+func (userService *UserService) LoginAccount(user *dao.UserInfo) (response utils.Response, jwtStr string) {
+	single, err := dao.GetUserDao().QueryUser(&dao.UserInfo{
 		Username: user.Username,
 	})
 	if err != nil {
@@ -53,7 +53,7 @@ func (userService *UserService) LoginAccount(user *dao.User) (response utils.Res
 	}
 	cliams := utils.JwtClaims{Username: single.Username, Role: single.Authority}
 	expirationTime := time.Now().Add(time.Hour * 2) // 设置过期时间为当前时间加上2小时
-	jwtStr, err = utils.CreateJWT(config.ServerConf.Secret, cliams, expirationTime)
+	jwtStr, err = utils.CreateJWT(config.GetServerConfig().Secret, cliams, expirationTime)
 	if err != nil {
 		log.Printf("创建JWT(%v)异常:%s", cliams, err.Error())
 		response = utils.NewFailedResponse("系统错误")
@@ -63,13 +63,13 @@ func (userService *UserService) LoginAccount(user *dao.User) (response utils.Res
 	return utils.NewSuccessResponse("登录成功"), jwtStr
 
 }
-func (userService *UserService) CreateAccount(user *dao.User) (response utils.Response) {
+func (userService *UserService) CreateAccount(user *dao.UserInfo) (response utils.Response) {
 	// whether the username  exists
 	if !GetIPService().IsValidRegisterInternal(user.IP) {
 		response = utils.NewFailedResponse("注册次数太多,请等一会再试")
 		return
 	}
-	single, err := dao.QueryUser(&dao.User{
+	single, err := dao.GetUserDao().QueryUser(&dao.UserInfo{
 		Username: user.Username,
 	})
 	if err != nil {
@@ -88,7 +88,7 @@ func (userService *UserService) CreateAccount(user *dao.User) (response utils.Re
 	// encrypt the  password before keep data to database
 	user.Password = utils.Encrypt(user.Password)
 	// insert
-	err = dao.CreateUser(user)
+	err = dao.GetUserDao().CreateUser(user)
 	if err != nil {
 		log.Printf("mongoDB 创建 user  document(%v) 失败:%s \r\n", user, err.Error())
 		response = utils.NewFailedResponse("创建失败")
@@ -107,8 +107,8 @@ func (userService *UserService) CreateAccount(user *dao.User) (response utils.Re
 /*
 对于分布式条件下应该加分布式锁
 */
-func (userService *UserService) UpdateInfo(user *dao.User) (response utils.Response) {
-	single, err := dao.QueryUser(&dao.User{
+func (userService *UserService) UpdateInfo(user *dao.UserInfo) (response utils.Response) {
+	single, err := dao.GetUserDao().QueryUser(&dao.UserInfo{
 		Username: user.Username,
 	})
 	if err != nil {
@@ -119,7 +119,7 @@ func (userService *UserService) UpdateInfo(user *dao.User) (response utils.Respo
 		response = utils.NewFailedResponse("修改的用户信息不存在")
 		return
 	}
-	err = dao.UpdateUser(user)
+	err = dao.GetUserDao().UpdateUser(user)
 	if err != nil {
 		log.Printf("mongoDB 修改 user  document(%v) 失败:%s \r\n", single, err.Error())
 		response = utils.NewFailedResponse("创建失败")
@@ -129,8 +129,8 @@ func (userService *UserService) UpdateInfo(user *dao.User) (response utils.Respo
 	return utils.NewSuccessResponse("修改成功")
 }
 
-func (userService *UserService) QueryUser(user *dao.User) (response utils.Response) {
-	single, err := dao.QueryUser(user)
+func (userService *UserService) QueryUser(user *dao.UserInfo) (response utils.Response) {
+	single, err := dao.GetUserDao().QueryUser(user)
 	if err != nil {
 		response = utils.NewFailedResponse("系统错误")
 		return
@@ -139,7 +139,7 @@ func (userService *UserService) QueryUser(user *dao.User) (response utils.Respon
 }
 
 func (userService *UserService) QueryUsers(page int, pageNumber int) (response utils.Response) {
-	all, err := dao.QueryUsers(page, pageNumber)
+	all, err := dao.GetUserDao().QueryUsers(page, pageNumber)
 	if err != nil {
 		response = utils.NewFailedResponse("查询失败")
 		return
@@ -147,8 +147,8 @@ func (userService *UserService) QueryUsers(page int, pageNumber int) (response u
 	return utils.NewSuccessResponse(all)
 }
 
-func (userService *UserService) DeleteUser(user *dao.User) (response utils.Response) {
-	err := dao.DeleteUser(user)
+func (userService *UserService) DeleteUser(user *dao.UserInfo) (response utils.Response) {
+	err := dao.GetUserDao().DeleteUser(user)
 	if err != nil {
 		response = utils.NewFailedResponse("删除失败")
 		return

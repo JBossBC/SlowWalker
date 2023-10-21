@@ -249,7 +249,7 @@ const Register=()=>{
         rules={[
           {
             validator: (_, value) =>
-              value ? Promise.resolve() : Promise.reject(new Error('Should accept agreement')),
+              value ? Promise.resolve() : Promise.reject(new Error('需要阅读协议')),
           },
         ]}
         {...tailFormItemLayout}
