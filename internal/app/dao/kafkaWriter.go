@@ -12,7 +12,7 @@ import (
 var singleConnsPool map[string]*kafka.Writer
 
 func newKafkaWriter(topic string) *kafka.Writer {
-	topics := config.ServerConf.Kafka.Topic
+	topics := config.GetServerConfig().Kafka.Topic
 	var find = false
 	for i := 0; i < len(topics); i++ {
 		tmp := topics[i]
@@ -26,7 +26,7 @@ func newKafkaWriter(topic string) *kafka.Writer {
 		return nil
 	}
 	config := kafka.WriterConfig{
-		Brokers: config.ServerConf.Kafka.Broker,
+		Brokers: config.GetServerConfig().Kafka.Broker,
 		Topic:   topic,
 	}
 	writer := kafka.NewWriter(config)

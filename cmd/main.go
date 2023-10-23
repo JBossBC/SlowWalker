@@ -10,6 +10,7 @@ import (
 	"replite_web/internal/app/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 	auditRoute(engine)
 	ruleRoute(engine)
 	funcRoute(engine)
-	engine.Run(fmt.Sprintf(":%s", config.ServerConf.Port))
+	engine.Run(fmt.Sprintf(":%s", config.GetServerConfig().Port))
 }
 func mobileRoute(engine *gin.Engine) {
 	group := engine.Group("/phone")
@@ -43,6 +44,9 @@ func userRoute(engine *gin.Engine) {
 	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
 }
 
+func MetricsRoute(engine *gin.Engine) {
+	engine.Handle("/metrics", promhttp.Handler)
+}
 func auditRoute(engine *gin.Engine) {
 	group := engine.Group("/log")
 	group.Use(middleware.BeforeHandler)

@@ -151,19 +151,19 @@ func initRuleSchema() {
 }
 
 var default_users_schema = []any{
-	User{
+	UserInfo{
 		Username:    "admin",
 		Authority:   "admin",
 		Password:    utils.Encrypt("admin"),
 		PhoneNumber: "18080705675",
 	},
-	User{
+	UserInfo{
 		Username:    "audit",
 		Authority:   "audit",
 		Password:    utils.Encrypt("audit"),
 		PhoneNumber: "18080705675",
 	},
-	User{
+	UserInfo{
 		Username:    "member",
 		Authority:   "member",
 		Password:    utils.Encrypt("member"),

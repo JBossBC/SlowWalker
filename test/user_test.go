@@ -9,7 +9,7 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	user := &dao.User{
+	user := &dao.UserInfo{
 		Username: "member",
 		Password: "member",
 	}
@@ -24,7 +24,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestCreateAccount(t *testing.T) {
-	User := &dao.User{
+	User := &dao.UserInfo{
 		Username:    "member",
 		Password:    "password123",
 		PhoneNumber: "1234567890",
@@ -55,7 +55,7 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestUpdateInfo(t *testing.T) {
-	User := &dao.User{
+	User := &dao.UserInfo{
 		Username:    "member",
 		Password:    "member",
 		PhoneNumber: "15182242848",
@@ -76,7 +76,7 @@ func TestUpdateInfo(t *testing.T) {
 	}
 }
 func TestQueryUser(t *testing.T) {
-	User := &dao.User{
+	User := &dao.UserInfo{
 		Username: "member",
 	}
 	response := service.GetUserService().QueryUser(User)
@@ -95,7 +95,7 @@ func TestQueryUsers(t *testing.T) {
 	log.Println(response)
 }
 func TestDeleteUser(t *testing.T) {
-	user := &dao.User{
+	user := &dao.UserInfo{
 		Username: "memberafafds",
 	}
 	response := service.GetUserService().DeleteUser(user)

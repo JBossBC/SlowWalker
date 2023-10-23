@@ -46,7 +46,7 @@ func (mobileService *MobileService) SendMessage(phone string, ip string) (respon
 		}
 	}
 	code := utils.NewRandomCode()
-	err = infrastructure.Send(phone, code)
+	err = infrastructure.GetMobileProvider().Send(phone, code)
 	if err != nil {
 		response = utils.NewFailedResponse("发送验证码失败")
 		return

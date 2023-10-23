@@ -31,7 +31,11 @@ type SMSConfig struct {
 	TemplateCode string `xml:"templateCode"`
 }
 
-var ServerConf *ServerConfig
+type PrometheusConfig struct {
+	Server string `json:"server"`
+}
+
+var serverConf *ServerConfig
 
 var DEFUALT_SERVER_CONFIG_FILE = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "server.xml")
 
@@ -43,9 +47,13 @@ func init() {
 		panic(fmt.Sprintf("初始化server配置文件出错:%s", err.Error()))
 	}
 
-	ServerConf = new(ServerConfig)
-	err = xml.NewDecoder(bufio.NewReader(file)).Decode(ServerConf)
+	serverConf = new(ServerConfig)
+	err = xml.NewDecoder(bufio.NewReader(file)).Decode(serverConf)
 	if err != nil {
 		panic(fmt.Sprintf("xml解析server配置文件出错:%s", err.Error()))
 	}
+}
+
+func GetServerConfig() *ServerConfig {
+	return serverConf
 }

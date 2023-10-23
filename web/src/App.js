@@ -4,47 +4,56 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 import { NotFound,Index,Register, Main } from "./components";
-import { initReactI18next } from 'react-i18next';
-import i18n from 'i18next';
-import messages from "./utils/translations.json";
+import { IntlProvider, useIntl,FormattedMessage } from "react-intl";
+import messages from "./utils/language";
+import { Select } from "antd";
 // init the axios interceptors from error handle
 const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStorage.getItem("repliteweb"):"";
 // axios.defaults.headers.common["Authorization"] = `Bearer ${defaultToken}`;
 
 // const defaultBackendURL = "http://localhost:8080";
 // export const Backend = React.createContext(defaultBackendURL);
+const { Option } = Select;
 
+function App() {
+    const [locale, setLocale] = useState('zh');
 
-i18n.use(initReactI18next).init(
-   {
-    resources:{
-        
-    },
-    lng: 'cn',
-    interpolation: {
-        escapeValue: false // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
-      }
-   }
-)
-function App(){
+    const handleLocaleChange = (lang) => {
+        setLocale(lang);
+    };
+
+    useEffect(() => {
+        setLocale(window.navigator.language.toLowerCase().slice(0, 2));
+    }, []);
+
+    const currentMessages = messages[locale];
+
 
     return (
-        <Router>
+        <IntlProvider locale={locale} messages={currentMessages}>
+            <Router>
+                <div className="container">
+                    <div style={{ position: "fixed", top: "20px", right: "20px", zIndex: 1 }}>
+                        <Select defaultValue={locale} onChange={handleLocaleChange}>
+                            <Option value="en">
+                                <FormattedMessage id="English" />
+                            </Option>
+                            <Option value="zh">
+                                <FormattedMessage id="中文" />
+                            </Option>
+                        </Select>
+                    </div>
+                    <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/login" element={<Index />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/main" element={<Main />} />
+                        <Route path="*" element={<NotFound />} />
+                    </Routes>
+                </div>
+            </Router>
+        </IntlProvider>
 
-           {/* <I18nextProvider i18n={i18n}> */}
-
-            {/* <Backend.Provider value={defaultBackendURL}> */}
-                <Routes>
-                    <Route path="/" element={<Index />} /> {/* 使用element属性 */}
-                    <Route path="/login" element={<Index/>} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/main" element={<Main />} />
-
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-                {/* </I18nextProvider> */}
-            {/* </Backend.Provider> */}
-        </Router>
     );
 }
 export default App;
