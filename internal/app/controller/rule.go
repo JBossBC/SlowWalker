@@ -7,5 +7,5 @@ type Rule interface {
 }
 
 func GetRuleController() Rule {
-	return GetRuleController()
+	return getRuleController()
 }

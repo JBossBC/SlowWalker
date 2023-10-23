@@ -4,7 +4,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 import { NotFound,Index,Register, Main } from "./components";
-import { IntlProvider, useIntl,FormattedMessage } from "react-intl";
+import { IntlProvider, FormattedMessage } from "react-intl";
 import messages from "./utils/language";
 import { Select } from "antd";
 // init the axios interceptors from error handle
