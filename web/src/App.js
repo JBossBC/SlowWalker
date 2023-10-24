@@ -2,7 +2,7 @@ import {BrowserRouter as Router,Route,Routes,useNavigate}  from "react-router-do
 import './App.css';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { NotFound,Index,Register, Main } from "./components";
+import { NotFound,Index,Register, Main, Log } from "./components";
 import { initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import messages from "./utils/translations.json";
@@ -35,6 +35,7 @@ function App(){
                     <Route path="/login" element={<Index/>} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/main" element={<Main />} />
+                    <Route path="/log" element={<Log />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
                 {/* </I18nextProvider> */}
