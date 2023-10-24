@@ -34,5 +34,8 @@ scrape_configs:
       - localhost:8080
   - job_name: 'mongodb'
     static_configs:
-      - targets: ['localhost:9216']     
+      - targets: ['localhost:9216']   
+  - job_name: redis_exporter
+    static_configs:
+    - targets: ['localhost:9121']    
     

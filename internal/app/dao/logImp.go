@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
 	"os"
+	"path/filepath"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
 	"strconv"
@@ -21,8 +23,6 @@ import (
 )
 
 const DEFAULT_LOG_DOCUMENT = "log"
-
-const ERROR_LOG_STORAGE = "/var/repliteLog.json"
 
 // const DEFALT_LOG_NUMBER = 10
 
@@ -55,22 +55,29 @@ func getLogDao() *LogDao {
 }
 
 func init() {
+	dict, _ := os.Getwd()
+	root := filepath.VolumeName(dict)
+	var ERROR_DICT = fmt.Sprintf("%s%svar", root, string(os.PathSeparator))
+	var ERROR_LOG_STORAGE = fmt.Sprintf("%s%svar%srepliteLog.json", root, string(os.PathSeparator), string(os.PathSeparator))
 	file, err := os.Open(ERROR_LOG_STORAGE)
-	if _, ok := err.(*os.PathError); ok {
-		return
+	if _, ok := err.(*os.PathError); !ok {
+		fileInfo, _ := file.Stat()
+		var error_log = make([]LogInfo, fileInfo.Size()/int64(unsafe.Sizeof(LogInfo{})))
+		err = json.NewDecoder(bufio.NewReader(file)).Decode(error_log)
+		if err != nil {
+			panic(fmt.Sprintf("log(%s) recover is error: %v", ERROR_LOG_STORAGE, err))
+		}
 	}
-	fileInfo, _ := file.Stat()
-	var error_log = make([]LogInfo, fileInfo.Size()/int64(unsafe.Sizeof(LogInfo{})))
-	err = json.NewDecoder(bufio.NewReader(file)).Decode(error_log)
-	if err != nil {
-		panic(fmt.Sprintf("log(%s) recover is error: %v", ERROR_LOG_STORAGE, err))
+	var pathError *os.PathError
+	if _, err := os.Open(ERROR_DICT); errors.As(err, &pathError) {
+		os.Mkdir(ERROR_DICT, 0644)
 	}
 	file, err = os.OpenFile(ERROR_LOG_STORAGE, os.O_APPEND|os.O_CREATE|os.O_SYNC, 0644)
 	if err != nil {
 		panic(fmt.Sprintf("打开日志文件出错%s:%v", ERROR_LOG_STORAGE, err))
 	}
-	error_log_info = bufio.NewWriter(file)
 	mu = sync.Mutex{}
+	error_log_info = bufio.NewWriter(file)
 }
 
 type LogInfo struct {
