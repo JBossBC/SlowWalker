@@ -9,11 +9,11 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	user := &dao.User{
+	user := &dao.UserInfo{
 		Username: "member",
 		Password: "member",
 	}
-	response, jwtStr := service.LoginAccount(user)
+	response, jwtStr := service.GetUserService().LoginAccount(user)
 	expectResponse := utils.NewSuccessResponse("登录成功")
 	if len(jwtStr) == 0 {
 		t.Errorf("返回的jwtStr为空")
@@ -24,13 +24,13 @@ func TestLogin(t *testing.T) {
 }
 
 func TestCreateAccount(t *testing.T) {
-	User := &dao.User{
+	User := &dao.UserInfo{
 		Username:    "member",
 		Password:    "password123",
 		PhoneNumber: "1234567890",
 		Code:        "123",
 	}
-	response := service.CreateAccount(User)
+	response := service.GetUserService().CreateAccount(User)
 	Response1 := utils.NewFailedResponse("注册次数太多,请等一会再试")
 	Response2 := utils.NewFailedResponse("系统错误")
 	Response3 := utils.NewFailedResponse("用户名已存在")
@@ -55,12 +55,12 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestUpdateInfo(t *testing.T) {
-	User := &dao.User{
+	User := &dao.UserInfo{
 		Username:    "member",
 		Password:    "member",
 		PhoneNumber: "15182242848",
 	}
-	response := service.UpdateInfo(User)
+	response := service.GetUserService().UpdateInfo(User)
 	Response1 := utils.NewFailedResponse("系统错误")
 	Response2 := utils.NewFailedResponse("修改的用户信息不存在")
 	Response3 := utils.NewFailedResponse("创建失败")
@@ -76,10 +76,10 @@ func TestUpdateInfo(t *testing.T) {
 	}
 }
 func TestQueryUser(t *testing.T) {
-	User := &dao.User{
+	User := &dao.UserInfo{
 		Username: "member",
 	}
-	response := service.QueryUser(User)
+	response := service.GetUserService().QueryUser(User)
 	response1 := utils.NewFailedResponse("系统错误")
 	if response == response1 {
 		t.Fatalf("系统错误")
@@ -87,7 +87,7 @@ func TestQueryUser(t *testing.T) {
 	log.Println(response)
 }
 func TestQueryUsers(t *testing.T) {
-	response := service.QueryUsers(1, 1)
+	response := service.GetUserService().QueryUsers(1, 1)
 	response1 := utils.NewFailedResponse("查询失败")
 	if response == response1 {
 		t.Fatalf("查询失败")
@@ -95,10 +95,10 @@ func TestQueryUsers(t *testing.T) {
 	log.Println(response)
 }
 func TestDeleteUser(t *testing.T) {
-	user := &dao.User{
+	user := &dao.UserInfo{
 		Username: "memberafafds",
 	}
-	response := service.DeleteUser(user)
+	response := service.GetUserService().DeleteUser(user)
 	response1 := utils.NewFailedResponse("删除失败")
 	if response == response1 {
 		t.Fatalf("删除失败")

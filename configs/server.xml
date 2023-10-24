@@ -16,5 +16,10 @@
         <topic>task</topic>
         <topic></topic>
     </kafka>
+    <prometheus>
+      <server>
+        
+      </server>
+    </prometheus>
     <!-- including the development and test envrionment and online envrionment-->
 </server>

@@ -31,7 +31,7 @@ func Auth(ctx *gin.Context) {
 		if t.Method != utils.DEFUALT_JWT_METHOD {
 			return nil, errors.New("验证失败")
 		}
-		return []byte(config.ServerConf.Secret), nil
+		return []byte(config.GetServerConfig().Secret), nil
 	})
 	if err != nil || !token.Valid {
 		log.Printf("%v", err)

@@ -14,12 +14,12 @@ import (
 /* mogoDB schema init rule */
 
 var default_admin_schema = []any{
-	Rule{
+	RuleInfo{
 		Name:      "admin",
 		Authority: "fileSystem",
 		Type:      "system",
 	},
-	Rule{
+	RuleInfo{
 		Name:      "admin",
 		Authority: "log",
 		Type:      "system",
@@ -32,24 +32,24 @@ var default_admin_schema = []any{
 }
 
 var default_member_schma = []any{
-	Rule{
+	RuleInfo{
 		Name:      "member",
 		Authority: "ipQuery",
 		Type:      "function",
 	},
-	Rule{
+	RuleInfo{
 		Name:      "member",
 		Authority: "levelGraph",
 		Type:      "function",
 	},
-	Rule{
+	RuleInfo{
 		Name:      "member",
 		Authority: "fileCut",
 		Type:      "function",
 	},
 }
 var default_audit_schema = []any{
-	Rule{
+	RuleInfo{
 		Name:      "audit",
 		Authority: "log",
 		Type:      "system",
@@ -151,19 +151,19 @@ func initRuleSchema() {
 }
 
 var default_users_schema = []any{
-	User{
+	UserInfo{
 		Username:    "admin",
 		Authority:   "admin",
 		Password:    utils.Encrypt("admin"),
 		PhoneNumber: "18080705675",
 	},
-	User{
+	UserInfo{
 		Username:    "audit",
 		Authority:   "audit",
 		Password:    utils.Encrypt("audit"),
 		PhoneNumber: "18080705675",
 	},
-	User{
+	UserInfo{
 		Username:    "member",
 		Authority:   "member",
 		Password:    utils.Encrypt("member"),

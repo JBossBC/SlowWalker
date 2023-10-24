@@ -1,21 +1,11 @@
 package controller
 
-import (
-	"log"
-	"replite_web/internal/app/service"
-	"replite_web/internal/app/utils"
+import "github.com/gin-gonic/gin"
 
-	"github.com/gin-gonic/gin"
-)
+type Rule interface {
+	QueryRuleAuthorization(ctx *gin.Context)
+}
 
-func QueryRuleAuthorization(ctx *gin.Context) {
-	role, ok := ctx.Get("role")
-	if !ok {
-		ctx.AbortWithStatus(utils.SystemError)
-		return
-	}
-	_, err := ctx.Writer.Write(service.QueryRuleAuthorization(role.(string)).Serialize())
-	if err != nil {
-		log.Printf("写入response信息失败:%s", err.Error())
-	}
+func GetRuleController() Rule {
+	return getRuleController()
 }

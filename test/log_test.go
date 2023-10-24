@@ -9,12 +9,12 @@ import (
 
 func TestLog(t *testing.T) {
 
-	l := &dao.Log{
+	l := &dao.LogInfo{
 		Level:    dao.PRINT,
 		IP:       "127.0.0.1",
 		Operator: "audit",
 	}
-	logs, err := dao.FilterLogs(l, 2, 5)
+	logs, err := dao.GetLogDao().FilterLogs(l, 2, 5)
 	if err != nil {
 		log.Println(err)
 		return

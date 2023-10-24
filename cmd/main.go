@@ -10,6 +10,7 @@ import (
 	"replite_web/internal/app/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -30,33 +31,37 @@ func main() {
 	auditRoute(engine)
 	ruleRoute(engine)
 	funcRoute(engine)
-	engine.Run(fmt.Sprintf(":%s", config.ServerConf.Port))
+	metricsRoute(engine)
+	engine.Run(fmt.Sprintf(":%s", config.GetServerConfig().Port))
 }
 func mobileRoute(engine *gin.Engine) {
 	group := engine.Group("/phone")
-	group.Handle(http.MethodGet, "/send", controller.SendMessage)
+	group.Handle(http.MethodGet, "/send", controller.GetMobileController().SendMessage)
 }
 
 func userRoute(engine *gin.Engine) {
 	group := engine.Group("/user")
-	group.Handle(http.MethodGet, "/login", controller.Login)
-	group.Handle(http.MethodPost, "/register", controller.Register)
+	group.Handle(http.MethodGet, "/login", controller.GetUserController().Login)
+	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
 }
 
+func metricsRoute(engine *gin.Engine) {
+	engine.Handle(http.MethodGet, "/metrics", gin.WrapH(promhttp.Handler()))
+}
 func auditRoute(engine *gin.Engine) {
 	group := engine.Group("/log")
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	//group.Use(middleware.RBACMiddleware)
 	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
-	group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
-	group.Handle(http.MethodPost, "/remove", controller.RemoveAuditLogs)
+	group.Handle(http.MethodGet, "/query", controller.GetLogController().QueryAuditLogs)
+	group.Handle(http.MethodPost, "/remove", controller.GetLogController().RemoveAuditLogs)
 }
 
 func ruleRoute(engine *gin.Engine) {
 	group := engine.Group("/rule")
 	group.Use(middleware.Auth)
-	group.Handle(http.MethodGet, "/query", controller.QueryRuleAuthorization)
+	group.Handle(http.MethodGet, "/query", controller.GetRuleController().QueryRuleAuthorization)
 }
 
 func funcRoute(engine *gin.Engine) {
@@ -64,5 +69,5 @@ func funcRoute(engine *gin.Engine) {
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
-	group.Handle(http.MethodGet, "/execute", controller.ExecTask)
+	group.Handle(http.MethodGet, "/execute", controller.GetTaskController().ExecTask)
 }

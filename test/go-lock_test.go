@@ -21,7 +21,7 @@ func TestLock(t *testing.T) {
 	blockSingal := make(chan struct{})
 	// go func() {
 	// for i := 0; i < 10; i++ {
-	// now := time.Now()
+	// now := time.Now() 
 	mutex.Lock()
 	fmt.Println("lock success")
 	//..... 15s

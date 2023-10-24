@@ -68,32 +68,6 @@ const columns = [
     ),
   },
 ];
-// const data = [
-//   {
-//     key: '1',
-//     name: 'John Brown',
-//     age: 32,
-//     address: 'New York No. 1 Lake Park',
-//     tags: ['nice', 'developer'],
-//   },
-//   {
-//     key: '2',
-//     name: 'Jim Green',
-//     age: 42,
-//     address: 'London No. 1 Lake Park',
-//     tags: ['loser'],
-//   },
-//   {
-//     key: '3',
-//     name: 'Joe Black',
-//     age: 32,
-//     address: 'Sydney No. 1 Lake Park',
-//     tags: ['cool', 'teacher'],
-//   },
-// ];
-
-
-
 
 const getNewParams = (params) =>({   //当变量参数更新时修改参数
   pageNumber: params.pagination && params.pagination.pageSize,
@@ -102,8 +76,8 @@ const getNewParams = (params) =>({   //当变量参数更新时修改参数
 }); 
 
 const Log= ()=>{
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);//设置批量选择的数组
-    const [form] = Form.useForm(); 
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);//设置批量选择的数组,selectedRowKeys是状态变量本身，setSelectedRowKeys是对状态变量进行设置
+    const [form] = Form.useForm();
     const {token} = theme.useToken();
     const [expand, setExpand] = useState(false); 
     const navigate=useNavigate();
@@ -118,8 +92,8 @@ const Log= ()=>{
     })
     const fetchData = async() => {
       console.log("log1")
-      setLoading(true);
-      setHasData(false);
+      setLoading(true);//排除嫌疑
+      setHasData(false);//排除嫌疑
       try {
         setLoading(true); //当调用fetchData这个异步函数时，表示要进行数据的重载
         setSelectedRowKeys([]); //默认选择为空
@@ -127,12 +101,10 @@ const Log= ()=>{
           params: getNewParams(tableParams),
         });
         const {state, message: resMessage} = response.data;
-
         console.log(response.data.state)
         if (!response.data.state) {
           //登录失败
           console.log("log2")
-
           let Message = resMessage;
           if (Message == undefined || message == "") {
               Message = "系统错误";
@@ -144,22 +116,20 @@ const Log= ()=>{
           });
           return
         }
-      
-          console.log(response.data)
-          console.log(response.data.data)
-          setData(response.data.data.data);
-          console.log(data)
+        console.log(response.data)
+        console.log(response.data.data)
+        setData(response.data.data.data);
+        console.log(data)
 
-          setLoading(false);
-          setHasData(true);
-          setTableParams({
-            ...tableParams,
-            pagination: {
-              ...tableParams.pagination,
-              total: response.data.data.total,
-            },
-          });
-        
+        setLoading(false);
+        setHasData(true);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: response.data.data.total,
+          },
+        });   
       }catch (error){
         setLoading(false);
         console.log(error); //这里可以加一个提示框显示查询报错
@@ -169,14 +139,12 @@ const Log= ()=>{
     const handleRemove = async () => {
       try {
         const response = await axios.post('/log/remove', selectedRowKeys); //直接传递数组过去
-
         if (response.data.success) {
-          fetchData(); // 删除成功后重新加载数据
+          //fetchData(); // 删除成功后重新加载数据
           message.success('删除成功');
         } else {
           message.error(response.data.message || '删除失败');
         }
-        
       } catch (error) {
         message.error('删除失败');
       }
@@ -200,80 +168,121 @@ const Log= ()=>{
           ...sorter,
         });
       }
-
       if (tableParams.pagination.pageNumber !== (tableParams.pagination && tableParams.pagination.pageNumber)) {
         setData([]);
       };
-
     };
 
-    const onSelectchange = (newSelectedRowKeys) => { //new add
-      selectedRowKeys(newSelectedRowKeys);
-    }
+    const onSelectchange = (selectedRowKeys) => {
+      setSelectedRowKeys([...selectedRowKeys]);
+    };
     const rowSelection = {
       selectedRowKeys,
-      onchange:onSelectchange,
+      onChange:onSelectchange,
     }
     const hasSelected = selectedRowKeys.length > 0;
 
-    //以下为处理搜索的：
-    const formStyle = {   //设置样式
-      maxWidth: 'none',
-      background: token.colorFillAlter,
-      borderRadius: token.borderRadiusLG,
-      padding: 24,
-    };
-    
-    const getFields = () => {
-      const children = []
-      children.push(
-        <Col span={8} >
+    return (
+      hasData? (
+      <div>
+        <div
+          style={{
+            marginBottom: 16,
+            display: 'flex',
+            justifyContent: 'space-between',  // 添加这一行
+          }}
+        >
+          <Button type="primary" onClick={handleRemove} disabled={selectedRowKeys.length === 0} loading={loading}>
+            Remove
+          </Button>
+          <span>
+            {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
+          </span>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+           <Search />
+        </div>
+        <Table 
+        columns={columns} 
+        dataSource={data}
+        pagination={tableParams.pagination}
+        loading={loading}
+        onChange={tableParamsChange}
+        rowSelection={rowSelection} // 添加rowSelection属性，启用选择功能
+        />
+      </div>
+    ) :null
+  );
+};
+
+const Search =(fetchData) => {
+  const [form] = Form.useForm(); // 定义 form 变量
+  const [expand, setExpand] = useState(false); 
+  const {token} = theme.useToken();
+  //以下为处理搜索的：
+  const formStyle = {   //设置样式
+    maxWidth: '600px',
+    background: token.colorFillAlter,
+    borderRadius: token.borderRadiusLG,
+    padding: 10,
+  };
+  const containerStyle = {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  };
+  const getFields = () => {
+    return (
+      <Row gutter={12} justify="end">
+        <Col span={12}>
           <Form.Item
-            name = {`message`}
-            label = {`message`}
+            name={`message`}
+            label={`message`}
             rules={[
               {
-                required:true,
-                message:"Input something!",
+                required: false,
+                message: "Input something!",
               },
             ]}
           >
-            <Input placeholder="placeholder"/>
+            <Input placeholder="placeholder" />
           </Form.Item>
-
+        </Col>
+        <Col span={12}>
           <Form.Item
-            name = {`ip`}
-            label = {`ip`}
+            name={`ip`}
+            label={`ip`}
             rules={[
               {
-                required:true,
-                message:"Input something!",
+                required: false,
+                message: "Input something!",
               },
             ]}
           >
-            <Input placeholder="placeholder"/>
+            <Input placeholder="placeholder" />
           </Form.Item>
-
+        </Col>
+        <Col span={12}>
           <Form.Item
-            name = {`operator`}
-            label = {`operator`}
+            name={`operator`}
+            label={`operator`}
             rules={[
               {
-                required:true,
-                message:"Input something!",
+                required: false,
+                message: "Input something!",
               },
             ]}
           >
-            <Input placeholder="placeholder"/>
+            <Input placeholder="placeholder" />
           </Form.Item>
-
+        </Col>
+        <Col span={12}>
           <Form.Item
-            name = {`level`}
-            label = {`level`}
+            name={`level`}
+            label={`level`}
             rules={[
               {
-                required:true,
-                message:"Select something!",
+                required: false,
+                message: "Select something!",
               },
             ]}
             initialValue="1"
@@ -286,80 +295,54 @@ const Log= ()=>{
               <Option value="5">panic</Option>
             </Select>
           </Form.Item>
-        </Col> 
-      );
-      return children
-    };
+        </Col>
+      </Row>
+    );
+  };
 
-    const onFinish = (values) => {
-      fetchData(values); // 调用fetchData函数，并传递搜索参数
-      console.log('Received values of form: ', values);
-    }
+  const onFinish = (values) => {
+    fetchData(values); // 调用fetchData函数，并传递搜索参数
+    console.log('Received values of form: ', values);
+  }
 
-    return (
-      hasData? (
-      <div>
-        <div
-          style={{
-            marginBottom: 16,
-          }}
-        >
-          <Button type="primary" onClick={handleRemove} disabled={!hasSelected} loading={loading}>
-            Remove
-          </Button>
-          <span
+  return(
+    <div style={containerStyle}>
+      <div style={formStyle}>
+        <Form form={form} name="advanced_search" onFinish={onFinish}>
+          <Row gutter={12}>{getFields()}</Row>
+          <div
             style={{
-              marginLeft: 8,
+              textAlign: 'right',
             }}
           >
-            {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
-          </span>
-        </div>
-        <Table 
-        columns={columns} 
-        dataSource={data}
-        pagination={tableParams.pagination}
-        loading={loading}
-        onChange={tableParamsChange}
-        rowSelection={rowSelection} // 添加rowSelection属性，启用选择功能
-        />:<Empty/>
-
-        <Form form={form} name="advanced_search" style={formStyle} onFinish={onFinish}>
-        <Row gutter={24}>{getFields()}</Row>
-        <div
-          style={{
-            textAlign: 'right',
-          }}
-        >
-        <Space size="small">
-          <Button type="primary" htmlType="submit">
-            Search
-          </Button>
-          <Button
-            onClick={() => {
-              form.resetFields();
-            }}
-          >
-            Clear
-          </Button>
-          <a
-            style={{
-              fontSize: 12,
-            }}
-            onClick={() => {
-              setExpand(!expand);
-            }}
-          >
-            <DownOutlined rotate={expand ? 180 : 0} /> Collapse
+          <Space size="small">
+            <Button type="primary" htmlType="submit">
+              Search
+            </Button>
+            <Button
+              onClick={() => {
+                form.resetFields();
+              }}
+            >
+              Clear
+            </Button>
+            <a
+              style={{
+                fontSize: 12,
+              }}
+              onClick={() => {
+                setExpand(!expand);
+              }}
+            >
+            <DownOutlined rotate={expand ? 130 : 0} /> Collapse
                 </a>
-              </Space>
-            </div>
-          </Form>
-
-
+          </Space>
+          </div>
+        </Form>
       </div>
-    ) : null
-  );
+    </div>
+  )
 };
 export default Log
+
 
