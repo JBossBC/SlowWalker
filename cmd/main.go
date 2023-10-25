@@ -31,10 +31,7 @@ func main() {
 	auditRoute(engine)
 	ruleRoute(engine)
 	funcRoute(engine)
-<<<<<<< Updated upstream
 	metricsRoute(engine)
-=======
->>>>>>> Stashed changes
 	engine.Run(fmt.Sprintf(":%s", config.GetServerConfig().Port))
 }
 func mobileRoute(engine *gin.Engine) {
@@ -47,7 +44,6 @@ func userRoute(engine *gin.Engine) {
 	group.Handle(http.MethodGet, "/login", controller.GetUserController().Login)
 	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
 }
-
 
 func metricsRoute(engine *gin.Engine) {
 	engine.Handle(http.MethodGet, "/metrics", gin.WrapH(promhttp.Handler()))

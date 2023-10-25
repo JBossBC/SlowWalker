@@ -21,6 +21,7 @@ func newCachePool() *CachePool {
 	cachePool.rwMutex = sync.RWMutex{}
 	cachePool.valueContainers = sync.Map{}
 	cachePool.ExpireDevice = make(map[string]time.Duration)
+	return cachePool
 }
 
 func GetCachePool() *CachePool {
