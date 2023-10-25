@@ -17,12 +17,20 @@ var default_admin_schema = []any{
 	RuleInfo{
 		Name:      "admin",
 		Authority: "fileSystem",
-		Type:      "system",
+		Type:      "Manage",
+		Operation: "Query Scan",
+	},
+	RuleInfo{
+		Name:      "admin",
+		Authority: "functionManage",
+		Type:      "Manage",
+		Operation: "Create Delete Scan Query Update",
 	},
 	RuleInfo{
 		Name:      "admin",
 		Authority: "log",
 		Type:      "system",
+		Operation: "Query",
 	},
 	//TODO write the new python resource to the program
 	// Rule{
@@ -36,16 +44,19 @@ var default_member_schma = []any{
 		Name:      "member",
 		Authority: "ipQuery",
 		Type:      "function",
+		Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "member",
 		Authority: "levelGraph",
 		Type:      "function",
+		Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "member",
 		Authority: "fileCut",
 		Type:      "function",
+		Operation: "Query Scan",
 	},
 }
 var default_audit_schema = []any{
@@ -53,6 +64,7 @@ var default_audit_schema = []any{
 		Name:      "audit",
 		Authority: "log",
 		Type:      "system",
+		Operation:"Query Scan",
 	},
 }
 

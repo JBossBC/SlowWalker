@@ -19,7 +19,7 @@ func init() {
 	var mongoConfig = config.DBConfig.MongoConfig
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	tempClient, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoConfig.URL))
+	tempClient, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoConfig.URL).SetMaxPoolSize(1024))
 	if err != nil {
 		panic(fmt.Sprintf("connecting the mongoDB %s is error: %v", mongoConfig.URL, err))
 	}

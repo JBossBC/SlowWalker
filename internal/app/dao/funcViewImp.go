@@ -28,7 +28,7 @@ func getFuncViewDao() *FuncViewDao {
 
 const funcViewTable = "funcmap"
 
-const default_funcview_times = 3 * time.Second
+const default_funcview_times = 10 * time.Second
 
 type FuncViewInfo struct {
 	Function    string `json:"function" bson:"function"`
@@ -37,10 +37,21 @@ type FuncViewInfo struct {
 	Sign        bool   `json:"sign" bson:"sign"`
 	EmptyPrefix bool   `json:"emptyPrefix" bson:"emptyPrefix"`
 	IsMedium    bool   `json:"isMedium" bson:"isMedium"`
+	//to help searching
+	Label       []string `json:"label" bson:"label"`
+	Description string   `json:"description" bson:"description"`
 }
 
+var (
+	funcViewCollection     *mongo.Collection
+	funcViewCollectionOnce sync.Once
+)
+
 func getFuncViewCollection() *mongo.Collection {
-	return getMongoConn().Collection(config.CollectionConfig.Get(funcViewTable).(string))
+	funcViewCollectionOnce.Do(func() {
+		funcViewCollection = getMongoConn().Collection(config.GetCollectionConfig().Get(funcViewTable).(string))
+	})
+	return funcViewCollection
 }
 
 func (funcviewDao *FuncViewDao) CreateFuncViews(funcs ...FuncViewInfo) error {

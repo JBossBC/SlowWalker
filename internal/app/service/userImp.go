@@ -59,6 +59,7 @@ func (userService *UserService) LoginAccount(user *dao.UserInfo) (response utils
 		response = utils.NewFailedResponse("系统错误")
 		return
 	}
+	//TODO when the repeat login,this record cant write to database
 	dao.GetLogDao().Printf(single.Authority, user.IP, "%s 登录成功,操作IP地址为:%s", user.Username, user.IP)
 	return utils.NewSuccessResponse("登录成功"), jwtStr
 
