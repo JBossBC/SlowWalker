@@ -6,7 +6,9 @@ require (
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6
 	github.com/alibabacloud-go/tea v1.1.19
 	github.com/gin-gonic/gin v1.9.1
+	github.com/prometheus/client_golang v1.17.0
 	github.com/redis/go-redis/v9 v9.0.5
+	github.com/segmentio/kafka-go v0.4.42
 )
 
 require (
@@ -28,11 +30,9 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
 	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.11.1 // indirect
-	github.com/segmentio/kafka-go v0.4.42 // indirect
 	github.com/tjfoc/gmsm v1.3.2 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
