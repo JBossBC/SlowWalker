@@ -36,8 +36,10 @@ type UserInfo struct {
 	Authority   string `json:"athority" bson:"authority"`
 	PhoneNumber string `json:"phoneNumber" bson:"phoneNumber"`
 	RealName    string `json:"realName" bson:"realName"`
-	Code        string `json:"-" bson:"-"`
-	IP          string `json:"-" bson:"-"`
+	//only user operation has value for department,the department field includes two means. first: what the users belong to. second: what the user display role in the department
+	Department string `json:"department" bson:"department"`
+	Code       string `json:"-" bson:"-"`
+	IP         string `json:"-" bson:"-"`
 }
 
 type UserDao struct {
@@ -70,6 +72,7 @@ func getUserCollection() *mongo.Collection {
 }
 func (userDao *UserDao) CreateUser(user *UserInfo) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
 	defer cancel()
 	_, err := getUserCollection().InsertOne(ctx, user)
 	if err != nil {
