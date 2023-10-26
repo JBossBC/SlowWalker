@@ -1,10 +1,7 @@
-import {react} from 'react'
-import { Table } from 'antd'
-import Column from 'antd/es/table/Column'
+import React from "react"
+import { Table,Menu} from 'antd'
 const UserManage = ()=>{
     const columns=[{
-
-    },{
         title:"账号",
         dataIndex: 'username',
         key: 'username',
@@ -23,21 +20,20 @@ const UserManage = ()=>{
     },{
         tilte:"操作",
         dataIndex:"operation",
-        key:"operation"
-    }]      
-    return(<div style={{width:"100%",height:"100%",display:"flex",justifyContent:"flex-start",alignContent:'center'}}>
+        key:"operation",
+    }];
+    const dataSource = [];
+    return(<div style={{width:"100%",height:"100%",display:"flex",justifyContent:"flex-start",alignContent:'center',flexDirection:"column"}}>
         <div>
             <Menu>
                 
             </Menu>
         </div>
         <div>
-        <Table dataSource={dataSource}  >
-            <Column></Column>
-            </Table>;
+   <Table columns={columns}></Table>
         </div>
     </div>)
 }
 
 
-export default UserManage
+export default UserManage;

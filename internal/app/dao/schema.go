@@ -16,45 +16,51 @@ import (
 var default_admin_schema = []any{
 	RuleInfo{
 		Name:      "admin",
-		Authority: "fileSystem",
+		Authority: "文件系统",
 		Type:      "Manage",
 		Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "admin",
-		Authority: "functionManage",
+		Authority: "功能管理",
 		Type:      "Manage",
 		Operation: "Create Delete Scan Query Update",
 	},
 	RuleInfo{
 		Name:      "admin",
-		Authority: "log",
+		Authority: "审计日志",
 		Type:      "system",
 		Operation: "Query",
 	},
-	//TODO write the new python resource to the program
-	// Rule{
-	// 	Name:   "admin",
-	// 	Authority: "",
-	// }
-}
+	RuleInfo{
+		Name:      "admin",
+		Authority: "人员管理",
+		Type:      "system",
+		Operation: "Query Delete Scan Query Update",
+	}}
+
+//TODO write the new python resource to the program
+// Rule{
+// 	Name:   "admin",
+// 	Authority: "",
+// }
 
 var default_member_schma = []any{
 	RuleInfo{
 		Name:      "member",
-		Authority: "ipQuery",
+		Authority: "IP查询",
 		Type:      "function",
 		Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "member",
-		Authority: "levelGraph",
+		Authority: "层级图",
 		Type:      "function",
 		Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "member",
-		Authority: "fileCut",
+		Authority: "文件切分",
 		Type:      "function",
 		Operation: "Query Scan",
 	},
@@ -62,9 +68,9 @@ var default_member_schma = []any{
 var default_audit_schema = []any{
 	RuleInfo{
 		Name:      "audit",
-		Authority: "log",
+		Authority: "审计日志",
 		Type:      "system",
-		Operation:"Query Scan",
+		Operation: "Query Scan",
 	},
 }
 

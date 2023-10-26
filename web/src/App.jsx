@@ -2,7 +2,7 @@ import {BrowserRouter as Router,Route,Routes,useNavigate, BrowserRouter}  from "
 import './App.css';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { NotFound,Index,Register, Main } from "./components";
+import { NotFound,Index,Register, Main,UserManage } from "./components";
 import { message } from "antd";
 // init the axios interceptors from error handle
 const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStorage.getItem("repliteweb"):"";
@@ -37,6 +37,7 @@ function App(){
             <Backend.Provider value={defaultBackendURL}>
                 <Routes>
                     <Route path="/" element={<Index Token={Token} setToken={setToken} />}/>
+                    <Route path="/user" element={<UserManage/>}/>
                     <Route path="/login"  index element={<Index Token={Token} setToken={setToken}/>}/>
                     <Route path="/register" element={<Register/>}/>
                     <Route path="/main" element={<Main/>}/>

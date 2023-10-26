@@ -156,3 +156,7 @@ func (userService *UserService) DeleteUser(user *dao.UserInfo) (response utils.R
 	}
 	return utils.NewSuccessResponse(nil)
 }
+
+func (userService *UserService)ExitLogin(user *dao.UserInfo)(response utils.Response){
+	
+}

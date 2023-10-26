@@ -73,3 +73,11 @@ func (userController *UserController) Register(ctx *gin.Context) {
 		log.Printf("写入response信息失败:%s", err.Error())
 	}
 }
+
+func (userController *UserController) ExitLogin(ctx *gin.Context) {
+	username, ok := ctx.Get("username")
+	if !ok {
+		ctx.Writer.Write(utils.NewFailedResponse("操作出错").Serialize())
+		return
+	}
+}

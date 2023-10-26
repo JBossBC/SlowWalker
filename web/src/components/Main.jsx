@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Breadcrumb, theme, Modal, Form, Input, Button, Select } from 'antd';
-import { LaptopOutlined, UserOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Layout, Menu, Breadcrumb, theme, Form,  Button } from 'antd';
+import { LaptopOutlined, UserOutlined, PlusOutlined } from '@ant-design/icons';
 import { useIntl, FormattedMessage } from 'react-intl';
 import axios from "../utils/axios";
 import IPQuery from './IPQuery';
