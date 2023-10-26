@@ -31,6 +31,7 @@ func main() {
 	auditRoute(engine)
 	ruleRoute(engine)
 	funcRoute(engine)
+	metricsRoute(engine)
 	engine.Run(fmt.Sprintf(":%s", config.GetServerConfig().Port))
 }
 func mobileRoute(engine *gin.Engine) {
@@ -44,16 +45,18 @@ func userRoute(engine *gin.Engine) {
 	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
 }
 
-func MetricsRoute(engine *gin.Engine) {
-	engine.Handle("/metrics", promhttp.Handler)
+func metricsRoute(engine *gin.Engine) {
+	engine.Handle(http.MethodGet, "/metrics", gin.WrapH(promhttp.Handler()))
+
 }
 func auditRoute(engine *gin.Engine) {
 	group := engine.Group("/log")
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
-	group.Use(middleware.RBACMiddleware)
+	//group.Use(middleware.RBACMiddleware)
 	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
 	group.Handle(http.MethodGet, "/query", controller.GetLogController().QueryAuditLogs)
+	group.Handle(http.MethodPost, "/remove", controller.GetLogController().RemoveAuditLogs)
 }
 
 func ruleRoute(engine *gin.Engine) {

@@ -18,7 +18,11 @@ import (
 
 */
 
-var CollectionConfig *staticMap
+var collectionConfig *staticMap
+
+func GetCollectionConfig() *staticMap {
+	return collectionConfig
+}
 
 type Collections struct {
 	XMLName xml.Name     `xml:"mongoTables"`
@@ -52,7 +56,7 @@ func init() {
 		result[col.Name] = col.Value
 	}
 	//TODO3 how to convert the map[string]string params to map[string]any
-	CollectionConfig = newStaticMap(result)
+	collectionConfig = newStaticMap(result)
 }
 
 type staticMap struct {

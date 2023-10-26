@@ -31,14 +31,22 @@ var mapfuncCache map[string]*FuncMap
 
 const funcmapTable = "funcmap"
 
-const default_funcmap_times = 3 * time.Second
+const default_funcmap_times = 10 * time.Second
+
+var (
+	funcMapCollection     *mongo.Collection
+	funcMapCollectionOnce sync.Once
+)
 
 func getFuncMapCollection() *mongo.Collection {
-	return getMongoConn().Collection(config.CollectionConfig.Get(funcmapTable).(string))
+	funcMapCollectionOnce.Do(func() {
+		funcMapCollection = getMongoConn().Collection(config.GetCollectionConfig().Get(funcmapTable).(string))
+	})
+	return funcMapCollection
 }
 
 func init() {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), default_funcmap_times)
 	defer cancel()
 	cur, err := getFuncMapCollection().Find(ctx, bson.M{})
 	if err != nil {

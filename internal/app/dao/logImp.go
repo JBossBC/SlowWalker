@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
 	"os"
+	"path/filepath"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
 	"strconv"
@@ -21,8 +23,6 @@ import (
 )
 
 const DEFAULT_LOG_DOCUMENT = "log"
-
-const ERROR_LOG_STORAGE = "/var/repliteLog.json"
 
 // const DEFALT_LOG_NUMBER = 10
 
@@ -55,22 +55,29 @@ func getLogDao() *LogDao {
 }
 
 func init() {
+	dict, _ := os.Getwd()
+	root := filepath.VolumeName(dict)
+	var ERROR_DICT = fmt.Sprintf("%s%svar", root, string(os.PathSeparator))
+	var ERROR_LOG_STORAGE = fmt.Sprintf("%s%svar%srepliteLog.json", root, string(os.PathSeparator), string(os.PathSeparator))
 	file, err := os.Open(ERROR_LOG_STORAGE)
-	if _, ok := err.(*os.PathError); ok {
-		return
-	}
 	fileInfo, _ := file.Stat()
-	var error_log = make([]LogInfo, fileInfo.Size()/int64(unsafe.Sizeof(LogInfo{})))
-	err = json.NewDecoder(bufio.NewReader(file)).Decode(error_log)
-	if err != nil {
-		panic(fmt.Sprintf("log(%s) recover is error: %v", ERROR_LOG_STORAGE, err))
+	if _, ok := err.(*os.PathError); !ok && fileInfo.Size() > 0 {
+		var error_log = make([]LogInfo, fileInfo.Size()/int64(unsafe.Sizeof(LogInfo{})))
+		err = json.NewDecoder(bufio.NewReader(file)).Decode(error_log)
+		if err != nil {
+			panic(fmt.Sprintf("log(%s) recover is error: %v", ERROR_LOG_STORAGE, err))
+		}
+	}
+	var pathError *os.PathError
+	if _, err := os.Open(ERROR_DICT); errors.As(err, &pathError) {
+		os.Mkdir(ERROR_DICT, 0644)
 	}
 	file, err = os.OpenFile(ERROR_LOG_STORAGE, os.O_APPEND|os.O_CREATE|os.O_SYNC, 0644)
 	if err != nil {
 		panic(fmt.Sprintf("打开日志文件出错%s:%v", ERROR_LOG_STORAGE, err))
 	}
-	error_log_info = bufio.NewWriter(file)
 	mu = sync.Mutex{}
+	error_log_info = bufio.NewWriter(file)
 }
 
 type LogInfo struct {
@@ -146,7 +153,7 @@ func newLog(level LogLevel, operator string, ip string, message string) LogInfo 
 }
 
 func (logDao *LogDao) insertLog(l *LogInfo) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_, err := getLogCollection().InsertOne(ctx, l)
 	if err != nil {
@@ -163,8 +170,16 @@ func (logDao *LogDao) insertLog(l *LogInfo) {
 	}
 }
 
+var (
+	logCollectionOnce sync.Once
+	logCollection     *mongo.Collection
+)
+
 func getLogCollection() *mongo.Collection {
-	return getMongoConn().Collection(config.CollectionConfig.Get(DEFAULT_LOG_DOCUMENT).(string))
+	logCollectionOnce.Do(func() {
+		logCollection = getMongoConn().Collection(config.GetCollectionConfig().Get(DEFAULT_LOG_DOCUMENT).(string))
+	})
+	return logCollection
 }
 
 // func QueryLogs(page int, pageNumber int) (*[]*Log, error) {
@@ -216,7 +231,7 @@ func getLogCollection() *mongo.Collection {
 // cant need to redis cache
 func (logDao *LogDao) FilterLogs(l *LogInfo, page int, pageNumber int) (*[]*LogInfo, error) {
 	var logs []*LogInfo = make([]*LogInfo, 0, pageNumber)
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	filter := bson.M{}
 	if l.IP != "" {
@@ -317,8 +332,10 @@ const NoLength = math.MinInt
 //		}
 //		return result["total"], nil
 //	}
+//
+// TODO why use for to handle the result
 func (logDao *LogDao) AggregateLogSum() (int32, error) { //new add
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	pipeLine := mongo.Pipeline{{{"$group", bson.D{{"_id", "ip"}, {"total", bson.D{{"$sum", 1}}}}}}}
 	res, err := getLogCollection().Aggregate(ctx, pipeLine)
@@ -340,7 +357,7 @@ func (logDao *LogDao) AggregateLogSum() (int32, error) { //new add
 }
 
 func (logDao *LogDao) RemoveLogs(filters []LogInfo) error { //new add
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	filter := bson.M{} // 定义一个空的过滤器
 	// 将前端传递的过滤器数组合并到总的过滤器中

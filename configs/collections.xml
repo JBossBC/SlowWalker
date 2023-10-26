@@ -25,5 +25,9 @@
         <name>funcview</name>
         <value>funcview</value>
     </table>
+    <table>
+        <name>functionlog</name>
+        <value>functionlog</value>
+    </table>
     
 </mongoTables>

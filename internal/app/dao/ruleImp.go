@@ -36,6 +36,11 @@ type RuleInfo struct {
 	Name      string `json:"name" bson:"name"`
 	Authority string `json:"authority" bson:"authority"`
 	Type      string `json:"type" bson:"type"`
+	//the owner of rule can operate the function level
+	//1. Query Level: the model can be found by this authority
+	//2. Scan: the model should eval the details for this authority
+	//3. Update,Create,Delete: the authority can process the operation for this model(the field has difference for different model)
+	Operation string `json:"operation" bson:"operation"`
 }
 
 const DEFAULT_RENEW_RULES_MAP_TIME = 24 * time.Hour
@@ -115,8 +120,16 @@ func getRulesToMap() {
 	log.Println("renew the rules successfully")
 }
 
+var (
+	ruleCollection     *mongo.Collection
+	ruleCollectionOnce sync.Once
+)
+
 func getRuleCollection() *mongo.Collection {
-	return getMongoConn().Collection(config.CollectionConfig.Get(DEFAULT_RULE_COLLECTION).(string))
+	ruleCollectionOnce.Do(func() {
+		ruleCollection = getMongoConn().Collection(config.GetCollectionConfig().Get(DEFAULT_RULE_COLLECTION).(string))
+	})
+	return ruleCollection
 }
 
 /* the method is be used by the init stage,the backend load the authority rules*/
@@ -134,7 +147,7 @@ func (ruleDao *RuleDao) QueryRules(page int, pageNumber int) (rules []*RuleInfo,
 }
 
 func (ruleDao *RuleDao) QueryAllRules() (rules []*RuleInfo, err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	cur, err := getRuleCollection().Find(ctx, bson.M{})
 	if err != nil {

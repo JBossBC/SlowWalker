@@ -35,8 +35,11 @@ type UserInfo struct {
 	Password    string `json:"password" bson:"password"`
 	Authority   string `json:"athority" bson:"authority"`
 	PhoneNumber string `json:"phoneNumber" bson:"phoneNumber"`
-	Code        string `json:"-" bson:"-"`
-	IP          string `json:"-" bson:"-"`
+	RealName    string `json:"realName" bson:"realName"`
+	//only user operation has value for department,the department field includes two means. first: what the users belong to. second: what the user display role in the department
+	Department string `json:"department" bson:"department"`
+	Code       string `json:"-" bson:"-"`
+	IP         string `json:"-" bson:"-"`
 }
 
 type UserDao struct {
@@ -56,11 +59,20 @@ func getUserDao() *UserDao {
 
 const DEFAULT_USER_COLLECTION = "user"
 
+var (
+	userCollection     *mongo.Collection
+	userCollectionOnce sync.Once
+)
+
 func getUserCollection() *mongo.Collection {
-	return getMongoConn().Collection(config.CollectionConfig.Get(DEFAULT_USER_COLLECTION).(string))
+	userCollectionOnce.Do(func() {
+		userCollection = getMongoConn().Collection(config.GetCollectionConfig().Get(DEFAULT_USER_COLLECTION).(string))
+	})
+	return userCollection
 }
 func (userDao *UserDao) CreateUser(user *UserInfo) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
 	defer cancel()
 	_, err := getUserCollection().InsertOne(ctx, user)
 	if err != nil {
@@ -74,7 +86,7 @@ func (userDao *UserDao) CreateUser(user *UserInfo) error {
 
 // 保证一致性
 func (userDao *UserDao) UpdateUser(user *UserInfo) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	redisKey := getUserKey(user.Username)
 	err := Del(redisKey)
@@ -102,7 +114,7 @@ func (userDao *UserDao) UpdateUser(user *UserInfo) error {
 }
 
 func (userDao *UserDao) DeleteUser(user *UserInfo) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	//del the mongo data
 	result, err := getUserCollection().DeleteOne(ctx, bson.M{"username": user.Username})
@@ -132,7 +144,7 @@ func (userDao *UserDao) QueryUser(user *UserInfo) (UserInfo, error) {
 	// if err != redis.Nil {
 	// 	log.Printf("查询缓存失败：%s", err.Error())
 	// }
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	// query for mongo database
 	result := getUserCollection().FindOne(ctx, bson.M{"username": user.Username})
@@ -168,7 +180,7 @@ func (userDao *UserDao) QueryUsers(page int, pageNumber int) ([]*UserInfo, error
 	if err != redis.Nil {
 		log.Printf("redis查询缓存(%s)失败:%s", redisKey, err.Error())
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	//get users in mongo database
 	result, err := getUserCollection().Find(ctx, bson.D{}, options.Find().SetLimit(int64(pageNumber)), options.Find().SetSkip(int64(page)-1))

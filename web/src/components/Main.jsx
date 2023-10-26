@@ -11,7 +11,6 @@ const { Header, Content, Sider } = Layout;
 
 const Main = () => {
     const intl = useIntl();
-
     const { token: { colorBgContainer } } = theme.useToken();
     const [selectedMenuKey, setSelectedMenuKey] = useState("");
     const [breadcrumbItem, setBreadcrumbItem] = useState("");
