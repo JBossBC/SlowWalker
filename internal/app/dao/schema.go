@@ -9,6 +9,7 @@ import (
 	"os"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
+	"time"
 )
 
 /* mogoDB schema init rule */
@@ -17,26 +18,26 @@ var default_admin_schema = []any{
 	RuleInfo{
 		Name:      "admin",
 		Authority: "文件系统",
-		Type:      "Manage",
+		Type:      "管理",
 		Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "admin",
 		Authority: "功能管理",
-		Type:      "Manage",
+		Type:      "管理",
 		Operation: "Create Delete Scan Query Update",
 	},
 	RuleInfo{
 		Name:      "admin",
 		Authority: "审计日志",
-		Type:      "system",
+		Type:      "系统",
 		Operation: "Query",
 	},
 	RuleInfo{
 		Name:      "admin",
 		Authority: "人员管理",
-		Type:      "system",
-		Operation: "Query Delete Scan Query Update",
+		Type:      "管理",
+		Operation: "Query Delete Scan Update",
 	}}
 
 //TODO write the new python resource to the program
@@ -49,19 +50,19 @@ var default_member_schma = []any{
 	RuleInfo{
 		Name:      "member",
 		Authority: "IP查询",
-		Type:      "function",
+		Type:      "功能",
 		Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "member",
 		Authority: "层级图",
-		Type:      "function",
+		Type:      "功能",
 		Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "member",
 		Authority: "文件切分",
-		Type:      "function",
+		Type:      "功能",
 		Operation: "Query Scan",
 	},
 }
@@ -69,7 +70,7 @@ var default_audit_schema = []any{
 	RuleInfo{
 		Name:      "audit",
 		Authority: "审计日志",
-		Type:      "system",
+		Type:      "系统",
 		Operation: "Query Scan",
 	},
 }
@@ -101,6 +102,32 @@ var default_platform_schema = []PlatForm{
 	// },
 }
 
+var defualt_department_schema = []any{DepartmentInfo{
+	Name:        "案件服务部",
+	Description: "案件服务部",
+	CreateTime:  time.Now(),
+	Leaders:     []string{"xiyang"},
+}, DepartmentInfo{
+	Name:        "财务部",
+	Description: "财务部",
+	CreateTime:  time.Now(),
+	Leaders:     []string{"xiaoli"},
+}, DepartmentInfo{
+	Name:        "售前部门",
+	Description: "售前部门",
+	CreateTime:  time.Now(),
+	Leaders:     []string{"xiaozhang"},
+}}
+
+func initDepartmentSchema() {
+	_, err := getDepartmentCollection().InsertMany(context.TODO(), defualt_department_schema)
+	if err != nil {
+		panic(fmt.Sprintf("初始化department schema出错:%s", err.Error()))
+	}
+	log.Println("初始化department Collections成功")
+
+}
+
 // *********************************************** init the database to use **************************************************************//
 func InitMogoSchema() {
 	// initDB()
@@ -109,6 +136,7 @@ func InitMogoSchema() {
 	initUserSchema()
 	// initLogSchema()
 	initFuncMapSchema()
+	initDepartmentSchema()
 	//renew the db.xml the init state
 	go func() {
 		config.DBConfig.MongoConfig.Init = "true"
@@ -172,20 +200,26 @@ var default_users_schema = []any{
 	UserInfo{
 		Username:    "admin",
 		Authority:   "admin",
+		RealName:    "管理员",
 		Password:    utils.Encrypt("admin"),
 		PhoneNumber: "18080705675",
+		Department:  "无",
 	},
 	UserInfo{
 		Username:    "audit",
 		Authority:   "audit",
 		Password:    utils.Encrypt("audit"),
 		PhoneNumber: "18080705675",
+		RealName:    "审计员",
+		Department:  "无",
 	},
 	UserInfo{
 		Username:    "member",
 		Authority:   "member",
 		Password:    utils.Encrypt("member"),
 		PhoneNumber: "18080705675",
+		RealName:    "会员",
+		Department:  "无",
 	},
 }
 

@@ -16,6 +16,7 @@ type DepartmentInfo struct {
 	Name        string    `json:"name" bson:"name"`
 	Description string    `json:"description" bson:"description"`
 	CreateTime  time.Time `json:"createTime" bson:"createTime"`
+	Leaders     []string  `json:"leaders" bson:"leaders"`
 }
 type DepartmentDao struct {
 }
@@ -54,7 +55,7 @@ func (department *DepartmentDao) CreateDepartment(departmentInfo DepartmentInfo)
 		log.Printf("创建document出错:%s", err.Error())
 		return err
 	}
-	cache.GetCachePool().Store(departmentInfo.Name, departmentInfo, 10*time.Minute)
+	cache.GetCachePool().Store(departmentInfo.Name, departmentInfo, 3*time.Minute)
 	return err
 }
 
@@ -80,7 +81,7 @@ func (departmentDao *DepartmentDao) UpdateDepartment(departmentInfo DepartmentIn
 		log.Printf("解析mongoDB修改后的document异常:%s", err.Error())
 		return err
 	}
-	cache.GetCachePool().Store(departmentInfo.Name, *updateDepartment, 10*time.Minute)
+	cache.GetCachePool().Store(departmentInfo.Name, *updateDepartment, 3*time.Minute)
 	// err = Create(redisKey, updateUser, DEFAULT_USER_EXPIRE_TIME)
 	// if err != nil {
 	// 	log.Printf("创建redis缓存(key:%s,value:%v)失败:%s", redisKey, updateUser, err.Error())
@@ -141,7 +142,7 @@ func (departmentDao *DepartmentDao) QueryDepartment(department *DepartmentInfo) 
 	err := result.Decode(&model)
 	//keep cache
 	if err == nil {
-		cache.GetCachePool().Store(model.Name, model, 10*time.Minute)
+		cache.GetCachePool().Store(model.Name, model, 3*time.Minute)
 	}
 	// if err == nil {
 	// 	err = Create(redisKey, &model, DEFAULT_USER_EXPIRE_TIME)
@@ -189,7 +190,7 @@ func (departmentDao *DepartmentDao) QueryDepartments() ([]*DepartmentInfo, error
 	// if err != nil {
 	// 	log.Printf("创建redis缓存(key:%s,value:%v)失败%s", redisKey, users, err.Error())
 	// }
-	cache.GetCachePool().Store(ALL_DEPARTMENT_KEYS, departments, 10*time.Minute)
+	cache.GetCachePool().Store(ALL_DEPARTMENT_KEYS, departments, 3*time.Minute)
 	return departments, nil
 }
 

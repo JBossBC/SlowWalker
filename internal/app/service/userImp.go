@@ -51,7 +51,7 @@ func (userService *UserService) LoginAccount(user *dao.UserInfo) (response utils
 		response = utils.NewFailedResponse("登录失败")
 		return
 	}
-	cliams := utils.JwtClaims{Username: single.Username, Role: single.Authority}
+	cliams := utils.JwtClaims{Username: single.Username, Role: single.Authority, Department: single.Department}
 	expirationTime := time.Now().Add(time.Hour * 2) // 设置过期时间为当前时间加上2小时
 	jwtStr, err = utils.CreateJWT(config.GetServerConfig().Secret, cliams, expirationTime)
 	if err != nil {

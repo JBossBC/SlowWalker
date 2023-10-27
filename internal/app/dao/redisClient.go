@@ -76,12 +76,12 @@ func GetList(key string, value any, start int, end int) error {
 	}
 	rValue := reflect.ValueOf(value)
 	if rValue.Type().Kind() != reflect.Slice {
-		return errors.New("value 应该是一个slice")
+		return errors.New("value应该是一个slice")
 	}
 	if rValue.Len() <= len(val) {
 		rValue = reflect.MakeSlice(rValue.Type(), len(val), len(val))
 	}
-	//************** TODO should inspect **********
+	//TODO should inspect
 	for i := 0; i < len(val); i++ {
 		err = json.Unmarshal([]byte(val[i]), rValue.Index(i).Interface())
 		if err != nil {
@@ -152,6 +152,7 @@ func IncludeValueForSet(key string, value any) bool {
 	defer cancel()
 	return GetRedisClient().SIsMember(ctx, key, value).Val()
 }
+
 func GetSet(key string, value []any) (err error) {
 	defer func() {
 		if panicError := recover(); panicError != nil {

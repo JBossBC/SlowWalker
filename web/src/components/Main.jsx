@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Breadcrumb, theme, Form,  Button } from 'antd';
-import { LaptopOutlined, UserOutlined, PlusOutlined } from '@ant-design/icons';
+import { LaptopOutlined, UserOutlined, PlusOutlined,MonitorOutlined } from '@ant-design/icons';
 import { useIntl, FormattedMessage } from 'react-intl';
 import axios from "../utils/axios";
 import IPQuery from './IPQuery';
@@ -24,7 +24,7 @@ const Main = () => {
     useEffect(() => {
         fetchData();
     }, []);
-
+    const seriesMapping={"功能":<UserOutlined/>,"系统":<LaptopOutlined/>,"管理":<MonitorOutlined/>}
     const fetchData = async () => {
         try {
             const response = await axios.get("/rule/query");
@@ -36,14 +36,14 @@ const Main = () => {
 
                 Object.keys(data).forEach((key) => {
                     const subItems = Object.keys(data[key]).map((subKey) => ({
-                        key: `sub/${key}/${subKey}`,
+                        key: `首页/${key}/${subKey}`,
                         label: subKey,
                     }));
 
                     items.push({
-                        key: `sub/${key}`,
-                        icon: key === "function" ? <UserOutlined /> : <LaptopOutlined />,
-                        label: key === "function" ? "功能" : "系统",
+                        key: `首页/${key}`,
+                        icon: seriesMapping[key],
+                        label: key,
                         children: subItems,
                     });
                 });

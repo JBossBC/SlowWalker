@@ -66,9 +66,17 @@ func ruleRoute(engine *gin.Engine) {
 }
 
 func funcRoute(engine *gin.Engine) {
-	group := engine.Group("func")
+	group := engine.Group("/func")
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/execute", controller.GetTaskController().ExecTask)
+}
+
+func departmentRoute(engine *gin.Engine) {
+	group := engine.Group("/department")
+	group.Use(middleware.BeforeHandler)
+	group.Use(middleware.Auth)
+	group.Use(middleware.RBACMiddleware)
+	group.Handle(http.MethodGet, "/querys", controller.GetDepartmentController().QueryAllDepartments)
 }

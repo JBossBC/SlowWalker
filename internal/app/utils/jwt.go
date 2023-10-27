@@ -2,14 +2,16 @@ package utils
 
 import (
 	"errors"
-	"github.com/golang-jwt/jwt"
 	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
 type JwtClaims struct {
 	jwt.StandardClaims
-	Role     string `json:"role"`
-	Username string `json:"username"`
+	Role       string `json:"role"`
+	Username   string `json:"username"`
+	Department string `json:"department"`
 }
 
 var DEFUALT_JWT_METHOD = jwt.SigningMethodHS512

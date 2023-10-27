@@ -17,12 +17,14 @@ import (
 // 	"register": nil,
 // }
 
+var validRule map[string]any = map[string]any{"admin": nil, "member": nil, "audit": nil}
+
 /*
 the middleware must open after the jwt verify
 */
 func RBACMiddleware(context *gin.Context) {
 	role, bol := context.Get("role")
-	if !bol {
+	if _, ok := validRule[role.(string)]; !bol || !ok {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}

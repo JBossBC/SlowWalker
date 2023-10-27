@@ -25,10 +25,10 @@ const Login = () => {
                 "username":username,
                 "password":password,
             }});
-            if (response.status!=200){
-                   message.error("系统出错啦");
-                   return;
-            }
+            // if (response.status!=200){
+            //        message.error("系统出错啦");
+            //        return;
+            // }
             const {state, message: resMessage} = response.data;
 
             //先检查所有错误并处理
