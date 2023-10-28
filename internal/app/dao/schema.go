@@ -105,17 +105,17 @@ var default_platform_schema = []PlatForm{
 var defualt_department_schema = []any{DepartmentInfo{
 	Name:        "案件服务部",
 	Description: "案件服务部",
-	CreateTime:  time.Now(),
+	CreateTime:  time.Now().Unix(),
 	Leaders:     []string{"xiyang"},
 }, DepartmentInfo{
 	Name:        "财务部",
 	Description: "财务部",
-	CreateTime:  time.Now(),
+	CreateTime:  time.Now().Unix(),
 	Leaders:     []string{"xiaoli"},
 }, DepartmentInfo{
 	Name:        "售前部门",
 	Description: "售前部门",
-	CreateTime:  time.Now(),
+	CreateTime:  time.Now().Unix(),
 	Leaders:     []string{"xiaozhang"},
 }}
 

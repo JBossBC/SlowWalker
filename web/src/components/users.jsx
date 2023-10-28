@@ -1,6 +1,7 @@
 import React,{useEffect, useState}from "react"
 import { Table,Menu,message} from 'antd'
-import axios from "axios";
+import { TeamOutlined } from "@ant-design/icons";
+import axios from "../utils/axios";
 const UserManage = ()=>{
     const [department,setDepartment] =useState([])
     const columns=[{
@@ -24,7 +25,7 @@ const UserManage = ()=>{
         dataIndex:"operation",
         key:"operation",
     }];
-    function getItem(label, key, icon, children, type) {
+    function getItem(key, icon, children, label, type) {
         return {
           key,
           icon,
@@ -34,8 +35,8 @@ const UserManage = ()=>{
         };
     };
 
-    async function getAllDepartments(){
-       const departments=await axios.get('/department/querys').then((response)=>{
+     function getAllDepartments(){
+       axios.get('/department/querys',{params:{"resource":"人员管理"}}).then((response)=>{
             let data = response.data;
             if(data.state!==true){
                 let msg =data.message;
@@ -43,30 +44,35 @@ const UserManage = ()=>{
                     msg = "请求失败";
                 }
               message.error(msg);
-              return
+              return 
             }
-            return data.data
+            return data.data;
+        }).then((departments)=>{
+            if(departments === undefined || departments == null){
+                return
+            }
+            let departmentView = [];
+            for(let i=0;i<departments.length;i++){
+                departmentView.push(getItem(departments[i].name,<TeamOutlined/>,null,departments[i].name,null));
+            }
+            console.log(departmentView);
+            setDepartment(departmentView)
         })
-        return departments
     }
-
-    async function init(){
-        let departments= await getAllDepartments()
-        setDepartment(departments)
-
+    function currentDepartmentHandle(curElement){
+           axios.get("/user/filter")
     }
-    useEffect(()=>{
-        init()
-    },[])
+     function init(){
+        getAllDepartments();
+    }
+    init();
     const dataSource = [];
-    return(<div style={{width:"100%",height:"100%",display:"flex",justifyContent:"flex-start",alignContent:'center',flexDirection:"column"}}>
-        <div>
-            <Menu >
-               
-                
+    return(<div style={{width:"100%",height:"100%",display:"flex",justifyContent:"flex-start",alignContent:'center',flexDirection:"row"}}>
+        <div style={{width:"20%",height:"100%"}}>
+            <Menu items={department} onSelect={currentDepartmentHandle}>        
             </Menu>
         </div>
-        <div>
+        <div style={{width:"50%",height:"100%"}}>
             <Table columns={columns}></Table>
         </div>
     </div>)

@@ -21,7 +21,7 @@ func getDepartmentService() *DepartmentService {
 		departmentService = new(DepartmentService)
 		//create ruleChain handle,the sequence cant change
 		rChain := new(memberChain)
-		rChain.setNext(new(memberChain)).setNext(new(ruleChain))
+		rChain.setNext(new(adminChain)).setNext(new(ruleChain))
 		departmentService.ruleHandleChain = rChain
 	})
 	return departmentService
@@ -68,7 +68,7 @@ type memberChain struct {
 
 func (memberChain *memberChain) handle(username string, ip string, role string, department string) utils.Response {
 	if role != "member" {
-		return memberChain.handle(username, ip, role, department)
+		return memberChain.next.handle(username, ip, role, department)
 	}
 	result, err := dao.GetDepartmentDao().QueryDepartment(&dao.DepartmentInfo{Name: department})
 	if err != nil {

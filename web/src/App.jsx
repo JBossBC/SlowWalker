@@ -2,8 +2,6 @@ import {BrowserRouter as Router,Route,Routes,useNavigate}  from "react-router-do
 import './App.css';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-
-
 import { NotFound,Index,Register, Main, UserManage } from "./components";
 import { IntlProvider, FormattedMessage } from "react-intl";
 import messages from "./utils/language";
@@ -18,24 +16,19 @@ const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStor
 const { Option } = Select;
 
 function App() {
-      // console.log(navigate);
-      const {Token,setToken} = useState(defaultToken);
-      // const navigate =useNavigate();
+      const [Token,setToken] = useState(defaultToken);
       useEffect(()=>{
           axios.interceptors.response.use(null,(error)=>{
               // if (error.response.state ==304){
               setToken("");
               sessionStorage.removeItem("repliteweb");
-              // navigate("/login");
+              window.location.href="/"
               // }
               message.error("系统出错啦.....");
               console.log(error);
               return Promise.reject(error);
           })
-      },[])
-      useEffect(()=>{
-          axios.defaults.headers.common["Authorization"] = `Bearer ${Token}`
-      },[Token]);
+      },[]);
     const [locale, setLocale] = useState('zh');
 
     const handleLocaleChange = (lang) => {
@@ -50,7 +43,6 @@ function App() {
 
 
     return (
-
         <IntlProvider locale={locale} messages={currentMessages}>
             <Router>
                 <div className="container">
@@ -65,11 +57,11 @@ function App() {
                         </Select>
                     </div>
                     <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/login" element={<Index />} />
+                        <Route path="/" element={<Index setToken={setToken} />} />
+                        <Route path="/login"  element={<Index setToken={setToken} />} />
                         <Route path="/register" element={<Register />} />
-                        <Route path="/main" element={<Main />} />
                         <Route path="/user" element={<UserManage/>}/>
+                        <Route path="/main" element={<Main />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </div>

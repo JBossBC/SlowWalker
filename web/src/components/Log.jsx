@@ -91,7 +91,6 @@ const Log= ()=>{
       }
     })
     const fetchData = async() => {
-      console.log("log1")
       setLoading(true);//排除嫌疑
       setHasData(false);//排除嫌疑
       try {
@@ -116,10 +115,7 @@ const Log= ()=>{
           });
           return
         }
-        console.log(response.data)
-        console.log(response.data.data)
         setData(response.data.data.data);
-        console.log(data)
 
         setLoading(false);
         setHasData(true);

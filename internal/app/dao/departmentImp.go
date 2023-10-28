@@ -13,10 +13,10 @@ import (
 )
 
 type DepartmentInfo struct {
-	Name        string    `json:"name" bson:"name"`
-	Description string    `json:"description" bson:"description"`
-	CreateTime  time.Time `json:"createTime" bson:"createTime"`
-	Leaders     []string  `json:"leaders" bson:"leaders"`
+	Name        string   `json:"name" bson:"name"`
+	Description string   `json:"description" bson:"description"`
+	CreateTime  int64    `json:"createTime" bson:"createTime"`
+	Leaders     []string `json:"leaders" bson:"leaders"`
 }
 type DepartmentDao struct {
 }
@@ -165,7 +165,7 @@ func (departmentDao *DepartmentDao) QueryDepartments() ([]*DepartmentInfo, error
 	if ok {
 		return cacheDepartments.([]*DepartmentInfo), nil
 	}
-	departments := make([]*DepartmentInfo, DEFAULT_QUERYS_DEPARTMENT_NUMBER)
+	departments := make([]*DepartmentInfo, 0, DEFAULT_QUERYS_DEPARTMENT_NUMBER)
 	// redisKey := getUsersKey(page, pageNumber)
 	// err := GetList(redisKey, users, 0, -1)
 	// if err == nil {
@@ -177,7 +177,7 @@ func (departmentDao *DepartmentDao) QueryDepartments() ([]*DepartmentInfo, error
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	//get users in mongo database
-	result, err := getDepartmentCollection().Find(ctx, bson.D{})
+	result, err := getDepartmentCollection().Find(ctx, bson.M{})
 	if err != nil {
 		// if err == mongo.ErrNoDocuments {
 		// 	Create(redisKey, INVALID_REDIS_USERS_VALUE, 1*time.Minute)
@@ -185,7 +185,7 @@ func (departmentDao *DepartmentDao) QueryDepartments() ([]*DepartmentInfo, error
 		return nil, err
 	}
 	defer result.Close(context.Background())
-	result.All(context.Background(), departments)
+	result.All(context.Background(), &departments)
 	// err = CreateList(redisKey, users, DEFAULT_USER_EXPIRE_TIME)
 	// if err != nil {
 	// 	log.Printf("创建redis缓存(key:%s,value:%v)失败%s", redisKey, users, err.Error())

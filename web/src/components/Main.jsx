@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Breadcrumb, theme, Form,  Button } from 'antd';
 import { LaptopOutlined, UserOutlined, PlusOutlined,MonitorOutlined } from '@ant-design/icons';
 import { useIntl, FormattedMessage } from 'react-intl';
+// import axios from "../utils/axios";
 import axios from "../utils/axios";
 import IPQuery from './IPQuery';
 import FileMergeCut from "./FileMergeCut";
