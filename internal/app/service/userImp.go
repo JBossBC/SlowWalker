@@ -40,17 +40,19 @@ func getUserService() *UserService {
 //	}
 func (userService *UserService) LoginAccount(user *dao.UserInfo) (response utils.Response, jwtStr string) {
 	users, err := dao.GetUserDao().QueryUsers(&dao.UserInfo{
-		Username: user.Username,
+		Username:   user.Username,
+		Page:       1,
+		PageNumber: 1,
 	})
 	if err != nil {
 		log.Printf("[userService][LoginAccount]查询user %v 出错\r\n", user)
 		response = utils.NewFailedResponse("系统错误")
 		return
 	}
-	if len(users) > 1 {
-		log.Printf("[userService][LoginAccount]系统出现问题(%v):%v", user, users)
-		return utils.NewFailedResponse("系统错误"), ""
-	}
+	// if len(users) > 1 {
+	// 	log.Printf("[userService][LoginAccount]系统出现问题(%v):%v", user, users)
+	// 	return utils.NewFailedResponse("系统错误"), ""
+	// }
 	single := users[0]
 	if single.IsEmpty() || utils.Encrypt(user.Password) != single.Password {
 		response = utils.NewFailedResponse("登录失败")
@@ -76,7 +78,9 @@ func (userService *UserService) CreateAccount(user *dao.UserInfo) (response util
 		return
 	}
 	users, err := dao.GetUserDao().QueryUsers(&dao.UserInfo{
-		Username: user.Username,
+		Username:   user.Username,
+		Page:       1,
+		PageNumber: 1,
 	})
 	if err != nil {
 		log.Printf("[userService][CreateAccount]查询user %v 出错:%s\r\n", user, err.Error())
@@ -120,7 +124,9 @@ func (userService *UserService) CreateAccount(user *dao.UserInfo) (response util
 */
 func (userService *UserService) UpdateInfo(user *dao.UserInfo) (response utils.Response) {
 	users, err := dao.GetUserDao().QueryUsers(&dao.UserInfo{
-		Username: user.Username,
+		Username:   user.Username,
+		Page:       1,
+		PageNumber: 1,
 	})
 	if err != nil {
 		response = utils.NewFailedResponse("系统错误")

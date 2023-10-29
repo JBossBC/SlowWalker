@@ -71,7 +71,7 @@ func auditRoute(engine *gin.Engine) { //日志查询路由
 func ruleRoute(engine *gin.Engine) {
 	group := engine.Group("/rule")
 	group.Use(middleware.Auth)
-	group.Use(middleware.RBACMiddleware)
+	// group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/query", controller.GetRuleController().QueryRuleAuthorization)
 }
 

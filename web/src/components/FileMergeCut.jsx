@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Button, Input, Upload, message, Modal, Form, Select, InputNumber } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { FormattedMessage } from "react-intl";
 const FileCut = () => {
     const [fileList, setFileList] = useState([]);
     const [outputFolderPath, setOutputFolderPath] = useState('');
@@ -57,33 +56,33 @@ const FileCut = () => {
 
     return (
         <div>
-            <h2><FormattedMessage id="文件拆分与合并"/></h2>
+            <h2>文件拆分与合并</h2>
             <div>
                 <Upload onChange={handleFileChange} beforeUpload={beforeUpload} fileList={fileList}>
                     <Button>
-                        <UploadOutlined /> <FormattedMessage id="选择文件"/>
+                        <UploadOutlined /> 选择文件
                     </Button>
                 </Upload>
             </div>
             <div>
-                <h1><FormattedMessage id="选择文件保存地址"/></h1>
+                <h1>选择文件保存地址</h1>
                 <Input placeholder="输出文件夹路径" value={outputFolderPath} onChange={handleOutputFolderChange} />
             </div>
             <div>
-                <Button onClick={showModal}><FormattedMessage id="文件拆分"/></Button>
+                <Button onClick={showModal}>文件拆分</Button>
             </div>
             <div>
-                <Button onClick={handleMerge}><FormattedMessage id="文件合并"/></Button>
+                <Button onClick={handleMerge}>文件合并</Button>
             </div>
             <Modal
                 visible={modalVisible}
                 onCancel={handleModalCancel}
                 footer={[
                     <Button key="cancel" onClick={handleModalCancel}>
-                        <FormattedMessage id="取消"/>
+                        取消
                     </Button>,
                     <Button key="split" type="primary" onClick={form.submit}>
-                        <FormattedMessage id="拆分"/>
+                        拆分
                     </Button>,
                 ]}
             >
