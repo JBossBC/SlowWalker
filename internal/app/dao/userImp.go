@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
@@ -30,13 +31,18 @@ const DEFAULT_USER_EXPIRE_TIME = 5 * time.Minute
 var INVALID_REDIS_USERS_VALUE = struct{}{}
 var emptyUser = UserInfo{}
 
+// TODO increase  the create time field
 type UserInfo struct {
 	Username    string `json:"username" bson:"username"`
 	Password    string `json:"password" bson:"password"`
 	Authority   string `json:"athority" bson:"authority"`
 	PhoneNumber string `json:"phoneNumber" bson:"phoneNumber"`
-	Code        string `json:"-" bson:"-"`
-	IP          string `json:"-" bson:"-"`
+	RealName    string `json:"realName" bson:"realName"`
+	//only user operation has value for department,the department field includes two means. first: what the users belong to. second: what the user display role in the department
+	Department string `json:"department" bson:"department"`
+	CreateTime int64  `json:"createTime" bson:"createTime"`
+	Code       string `json:"-" bson:"-"`
+	IP         string `json:"-" bson:"-"`
 }
 
 type UserDao struct {
@@ -56,11 +62,20 @@ func getUserDao() *UserDao {
 
 const DEFAULT_USER_COLLECTION = "user"
 
+var (
+	userCollection     *mongo.Collection
+	userCollectionOnce sync.Once
+)
+
 func getUserCollection() *mongo.Collection {
-	return getMongoConn().Collection(config.CollectionConfig.Get(DEFAULT_USER_COLLECTION).(string))
+	userCollectionOnce.Do(func() {
+		userCollection = getMongoConn().Collection(config.GetCollectionConfig().Get(DEFAULT_USER_COLLECTION).(string))
+	})
+	return userCollection
 }
 func (userDao *UserDao) CreateUser(user *UserInfo) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
 	defer cancel()
 	_, err := getUserCollection().InsertOne(ctx, user)
 	if err != nil {
@@ -74,7 +89,7 @@ func (userDao *UserDao) CreateUser(user *UserInfo) error {
 
 // 保证一致性
 func (userDao *UserDao) UpdateUser(user *UserInfo) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	redisKey := getUserKey(user.Username)
 	err := Del(redisKey)
@@ -102,7 +117,7 @@ func (userDao *UserDao) UpdateUser(user *UserInfo) error {
 }
 
 func (userDao *UserDao) DeleteUser(user *UserInfo) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	//del the mongo data
 	result, err := getUserCollection().DeleteOne(ctx, bson.M{"username": user.Username})
@@ -132,7 +147,7 @@ func (userDao *UserDao) QueryUser(user *UserInfo) (UserInfo, error) {
 	// if err != redis.Nil {
 	// 	log.Printf("查询缓存失败：%s", err.Error())
 	// }
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	// query for mongo database
 	result := getUserCollection().FindOne(ctx, bson.M{"username": user.Username})
@@ -159,7 +174,7 @@ func (userDao *UserDao) QueryUser(user *UserInfo) (UserInfo, error) {
 
 func (userDao *UserDao) QueryUsers(page int, pageNumber int) ([]*UserInfo, error) {
 	//redis cache
-	users := make([]*UserInfo, DEFUALT_QUERYS_USER_NUMBER)
+	users := make([]*UserInfo, 0, DEFUALT_QUERYS_USER_NUMBER)
 	redisKey := getUsersKey(page, pageNumber)
 	err := GetList(redisKey, users, 0, -1)
 	if err == nil {
@@ -168,7 +183,7 @@ func (userDao *UserDao) QueryUsers(page int, pageNumber int) ([]*UserInfo, error
 	if err != redis.Nil {
 		log.Printf("redis查询缓存(%s)失败:%s", redisKey, err.Error())
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	//get users in mongo database
 	result, err := getUserCollection().Find(ctx, bson.D{}, options.Find().SetLimit(int64(pageNumber)), options.Find().SetSkip(int64(page)-1))
@@ -183,6 +198,60 @@ func (userDao *UserDao) QueryUsers(page int, pageNumber int) ([]*UserInfo, error
 	err = CreateList(redisKey, users, DEFAULT_USER_EXPIRE_TIME)
 	if err != nil {
 		log.Printf("创建redis缓存(key:%s,value:%v)失败%s", redisKey, users, err.Error())
+	}
+	return users, nil
+}
+
+func (userDao *UserDao) FilterUsers(filterTempalte *UserFilterTemplate) ([]*UserInfo, error) {
+	filter := bson.M{}
+	if filterTempalte.Username != "" {
+		filter["username"] = bson.M{
+			"$regex":   fmt.Sprintf(".*%s.*", filterTempalte.Username),
+			"$options": "i",
+		}
+	}
+	if filterTempalte.RealName != "" {
+		filter["realName"] = bson.M{
+			"$regex":   fmt.Sprintf(".*%s.*", filterTempalte.RealName),
+			"$options": "i",
+		}
+	}
+	if filterTempalte.Authority != "" {
+		filter["authority"] = bson.M{
+			"$regex":   fmt.Sprintf(".*%s.*", filterTempalte.Authority),
+			"$options": "i",
+		}
+	}
+	if filterTempalte.Department != "" {
+		filter["department"] = bson.M{
+			"$regex":   fmt.Sprintf(".*%s.*", filterTempalte.Department),
+			"$options": "i",
+		}
+	}
+	if filterTempalte.PhoneNumber != "" {
+		filter["phoneNumber"] = bson.M{
+			"$regex":   fmt.Sprintf(".*%s.*", filterTempalte.PhoneNumber),
+			"$options": "i",
+		}
+	}
+	if filterTempalte.Start != 0 || filterTempalte.End != 0 {
+		filter["createTime"] = bson.M{
+			"$gt": filterTempalte.Start,
+			"$lt": filterTempalte.End,
+		}
+	}
+	users := make([]*UserInfo, 0, DEFUALT_QUERYS_USER_NUMBER)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+	result, err := getUserCollection().Find(ctx, filter, options.Find().SetLimit(int64(filterTempalte.PageNumber)), options.Find().SetSkip(int64(filterTempalte.Page)-1))
+	if err != nil {
+		log.Printf("query the user(filter:%v) error:%s", filterTempalte, err.Error())
+		return nil, err
+	}
+	err = result.All(context.Background(), &users)
+	if err != nil {
+		log.Printf("analysis the user collections by filterUser function error:%s ", err.Error())
+		return nil, err
 	}
 	return users, nil
 }

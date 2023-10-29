@@ -27,7 +27,7 @@ func getTaskDao() *TaskDao {
 	return taskDao
 }
 
-const default_task_times = 3 * time.Second
+const default_task_times = 10 * time.Second
 
 const default_task_cache_times = 3 * time.Minute
 
@@ -49,8 +49,16 @@ type TaskInfo struct {
 
 const taskModelName = "task"
 
+var (
+	taskCollection     *mongo.Collection
+	taskCollectionOnce sync.Once
+)
+
 func getTaskCollection() *mongo.Collection {
-	return getMongoConn().Collection(config.CollectionConfig.Get(taskModelName).(string))
+	taskCollectionOnce.Do(func() {
+		taskCollection = getMongoConn().Collection(config.GetCollectionConfig().Get(taskModelName).(string))
+	})
+	return taskCollection
 }
 
 func (taskDao *TaskDao) CreateTask(task TaskInfo) error {

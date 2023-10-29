@@ -51,4 +51,5 @@ func Auth(ctx *gin.Context) {
 	// add the jwt claims to context
 	ctx.Set("username", auth.Username)
 	ctx.Set("role", auth.Role)
+	ctx.Set("department", auth.Department)
 }

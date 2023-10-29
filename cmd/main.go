@@ -31,6 +31,7 @@ func main() {
 	auditRoute(engine)
 	ruleRoute(engine)
 	funcRoute(engine)
+	departmentRoute(engine)
 	metricsRoute(engine)
 	searchRoute(engine)
 	engine.Run(fmt.Sprintf(":%s", config.GetServerConfig().Port))
@@ -44,28 +45,36 @@ func userRoute(engine *gin.Engine) { //登录注册路由
 	group := engine.Group("/user")
 	group.Handle(http.MethodGet, "/login", controller.GetUserController().Login)
 	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
+	route := group.Handle(http.MethodPost, "/filter", controller.GetUserController().FilterUser)
+	// route.Use(middleware.BeforeHandler)
+	route.Use(middleware.Auth)
+	route.Use(middleware.RBACMiddleware)
 }
 
 func metricsRoute(engine *gin.Engine) {
 	engine.Handle(http.MethodGet, "/metrics", gin.WrapH(promhttp.Handler()))
+
 }
 func auditRoute(engine *gin.Engine) { //日志查询路由
 	group := engine.Group("/log")
-	group.Use(middleware.BeforeHandler)
+	// group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/query", controller.GetLogController().QueryAuditLogs)
+	group.Handle(http.MethodPost, "/remove", controller.GetLogController().RemoveAuditLogs)
 }
 
+// TODO will be destroy,because the architecture is rebuilded
 func ruleRoute(engine *gin.Engine) {
 	group := engine.Group("/rule")
 	group.Use(middleware.Auth)
 	group.Handle(http.MethodGet, "/query", controller.GetRuleController().QueryRuleAuthorization)
 }
 
-func funcRoute(engine *gin.Engine) { //添加功能路由
-	group := engine.Group("func")
-	group.Use(middleware.BeforeHandler)
+func funcRoute(engine *gin.Engine) {
+	group := engine.Group("/func")
+	// group.Use(middleware.BeforeHandler)
+
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/execute", controller.GetTaskController().ExecTask)
@@ -74,9 +83,16 @@ func funcRoute(engine *gin.Engine) { //添加功能路由
 func searchRoute(engine *gin.Engine) { //搜索功能路由
 
 	group := engine.Group("search")
-	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/function", controller.GetSearchController().SearchFunctions)
+
+}
+func departmentRoute(engine *gin.Engine) {
+	group := engine.Group("/department")
+	// group.Use(middleware.BeforeHandler)
+	group.Use(middleware.Auth)
+	group.Use(middleware.RBACMiddleware)
+	group.Handle(http.MethodGet, "/querys", controller.GetDepartmentController().QueryAllDepartments)
 
 }

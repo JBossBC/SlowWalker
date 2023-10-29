@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"replite_web/internal/app/cache"
 	"replite_web/internal/app/config"
 	"sync"
 	"time"
@@ -27,18 +28,24 @@ func getFunctionDao() *FunctionDao {
 	return functionDao
 }
 
-var mapfuncCache map[string]*FuncMap
-
 const funcmapTable = "funcmap"
 
-const default_funcmap_times = 3 * time.Second
+const default_funcmap_times = 10 * time.Second
+
+var (
+	funcMapCollection     *mongo.Collection
+	funcMapCollectionOnce sync.Once
+)
 
 func getFuncMapCollection() *mongo.Collection {
-	return getMongoConn().Collection(config.CollectionConfig.Get(funcmapTable).(string))
+	funcMapCollectionOnce.Do(func() {
+		funcMapCollection = getMongoConn().Collection(config.GetCollectionConfig().Get(funcmapTable).(string))
+	})
+	return funcMapCollection
 }
 
 func init() {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), default_funcmap_times)
 	defer cancel()
 	cur, err := getFuncMapCollection().Find(ctx, bson.M{})
 	if err != nil {
@@ -49,11 +56,10 @@ func init() {
 	if err != nil {
 		panic(fmt.Sprintf("analysis the funcmap collection error:%s", err.Error()))
 	}
-	mapfuncCache = make(map[string]*FuncMap)
 	// build the index about the funcmap
 	for i := 0; i < len(funcmapSlice); i++ {
 		var funcmap = funcmapSlice[i]
-		mapfuncCache[funcmap.Function] = funcmap
+		cache.GetCachePool().Store(funcmap.Function, funcmap, 10*time.Minute)
 	}
 }
 
@@ -78,7 +84,7 @@ func (functionDao *FunctionDao) CreateFuncMap(funcmap FuncMap) error {
 		return err
 	}
 	// add success ,update the cache
-	mapfuncCache[funcmap.Function] = &funcmap
+	cache.GetCachePool().Store(funcmap.Function, &funcmap, 10*time.Minute)
 	return nil
 }
 
@@ -90,13 +96,13 @@ func (functionDao *FunctionDao) DeleteFuncMap(funcmap FuncMap) error {
 		return err
 	}
 	// update cache
-	delete(mapfuncCache, funcmap.Function)
+	cache.GetCachePool().Delete(funcmap.Function)
 	return nil
 }
 
 func (functionDao *FunctionDao) GetFuncMap(function string) (fm *FuncMap) {
-	if fm, ok := mapfuncCache[function]; ok {
-		return fm
+	if fm, ok := cache.GetCachePool().TryGet(function); ok {
+		return fm.(*FuncMap)
 	}
 	ctx, cancel := context.WithTimeout(context.TODO(), default_funcmap_times)
 	defer cancel()
@@ -109,6 +115,6 @@ func (functionDao *FunctionDao) GetFuncMap(function string) (fm *FuncMap) {
 	if err != nil {
 		return nil
 	}
-	mapfuncCache[function] = fm
+	cache.GetCachePool().Store(function, fm, 10*time.Minute)
 	return fm
 }

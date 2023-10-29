@@ -6,7 +6,9 @@ import (
 	"replite_web/internal/app/dao"
 	"replite_web/internal/app/service"
 	"replite_web/internal/app/utils"
+	"strconv"
 	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -72,4 +74,58 @@ func (userController *UserController) Register(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("写入response信息失败:%s", err.Error())
 	}
+}
+func (userController *UserController) QueryUsers(ctx *gin.Context) {
+
+}
+
+func (userController *UserController) FilterUser(ctx *gin.Context) {
+	operate, _ := ctx.Get("username")
+	opDepartment, _ := ctx.Get("department")
+	template := dao.UserFilterTemplate{}
+	template.Username = ctx.PostForm("username")
+	template.PhoneNumber = ctx.PostForm("phone")
+	template.Authority = ctx.PostForm("authority")
+	template.RealName = ctx.PostForm("realName")
+	template.Department = ctx.PostForm("department")
+	var err error
+	if startInt := ctx.PostForm("start"); startInt != "" {
+		template.Start, err = strconv.ParseInt(startInt, 10, 64)
+		if err != nil {
+			dao.GetLogDao().Errorf(operate.(string), ctx.RemoteIP(), "%s,所属部门:%s,搜索users时存在错误行为", operate.(string), opDepartment.(string))
+			ctx.AbortWithStatus(utils.BadReqest)
+			return
+		}
+	}
+	if endInt := ctx.PostForm("end"); endInt != "" {
+		template.End, err = strconv.ParseInt(endInt, 10, 64)
+		if err != nil {
+			dao.GetLogDao().Errorf(operate.(string), ctx.RemoteIP(), "%s,所属部门:%s,搜索users时存在错误行为", operate.(string), opDepartment.(string))
+			ctx.AbortWithStatus(utils.BadReqest)
+			return
+		}
+	}
+	if pageInt := ctx.PostForm("page"); pageInt != "" {
+		template.Page, err = strconv.ParseInt(pageInt, 10, 64)
+		if err != nil {
+			dao.GetLogDao().Errorf(operate.(string), ctx.RemoteIP(), "%s,所属部门:%s,搜索users时存在错误行为", operate.(string), opDepartment.(string))
+			ctx.AbortWithStatus(utils.BadReqest)
+			return
+		}
+	}
+
+	if pageNumberInt := ctx.PostForm("pageNumber"); pageNumberInt != "" {
+		template.PageNumber, err = strconv.ParseInt(pageNumberInt, 10, 64)
+		if err != nil {
+			dao.GetLogDao().Errorf(operate.(string), ctx.RemoteIP(), "%s,所属部门:%s,搜索users时存在错误行为", operate.(string), opDepartment.(string))
+			ctx.AbortWithStatus(utils.BadReqest)
+			return
+		}
+	} else {
+		template.PageNumber = 5
+	}
+	if template.End > time.Now().Unix() {
+		dao.GetLogDao().Panicf(operate.(string), ctx.RemoteIP(), "%s,所属部门:%s,搜索users的行为存在风险", operate.(string), opDepartment.(string))
+	}
+	service.GetUserService().FilterUsers(template)
 }
