@@ -3,7 +3,8 @@ import { Table,Menu,message} from 'antd'
 import { TeamOutlined } from "@ant-design/icons";
 import axios from "../utils/axios";
 const UserManage = ()=>{
-    const [department,setDepartment] =useState([])
+    const [department,setDepartment] =useState([]);
+    const [users,setUsers]=useState([]);
     const columns=[{
         title:"账号",
         dataIndex: 'username',
@@ -36,7 +37,7 @@ const UserManage = ()=>{
     };
 
      function getAllDepartments(){
-       axios.get('/department/querys',{params:{"resource":"人员管理"}}).then((response)=>{
+       axios.get('/department/querys').then((response)=>{
             let data = response.data;
             if(data.state!==true){
                 let msg =data.message;
@@ -59,8 +60,20 @@ const UserManage = ()=>{
             setDepartment(departmentView)
         })
     }
+    //TODO
     function currentDepartmentHandle(curElement){
-           axios.get("/user/filter")
+           axios.get("/user/filter",{department:curElement.key}).then((response)=>{
+             let data=response.data;
+             if(data.state!=true){
+                let msg =data.message;
+                if (msg == undefined || msg==""){
+                    msg="请求失败";
+                }
+                message.error(msg);
+                return;
+             }
+             return
+           })
     }
      function init(){
         getAllDepartments();

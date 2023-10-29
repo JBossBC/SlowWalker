@@ -5,9 +5,10 @@ import (
 	"replite_web/internal/app/config"
 	"replite_web/internal/app/utils"
 
-	"github.com/meilisearch/meilisearch-go"
 	"io"
 	"os"
+
+	"github.com/meilisearch/meilisearch-go"
 )
 
 type MeiliSearch struct {

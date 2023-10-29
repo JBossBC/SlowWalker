@@ -30,6 +30,6 @@ func (departmentController *DepartmentController) QueryAllDepartments(ctx *gin.C
 	result := service.GetDepartmentService().QueryAllDepartments(username.(string), ctx.RemoteIP(), role.(string), department.(string)).Serialize()
 	_, err := ctx.Writer.Write(result)
 	if err != nil {
-		log.Printf("写入response信息失败:%s", err.Error())
+		log.Printf("[departmentContrller][QueryAllDepartment]写入response信息失败:%s", err.Error())
 	}
 }

@@ -33,6 +33,6 @@ func (mobileController *MobileController) SendMessage(ctx *gin.Context) {
 	bytes := service.GetMobileService().SendMessage(phone, ctx.RemoteIP()).Serialize()
 	_, err := ctx.Writer.Write(bytes)
 	if err != nil {
-		log.Printf("写入response信息失败:%s", err.Error())
+		log.Printf("[mobileController][SendMessage]写入response信息失败:%s", err.Error())
 	}
 }

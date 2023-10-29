@@ -72,6 +72,10 @@ var default_departmentManage_schema = []any{
 		Name:      "departmentManage",
 		Authority: "/user/filter",
 	},
+	RuleInfo{
+		Name:      "departmentManage",
+		Authority: "/department/querys",
+	},
 }
 var default_audit_schema = []any{
 	RuleInfo{

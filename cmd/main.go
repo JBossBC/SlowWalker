@@ -45,10 +45,13 @@ func userRoute(engine *gin.Engine) { //登录注册路由
 	group := engine.Group("/user")
 	group.Handle(http.MethodGet, "/login", controller.GetUserController().Login)
 	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
-	route := group.Handle(http.MethodPost, "/filter", controller.GetUserController().FilterUser)
+	queryRoute := group.Handle(http.MethodPost, "/query", controller.GetUserController().QueryUsers)
 	// route.Use(middleware.BeforeHandler)
-	route.Use(middleware.Auth)
-	route.Use(middleware.RBACMiddleware)
+	queryRoute.Use(middleware.Auth)
+	queryRoute.Use(middleware.RBACMiddleware)
+	filterRoute := group.Handle(http.MethodGet, "/filter", controller.GetUserController().FilterUsers)
+	filterRoute.Use(middleware.Auth)
+	filterRoute.Use(middleware.RBACMiddleware)
 }
 
 func metricsRoute(engine *gin.Engine) {
@@ -68,6 +71,7 @@ func auditRoute(engine *gin.Engine) { //日志查询路由
 func ruleRoute(engine *gin.Engine) {
 	group := engine.Group("/rule")
 	group.Use(middleware.Auth)
+	group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/query", controller.GetRuleController().QueryRuleAuthorization)
 }
 
