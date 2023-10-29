@@ -32,14 +32,15 @@ func main() {
 	ruleRoute(engine)
 	funcRoute(engine)
 	metricsRoute(engine)
+	searchRoute(engine)
 	engine.Run(fmt.Sprintf(":%s", config.GetServerConfig().Port))
 }
-func mobileRoute(engine *gin.Engine) {
+func mobileRoute(engine *gin.Engine) { //发送验证码路由
 	group := engine.Group("/phone")
 	group.Handle(http.MethodGet, "/send", controller.GetMobileController().SendMessage)
 }
 
-func userRoute(engine *gin.Engine) {
+func userRoute(engine *gin.Engine) { //登录注册路由
 	group := engine.Group("/user")
 	group.Handle(http.MethodGet, "/login", controller.GetUserController().Login)
 	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
@@ -48,12 +49,11 @@ func userRoute(engine *gin.Engine) {
 func metricsRoute(engine *gin.Engine) {
 	engine.Handle(http.MethodGet, "/metrics", gin.WrapH(promhttp.Handler()))
 }
-func auditRoute(engine *gin.Engine) {
+func auditRoute(engine *gin.Engine) { //日志查询路由
 	group := engine.Group("/log")
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
-	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
 	group.Handle(http.MethodGet, "/query", controller.GetLogController().QueryAuditLogs)
 }
 
@@ -63,10 +63,20 @@ func ruleRoute(engine *gin.Engine) {
 	group.Handle(http.MethodGet, "/query", controller.GetRuleController().QueryRuleAuthorization)
 }
 
-func funcRoute(engine *gin.Engine) {
+func funcRoute(engine *gin.Engine) { //添加功能路由
 	group := engine.Group("func")
 	group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/execute", controller.GetTaskController().ExecTask)
+}
+
+func searchRoute(engine *gin.Engine) { //搜索功能路由
+
+	group := engine.Group("search")
+	group.Use(middleware.BeforeHandler)
+	group.Use(middleware.Auth)
+	group.Use(middleware.RBACMiddleware)
+	group.Handle(http.MethodGet, "/function", controller.GetSearchController().SearchFunctions)
+
 }

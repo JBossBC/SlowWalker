@@ -4,6 +4,7 @@ import { Empty, Space, Table, Tag,Button,message, Form, Col, Input, Row, Select,
 import { DownOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { useNavigate } from 'react-router';
+import qs from 'qs';
 
 /** 	PRINT LogLevel = "print"
 	WARN  LogLevel = "warn"
@@ -11,9 +12,9 @@ import { useNavigate } from 'react-router';
 	INFO  LogLevel = "info"
 	PANIC LogLevel = "panic"
     */
-const  levelForColor = {"print":"success","info":"blue","error":"error","warn":"warning","panic":"red"}
+const  levelForColor = {"print":"success","info":"blue","error":"error","warn":"warning","panic":"red"}   //定义了日志等级的颜色
 const { Option } = Select;
-const columns = [
+const columns = [   //定义了日志审计页面中的表格列
   {
     title: '日志等级',
     key: 'level',
@@ -61,78 +62,52 @@ const columns = [
     key: 'action',
     render: (_, record) => (
       <Space size="middle">
-        {/* <a>Invite {record.name}</a> */}
-        {/* <a>Delete</a> */}
+
         <Button onClick={() => Log.handleRemove(record)}>删除</Button>
       </Space>
     ),
   },
 ];
-// const data = [
-//   {
-//     key: '1',
-//     name: 'John Brown',
-//     age: 32,
-//     address: 'New York No. 1 Lake Park',
-//     tags: ['nice', 'developer'],
-//   },
-//   {
-//     key: '2',
-//     name: 'Jim Green',
-//     age: 42,
-//     address: 'London No. 1 Lake Park',
-//     tags: ['loser'],
-//   },
-//   {
-//     key: '3',
-//     name: 'Joe Black',
-//     age: 32,
-//     address: 'Sydney No. 1 Lake Park',
-//     tags: ['cool', 'teacher'],
-//   },
-// ];
 
-
-
-
-const getNewParams = (params) =>({   //当变量参数更新时修改参数
+const getNewParams = (params) =>({   
   pageNumber: params.pagination && params.pagination.pageSize,
   page: params.pagination && params.pagination.current,
-  ...params
+  //...params,
+  filters: params.filters
 }); 
 
 const Log= ()=>{
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);//设置批量选择的数组
+
+    const [selectedRowKeys, setSelectedRowKeys] = useState(() => []);
     const [form] = Form.useForm(); 
     const {token} = theme.useToken();
     const [expand, setExpand] = useState(false); 
     const navigate=useNavigate();
     const [hasData,setHasData]= useState(false); 
-    const [data, setData] = useState([]); //默认data数据为空数组
-    const [loading, setLoading] = useState(false); //调用fetchlog函数加载数据时为true，加载完毕为false
-    const [tableParams, setTableParams] = useState({  //设置变量参数
+    const [data, setData] = useState([]); 
+    const [loading, setLoading] = useState(false); 
+    const [tableParams, setTableParams] = useState({ 
       pagination: {
-        current: 1,
-        pageNumber: 5,
-      }
+        current: 1, 
+        pageNumber: 5,  
+      },
+      filters: {
+      } 
     })
-    const fetchData = async() => {
-      console.log("log1")
+
+    const fetchData = async(values) => { 
+      console.log("execute fetchData function")
       setLoading(true);
       setHasData(false);
       try {
-        setLoading(true); //当调用fetchData这个异步函数时，表示要进行数据的重载
-        setSelectedRowKeys([]); //默认选择为空
+        console.log(getNewParams({...tableParams, filters: values}))
+        console.log(values)
         const response = await axios.get("/log/query", {
-          params: getNewParams(tableParams),
+          params: getNewParams({...tableParams, filters: values}),
         });
         const {state, message: resMessage} = response.data;
-
-        console.log(response.data.state)
         if (!response.data.state) {
-          //登录失败
-          console.log("log2")
-
+          console.log("ERROR!!!")
           let Message = resMessage;
           if (Message == undefined || message == "") {
               Message = "系统错误";
@@ -144,39 +119,31 @@ const Log= ()=>{
           });
           return
         }
-      
-          console.log(response.data)
-          console.log(response.data.data)
-          setData(response.data.data.data);
-          console.log(data)
-
-          setLoading(false);
-          setHasData(true);
-          setTableParams({
-            ...tableParams,
-            pagination: {
-              ...tableParams.pagination,
-              total: response.data.data.total,
-            },
-          });
-        
-      }catch (error){
+        setData(response.data.data.data);
         setLoading(false);
-        console.log(error); //这里可以加一个提示框显示查询报错
+        setHasData(true);
+        setTableParams({
+          ...tableParams,
+          pagination: {
+            ...tableParams.pagination,
+            total: response.data.data.total,
+          },
+        });
+      }catch (error){  
+        setLoading(false);
+        console.log(error); 
       }
     };
 
     const handleRemove = async () => {
       try {
-        const response = await axios.post('/log/remove', selectedRowKeys); //直接传递数组过去
-
+        const response = await axios.post('/log/remove', selectedRowKeys); 
         if (response.data.success) {
-          fetchData(); // 删除成功后重新加载数据
+          fetchData(); 
           message.success('删除成功');
         } else {
           message.error(response.data.message || '删除失败');
         }
-        
       } catch (error) {
         message.error('删除失败');
       }
@@ -190,40 +157,38 @@ const Log= ()=>{
       if (filters.level && filters.level.length > 0) {
         setTableParams({
           pagination,
-          level: filters.level[0],
+          filters: { level: filters.level[0] }, 
           ...sorter,
         });
       } else {
         setTableParams({
           pagination,
-          level: 'print',
+          filters: {}, 
           ...sorter,
         });
       }
-
       if (tableParams.pagination.pageNumber !== (tableParams.pagination && tableParams.pagination.pageNumber)) {
         setData([]);
       };
-
     };
 
-    const onSelectchange = (newSelectedRowKeys) => { //new add
-      selectedRowKeys(newSelectedRowKeys);
-    }
-    const rowSelection = {
-      selectedRowKeys,
-      onchange:onSelectchange,
-    }
-    const hasSelected = selectedRowKeys.length > 0;
-
-    //以下为处理搜索的：
-    const formStyle = {   //设置样式
-      maxWidth: 'none',
-      background: token.colorFillAlter,
-      borderRadius: token.borderRadiusLG,
-      padding: 24,
+    const onSelectChange = (selectedRowKeys) => {
+      setSelectedRowKeys(selectedRowKeys);
+      console.log(selectedRowKeys);
     };
     
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: onSelectChange,
+    };
+
+    const hasSelected = selectedRowKeys.length > 0;
+    const formStyle = {  
+      maxWidth: 'none', 
+      background: token.colorFillAlter,
+      borderRadius: token.borderRadiusLG,
+      padding: 18,
+    };
     const getFields = () => {
       const children = []
       children.push(
@@ -276,25 +241,28 @@ const Log= ()=>{
                 message:"Select something!",
               },
             ]}
-            initialValue="1"
-          >
+            initialValue="print"
+          > 
             <Select>
-              <Option value="1">print</Option>
-              <Option value="2">warn</Option>
-              <Option value="3">error</Option>
-              <Option value="4">info</Option>
-              <Option value="5">panic</Option>
+              <Option value="print">print</Option>
+              <Option value="warn">warn</Option>
+              <Option value="error">error</Option>
+              <Option value="info">info</Option>
+              <Option value="panic">panic</Option>
             </Select>
           </Form.Item>
         </Col> 
       );
       return children
     };
-
     const onFinish = (values) => {
-      fetchData(values); // 调用fetchData函数，并传递搜索参数
-      console.log('Received values of form: ', values);
-    }
+      console.log('Success:', values);
+      setTableParams({
+        ...tableParams,
+        filters: {...tableParams.filters, ...values}, // 合并 filters 和表单数据
+      });
+      fetchData({...tableParams.filters, ...values}); // 将合并后的 filters 和表单数据传递给 fetchData 函数
+    };
 
     return (
       hasData? (
@@ -309,9 +277,11 @@ const Log= ()=>{
           </Button>
           <span
             style={{
+          
               marginLeft: 8,
             }}
           >
+           
             {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
           </span>
         </div>
@@ -321,45 +291,40 @@ const Log= ()=>{
         pagination={tableParams.pagination}
         loading={loading}
         onChange={tableParamsChange}
-        rowSelection={rowSelection} // 添加rowSelection属性，启用选择功能
-        />:<Empty/>
-
+        rowSelection={rowSelection} 
+        />
         <Form form={form} name="advanced_search" style={formStyle} onFinish={onFinish}>
-        <Row gutter={24}>{getFields()}</Row>
-        <div
-          style={{
-            textAlign: 'right',
-          }}
-        >
-        <Space size="small">
-          <Button type="primary" htmlType="submit">
-            Search
-          </Button>
-          <Button
-            onClick={() => {
-              form.resetFields();
-            }}
-          >
-            Clear
-          </Button>
-          <a
+          <Row gutter={24}>{getFields()}</Row>
+          <div
             style={{
-              fontSize: 12,
-            }}
-            onClick={() => {
-              setExpand(!expand);
+              textAlign: 'right',//设置右对齐
             }}
           >
-            <DownOutlined rotate={expand ? 180 : 0} /> Collapse
-                </a>
-              </Space>
-            </div>
-          </Form>
-
-
+            <Space size="small">
+              <Button type="primary" htmlType="submit">
+                Search
+              </Button>
+              <Button
+                onClick={() => {
+                  form.resetFields();
+                }}
+              >
+                Clear
+              </Button>
+              <a
+                style={{
+                  fontSize: 12,
+                }}
+                onClick={() => {
+                  setExpand(!expand);
+                }}
+              >
+              </a>
+            </Space>
+          </div>
+        </Form>
       </div>
-    ) : null
-  );
+    ) : null);
 };
 export default Log
 

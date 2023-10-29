@@ -17,6 +17,7 @@ type ServerConfig struct {
 	SMSConfig   *SMSConfig   `xml:"sms"`
 	Environment string       `xml:"environment"`
 	Kafka       *KafkaConfig `xml:"kafka"`
+	MeiliSearch *MeiliSearch `xml:"meiliSearch"`
 }
 
 type KafkaConfig struct {
@@ -29,6 +30,11 @@ type SMSConfig struct {
 	Key          string `xml:"key"`
 	Secret       string `xml:"secret"`
 	TemplateCode string `xml:"templateCode"`
+}
+
+type MeiliSearch struct {
+	Key  string `xml:"key"`
+	Host string `xml:"host"`
 }
 
 type PrometheusConfig struct {

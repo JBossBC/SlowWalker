@@ -6,6 +6,8 @@ import axios from "../utils/axios";
 import IPQuery from './IPQuery';
 import FileMergeCut from "./FileMergeCut";
 import AddFunctionModal from './AddFunctionModal';
+import Log from './Log';
+import Search from './Search';
 const { Header, Content, Sider } = Layout;
 
 
@@ -18,6 +20,7 @@ const Main = () => {
     const [menuItems, setMenuItems] = useState([]);
     const [showIPQuery, setShowIPQuery] = useState(false);
     const [showFileCut, setShowFileCut] = useState(false);
+    const [showLog, setShowLog] = useState(false); // 定义showLog状态变量
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [params, setParams] = useState([]);
@@ -78,6 +81,11 @@ const Main = () => {
             setShowFileCut(true);
         } else {
             setShowFileCut(false);
+        }
+        if (key === 'sub/system/log') {
+            setShowLog(true); 
+        } else {
+            setShowLog(false); 
         }
     };
 
@@ -173,12 +181,14 @@ const Main = () => {
                             background: colorBgContainer,
                         }}
                     >
-                        {selectedMenuKey && !showIPQuery && !showFileCut && (
+                        {selectedMenuKey && !showIPQuery && !showFileCut && !showLog && (
                             <div><FormattedMessage id="您选择的是：" />{selectedMenuKey}</div>
                         )}
-                        {!selectedMenuKey && <div><FormattedMessage id="欢迎访问首页" /></div>}
+                        {!selectedMenuKey && <Search/>}
                         {showIPQuery && <IPQuery />}
                         {showFileCut && <FileMergeCut />}
+                        {showLog && <Log/>}
+
                     </Content>
                 </Layout>
             </Layout>
