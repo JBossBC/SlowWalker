@@ -367,7 +367,7 @@ func (logDao *LogDao) RemoveLogs(filters []LogInfo) error { //new add
 		filter["message"] = f.Message
 		filter["operator"] = f.Operator
 		filter["date"] = f.Date
-		_, err := getLogCollection().DeleteOne(ctx, filter)
+		_, err := getLogCollection().DeleteMany(ctx, filter)
 		if err != nil {
 			log.Println("删除日志记录失败", err)
 			return err

@@ -31,15 +31,23 @@ const funcViewTable = "funcmap"
 const default_funcview_times = 10 * time.Second
 
 type FuncViewInfo struct {
-	Function    string `json:"function" bson:"function"`
-	View        string `json:"view" bson:"view"`
-	Params      string `json:"params" bson:"params"`
-	Sign        bool   `json:"sign" bson:"sign"`
-	EmptyPrefix bool   `json:"emptyPrefix" bson:"emptyPrefix"`
-	IsMedium    bool   `json:"isMedium" bson:"isMedium"`
+	//the function name
+	Function string `json:"function" bson:"function"`
+	// the function view code
+	View string `json:"view" bson:"view"`
+	// the function params
+	Params string `json:"params" bson:"params"`
+	//
+	Sign bool `json:"sign" bson:"sign"`
+	// whether the function execute has prefix
+	EmptyPrefix bool `json:"emptyPrefix" bson:"emptyPrefix"`
+	//whether the function execute need the other file to support
+	IsMedium bool `json:"isMedium" bson:"isMedium"`
 	//to help searching
 	Label       []string `json:"label" bson:"label"`
 	Description string   `json:"description" bson:"description"`
+	//Creator username
+	Creator string `json:"creator" bson:"creator"`
 }
 
 var (

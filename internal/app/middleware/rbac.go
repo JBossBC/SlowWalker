@@ -17,25 +17,28 @@ import (
 // 	"register": nil,
 // }
 
+var validRule map[string]any = map[string]any{"admin": nil, "member": nil, "audit": nil}
+
 /*
 the middleware must open after the jwt verify
 */
 func RBACMiddleware(context *gin.Context) {
 	role, bol := context.Get("role")
-	if !bol {
+	if _, ok := validRule[role.(string)]; !bol || !ok {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
-	resource, bol := context.Get("resource")
-	if !bol {
-		context.AbortWithStatus(utils.AuthFailedState)
-		return
-	}
+	// resource, bol := context.Get("resource")
+	// if !bol {
+	// 	context.AbortWithStatus(utils.AuthFailedState)
+	// 	return
+	// }
 	// currency resource skip the rbac
 	// if _, ok := currencyResource[resource.(string)]; ok {
 	// 	return
 	// }
-	if !hasAuthority(role.(string), resource.(string)) {
+	resource := context.Request.URL.Path
+	if !hasAuthority(role.(string), resource) {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}

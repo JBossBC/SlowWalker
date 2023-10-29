@@ -33,14 +33,15 @@ const DEFAULT_RULE_COLLECTION = "rule"
 const DEFAULT_RULE_NUMBER = 3
 
 type RuleInfo struct {
+	//the project relative url
 	Name      string `json:"name" bson:"name"`
 	Authority string `json:"authority" bson:"authority"`
-	Type      string `json:"type" bson:"type"`
+	// Type      string `json:"type" bson:"type"`
 	//the owner of rule can operate the function level
 	//1. Query Level: the model can be found by this authority
 	//2. Scan: the model should eval the details for this authority
 	//3. Update,Create,Delete: the authority can process the operation for this model(the field has difference for different model)
-	Operation string `json:"operation" bson:"operation"`
+	// Operation string `json:"operation" bson:"operation"`
 }
 
 const DEFAULT_RENEW_RULES_MAP_TIME = 24 * time.Hour
@@ -50,19 +51,19 @@ func init() {
 	systemSource = make(map[string]map[string]any)
 	go func() {
 		// init the timer
-		timer := time.NewTimer(DEFAULT_RENEW_RULES_MAP_TIME)
+		// timer := time.NewTimer(DEFAULT_RENEW_RULES_MAP_TIME)
 		// init the systemSource
 		getRulesToMap()
-		for {
-			select {
-			case <-timer.C:
-				timer.Reset(DEFAULT_RENEW_RULES_MAP_TIME)
-				//renew the systemSource
-				getRulesToMap()
-			default:
-				time.Sleep(1 * time.Hour)
-			}
-		}
+		// for {
+		// 	select {
+		// 	case <-timer.C:
+		// 		timer.Reset(DEFAULT_RENEW_RULES_MAP_TIME)
+		// 		//renew the systemSource
+		// 		getRulesToMap()
+		// 	default:
+		// 		time.Sleep(1 * time.Hour)
+		// 	}
+		// }
 	}()
 }
 
@@ -114,7 +115,7 @@ func getRulesToMap() {
 		if systemSource[rule.Name] == nil {
 			systemSource[rule.Name] = make(map[string]any)
 		}
-		log.Printf("正在添加 rule:%s authority:%s,type:%s", rule.Name, rule.Authority, rule.Type)
+		log.Printf("正在添加 rule:%s authority:%s", rule.Name, rule.Authority)
 		systemSource[rule.Name][rule.Authority] = rule
 	}
 	log.Println("renew the rules successfully")

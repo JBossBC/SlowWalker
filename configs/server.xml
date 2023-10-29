@@ -5,9 +5,9 @@
     <secret>oParplZS7iTFisR6VLXGG1_4fPDpQo2qjQiH4By7wehSMhgSUM8OYFMuZ4kWi9ETVpA5K6BhWGoJdqq2uT8uTQ</secret>
     <port>8080</port>
     <sms>
-      <key>LTAI5tLczTRXe8RSc5GKWUB9</key>
-      <secret>GrWrRf60wewqtreGMQuJslHuXbknEg</secret>
-      <templateCode>SMS_461895959</templateCode>
+        <key>LTAI5tLczTRXe8RSc5GKWUB9</key>
+        <secret>GrWrRf60wewqtreGMQuJslHuXbknEg</secret>
+        <templateCode>SMS_461895959</templateCode>
     </sms>
     <kafka>
         <broker></broker>
@@ -17,9 +17,12 @@
         <topic></topic>
     </kafka>
     <prometheus>
-      <server>
-        
-      </server>
+        <server>
+        </server>
     </prometheus>
+    <meilisearch>
+        <key>123456789</key>
+        <host>http://192.168.43.218:7700</host>
+    </meilisearch>
     <!-- including the development and test envrionment and online envrionment-->
 </server>

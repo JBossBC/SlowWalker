@@ -1,10 +1,11 @@
-import {react} from 'react'
-import { Table } from 'antd'
-import Column from 'antd/es/table/Column'
+import React,{useEffect, useState}from "react"
+import { Table,Menu,message} from 'antd'
+import { TeamOutlined } from "@ant-design/icons";
+import axios from "../utils/axios";
 const UserManage = ()=>{
+    const [department,setDepartment] =useState([]);
+    const [users,setUsers]=useState([]);
     const columns=[{
-
-    },{
         title:"账号",
         dataIndex: 'username',
         key: 'username',
@@ -23,21 +24,72 @@ const UserManage = ()=>{
     },{
         tilte:"操作",
         dataIndex:"operation",
-        key:"operation"
-    }]      
-    return(<div style={{width:"100%",height:"100%",display:"flex",justifyContent:"flex-start",alignContent:'center'}}>
-        <div>
-            <Menu>
-                
+        key:"operation",
+    }];
+    function getItem(key, icon, children, label, type) {
+        return {
+          key,
+          icon,
+          children,
+          label,
+          type,
+        };
+    };
+
+     function getAllDepartments(){
+       axios.get('/department/querys').then((response)=>{
+            let data = response.data;
+            if(data.state!==true){
+                let msg =data.message;
+                if(msg == undefined || msg == null){
+                    msg = "请求失败";
+                }
+              message.error(msg);
+              return 
+            }
+            return data.data;
+        }).then((departments)=>{
+            if(departments === undefined || departments == null){
+                return
+            }
+            let departmentView = [];
+            for(let i=0;i<departments.length;i++){
+                departmentView.push(getItem(departments[i].name,<TeamOutlined/>,null,departments[i].name,null));
+            }
+            console.log(departmentView);
+            setDepartment(departmentView)
+        })
+    }
+    //TODO
+    function currentDepartmentHandle(curElement){
+           axios.get("/user/filter",{department:curElement.key}).then((response)=>{
+             let data=response.data;
+             if(data.state!=true){
+                let msg =data.message;
+                if (msg == undefined || msg==""){
+                    msg="请求失败";
+                }
+                message.error(msg);
+                return;
+             }
+             return
+           })
+    }
+     function init(){
+        getAllDepartments();
+    }
+    init();
+    const dataSource = [];
+    return(<div style={{width:"100%",height:"100%",display:"flex",justifyContent:"flex-start",alignContent:'center',flexDirection:"row"}}>
+        <div style={{width:"20%",height:"100%"}}>
+            <Menu items={department} onSelect={currentDepartmentHandle}>        
             </Menu>
         </div>
-        <div>
-        <Table dataSource={dataSource}  >
-            <Column></Column>
-            </Table>;
+        <div style={{width:"50%",height:"100%"}}>
+            <Table columns={columns}></Table>
         </div>
     </div>)
 }
 
 
-export default UserManage
+export default UserManage;

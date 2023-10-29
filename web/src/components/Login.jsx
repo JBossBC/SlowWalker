@@ -4,8 +4,10 @@ import {useNavigate}  from 'react-router-dom';
 import logo from "../public/logo.png";
 import React, { useState,useContext,useEffect} from "react";
 import axios from "../utils/axios";
+// import axios from "../utils/axios";
 //import { useHistory } from "react-router-dom";
-const Login = () => {
+const Login = (props) => {
+    const {setToken} = props;
     const [loading, setLoading] = useState(false);
     const [disableAll, setDisableAll] = useState(false);
     const navigate =useNavigate();
@@ -25,10 +27,10 @@ const Login = () => {
                 "username":username,
                 "password":password,
             }});
-            if (response.status!=200){
-                   message.error("系统出错啦");
-                   return;
-            }
+            // if (response.status!=200){
+            //        message.error("系统出错啦");
+            //        return;
+            // }
             const {state, message: resMessage} = response.data;
 
             //先检查所有错误并处理
@@ -44,6 +46,7 @@ const Login = () => {
             // 登录成功，保存JWT Token到浏览器
             const jwt = String(response.headers.get('Authorization')).replace("Bearer ","");
             sessionStorage.setItem('repliteweb', jwt);
+            setToken(jwt);
             message.success(resMessage).then(()=>navigate("/main"));
         } finally {
             setLoading(false);

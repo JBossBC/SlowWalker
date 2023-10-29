@@ -32,6 +32,6 @@ func (ruleController *RuleController) QueryRuleAuthorization(ctx *gin.Context) {
 	}
 	_, err := ctx.Writer.Write(service.GetRuleService().QueryRuleAuthorization(role.(string)).Serialize())
 	if err != nil {
-		log.Printf("写入response信息失败:%s", err.Error())
+		log.Printf("[ruleContrller][QueryRuleAuthorization]写入response信息失败:%s", err.Error())
 	}
 }

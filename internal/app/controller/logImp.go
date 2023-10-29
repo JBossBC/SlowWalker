@@ -79,11 +79,11 @@ func (logController *LogController) QueryAuditLogs(ctx *gin.Context) {
 	// }
 	_, err = ctx.Writer.Write(result)
 	if err != nil {
-		log.Printf("写入response信息失败:%s", err.Error())
+		log.Printf("[logController][QueryAuditLogs]写入response信息失败:%s", err.Error())
 	}
 }
 
-func (logController *LogController)RemoveAuditLogs(ctx *gin.Context) {
+func (logController *LogController) RemoveAuditLogs(ctx *gin.Context) {
 	var result []byte
 	var filters []dao.LogInfo
 	err := ctx.ShouldBind(&filters)
@@ -91,6 +91,6 @@ func (logController *LogController)RemoveAuditLogs(ctx *gin.Context) {
 	result = service.GetLogService().RemoveLogs(filters).Serialize()
 	_, err = ctx.Writer.Write(result)
 	if err != nil {
-		log.Printf("写入response信息失败:%s", err.Error())
+		log.Printf("[logController][RemoveLogs]写入response信息失败:%s", err.Error())
 	}
 }

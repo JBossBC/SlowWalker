@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// the store value should be pointer type
 type CachePool struct {
 	rwMutex         sync.RWMutex
 	ExpireDevice    map[string]time.Duration
@@ -27,7 +28,7 @@ func newCachePool() *CachePool {
 func GetCachePool() *CachePool {
 	singlePoolOnce.Do(func() {
 		singlePool = newCachePool()
-		singlePool.circleCleanTask()
+		go singlePool.circleCleanTask()
 	})
 	return singlePool
 }

@@ -79,7 +79,7 @@ func TestQueryUser(t *testing.T) {
 	User := &dao.UserInfo{
 		Username: "member",
 	}
-	response := service.GetUserService().QueryUser(User)
+	response := service.GetUserService().QueryUsers(User)
 	response1 := utils.NewFailedResponse("系统错误")
 	if response == response1 {
 		t.Fatalf("系统错误")
