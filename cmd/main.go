@@ -45,7 +45,7 @@ func userRoute(engine *gin.Engine) {
 	group.Handle(http.MethodGet, "/login", controller.GetUserController().Login)
 	group.Handle(http.MethodPost, "/register", controller.GetUserController().Register)
 	route := group.Handle(http.MethodPost, "/filter", controller.GetUserController().FilterUser)
-	route.Use(middleware.BeforeHandler)
+	// route.Use(middleware.BeforeHandler)
 	route.Use(middleware.Auth)
 	route.Use(middleware.RBACMiddleware)
 }
@@ -56,7 +56,7 @@ func metricsRoute(engine *gin.Engine) {
 }
 func auditRoute(engine *gin.Engine) {
 	group := engine.Group("/log")
-	group.Use(middleware.BeforeHandler)
+	// group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	// group.Handle(http.MethodGet, "/query", controller.QueryAuditLogs)
@@ -64,6 +64,7 @@ func auditRoute(engine *gin.Engine) {
 	group.Handle(http.MethodPost, "/remove", controller.GetLogController().RemoveAuditLogs)
 }
 
+// TODO will be destroy,because the architecture is rebuilded
 func ruleRoute(engine *gin.Engine) {
 	group := engine.Group("/rule")
 	group.Use(middleware.Auth)
@@ -72,7 +73,7 @@ func ruleRoute(engine *gin.Engine) {
 
 func funcRoute(engine *gin.Engine) {
 	group := engine.Group("/func")
-	group.Use(middleware.BeforeHandler)
+	// group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/execute", controller.GetTaskController().ExecTask)
@@ -80,7 +81,7 @@ func funcRoute(engine *gin.Engine) {
 
 func departmentRoute(engine *gin.Engine) {
 	group := engine.Group("/department")
-	group.Use(middleware.BeforeHandler)
+	// group.Use(middleware.BeforeHandler)
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
 	group.Handle(http.MethodGet, "/querys", controller.GetDepartmentController().QueryAllDepartments)

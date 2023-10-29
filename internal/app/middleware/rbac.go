@@ -28,16 +28,17 @@ func RBACMiddleware(context *gin.Context) {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}
-	resource, bol := context.Get("resource")
-	if !bol {
-		context.AbortWithStatus(utils.AuthFailedState)
-		return
-	}
+	// resource, bol := context.Get("resource")
+	// if !bol {
+	// 	context.AbortWithStatus(utils.AuthFailedState)
+	// 	return
+	// }
 	// currency resource skip the rbac
 	// if _, ok := currencyResource[resource.(string)]; ok {
 	// 	return
 	// }
-	if !hasAuthority(role.(string), resource.(string)) {
+	resource := context.Request.URL.Path
+	if !hasAuthority(role.(string), resource) {
 		context.AbortWithStatus(utils.AuthFailedState)
 		return
 	}

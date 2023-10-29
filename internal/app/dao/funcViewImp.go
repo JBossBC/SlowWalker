@@ -38,7 +38,7 @@ type FuncViewInfo struct {
 	// the function params
 	Params string `json:"params" bson:"params"`
 	//
-	Sign   bool   `json:"sign" bson:"sign"`
+	Sign bool `json:"sign" bson:"sign"`
 	// whether the function execute has prefix
 	EmptyPrefix bool `json:"emptyPrefix" bson:"emptyPrefix"`
 	//whether the function execute need the other file to support
@@ -46,6 +46,8 @@ type FuncViewInfo struct {
 	//to help searching
 	Label       []string `json:"label" bson:"label"`
 	Description string   `json:"description" bson:"description"`
+	//Creator username
+	Creator string `json:"creator" bson:"creator"`
 }
 
 var (

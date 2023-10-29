@@ -17,27 +17,27 @@ import (
 var default_admin_schema = []any{
 	RuleInfo{
 		Name:      "admin",
-		Authority: "文件系统",
-		Type:      "管理",
-		Operation: "Query Scan",
+		Authority: "/department/querys",
+		// Type:      "管理",
+		// Operation: "Query Scan",
 	},
 	RuleInfo{
 		Name:      "admin",
-		Authority: "功能管理",
-		Type:      "管理",
-		Operation: "Create Delete Scan Query Update",
+		Authority: "/log/remove",
+		// Type:      "管理",
+		// Operation: "Create Delete Scan Query Update",
 	},
 	RuleInfo{
 		Name:      "admin",
-		Authority: "审计日志",
-		Type:      "系统",
-		Operation: "Query",
+		Authority: "/log/query",
+		// Type:      "系统",
+		// Operation: "Query",
 	},
 	RuleInfo{
 		Name:      "admin",
-		Authority: "人员管理",
-		Type:      "管理",
-		Operation: "Query Delete Scan Update",
+		Authority: "/user/filter",
+		// Type:      "管理",
+		// Operation: "Query Delete Scan Update",
 	}}
 
 //TODO write the new python resource to the program
@@ -47,31 +47,42 @@ var default_admin_schema = []any{
 // }
 
 var default_member_schma = []any{
+	// RuleInfo{
+	// 	Name:      "member",
+	// 	Authority: "",
+	// 	// Type:      "功能",
+	// 	// Operation: "Query Scan",
+	// },
+	// RuleInfo{
+	// 	Name:      "member",
+	// 	Authority: "层级图",
+	// 	// Type:      "功能",
+	// 	// Operation: "Query Scan",
+	// },
+	// RuleInfo{
+	// 	Name:      "member",
+	// 	Authority: "文件切分",
+	// 	// Type:      "功能",
+	// 	// Operation: "Query Scan",
+	// },
+}
+
+var default_departmentManage_schema = []any{
 	RuleInfo{
-		Name:      "member",
-		Authority: "IP查询",
-		Type:      "功能",
-		Operation: "Query Scan",
-	},
-	RuleInfo{
-		Name:      "member",
-		Authority: "层级图",
-		Type:      "功能",
-		Operation: "Query Scan",
-	},
-	RuleInfo{
-		Name:      "member",
-		Authority: "文件切分",
-		Type:      "功能",
-		Operation: "Query Scan",
+		Name:      "departmentManage",
+		Authority: "/user/filter",
 	},
 }
 var default_audit_schema = []any{
 	RuleInfo{
 		Name:      "audit",
-		Authority: "审计日志",
-		Type:      "系统",
-		Operation: "Query Scan",
+		Authority: "/log/query",
+		// Type:      "系统",
+		// Operation: "Query Scan",
+	},
+	RuleInfo{
+		Name:      "audit",
+		Authority: "/log/remove",
 	},
 }
 
@@ -178,22 +189,23 @@ func InitMogoSchema() {
 func initRuleSchema() {
 	var ruleCollections = []any{}
 	ruleCollections = append(ruleCollections, default_admin_schema...)
-	ruleCollections = append(ruleCollections, default_member_schma...)
+	// ruleCollections = append(ruleCollections, default_member_schma...)
 	ruleCollections = append(ruleCollections, default_audit_schema...)
+	ruleCollections = append(ruleCollections, default_departmentManage_schema...)
 	//in order to create the database
-	_, err := getRuleCollection().InsertOne(context.Background(), map[string]struct{}{})
-	if err != nil {
-		panic(err.Error())
-	}
-	err = getRuleCollection().Drop(context.Background())
+	// _, err := getRuleCollection()(context.Background(), map[string]struct{}{})
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	err := getRuleCollection().Drop(context.Background())
 	if err != nil {
 		panic(fmt.Sprintf("drop the rule schema collection error: %v", err))
 	}
 	_, err = getRuleCollection().InsertMany(context.Background(), ruleCollections)
-	log.Printf("成功初始化Rule collections:%v", ruleCollections)
 	if err != nil {
 		panic(fmt.Sprintf("insert the rule schema collection error: %v", err))
 	}
+	log.Printf("成功初始化Rule collections:%v", ruleCollections)
 }
 
 var default_users_schema = []any{

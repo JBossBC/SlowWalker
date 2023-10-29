@@ -202,7 +202,6 @@ func (userDao *UserDao) QueryUsers(page int, pageNumber int) ([]*UserInfo, error
 	return users, nil
 }
 
-
 func (userDao *UserDao) FilterUsers(filterTempalte *UserFilterTemplate) ([]*UserInfo, error) {
 	filter := bson.M{}
 	if filterTempalte.Username != "" {
@@ -251,6 +250,7 @@ func (userDao *UserDao) FilterUsers(filterTempalte *UserFilterTemplate) ([]*User
 	}
 	err = result.All(context.Background(), &users)
 	if err != nil {
+		log.Printf("analysis the user collections by filterUser function error:%s ", err.Error())
 		return nil, err
 	}
 	return users, nil

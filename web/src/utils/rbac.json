@@ -1,0 +1,27 @@
+
+{
+   "RBAC":[
+      {
+        "owner":"admin",
+        "component":"人员管理",
+        "belongs":"管理"
+      },
+      {
+        "owner":"admin",
+        "component":"文件系统",
+        "belongs":"管理"
+      },{
+        "owner":"admin",
+        "component":"功能管理",
+        "belongs":"管理"
+      },{
+        "owner":"audit",
+        "component":"审计日志",
+        "belongs":"系统"
+      },{
+        "owner":"admin",
+        "component":"审计日志",
+        "belongs":"系统"
+      }
+    ]
+}
