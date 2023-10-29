@@ -22,6 +22,18 @@
         "owner":"admin",
         "component":"审计日志",
         "belongs":"系统"
-      }
+      }, {
+       "owner": "member",
+       "component":"IP查询",
+       "belongs": "功能"
+     },{
+       "owner": "member",
+       "component":"文件切分",
+       "belongs": "功能"
+     },{
+       "owner": "member",
+       "component":"层次图",
+       "belongs": "功能"
+     }
     ]
 }

@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Breadcrumb, theme, Form,  Button } from 'antd';
-import { LaptopOutlined, UserOutlined, PlusOutlined,MonitorOutlined } from '@ant-design/icons';
-import { useIntl, FormattedMessage } from 'react-intl';
-// import axios from "../utils/axios";
+import { Layout, Menu, Breadcrumb, theme, Form, Button } from 'antd';
+import { LaptopOutlined, UserOutlined, PlusOutlined, MonitorOutlined } from '@ant-design/icons';
 import axios from "../utils/axios";
+import rbac from "../utils/rbac.json";
 import IPQuery from './IPQuery';
 import FileMergeCut from "./FileMergeCut";
 import AddFunctionModal from './AddFunctionModal';
+import UserManage from "./users";
+import Log from "./Log";
 const { Header, Content, Sider } = Layout;
 
-
 const Main = () => {
-    const intl = useIntl();
+    // const intl = useIntl();
     const { token: { colorBgContainer } } = theme.useToken();
     const [selectedMenuKey, setSelectedMenuKey] = useState("");
     const [breadcrumbItem, setBreadcrumbItem] = useState("");
     const [menuItems, setMenuItems] = useState([]);
-    const [showIPQuery, setShowIPQuery] = useState(false);
-    const [showFileCut, setShowFileCut] = useState(false);
+    const [Showcomponent, setShowComponent] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [params, setParams] = useState([]);
@@ -25,30 +24,39 @@ const Main = () => {
     useEffect(() => {
         fetchData();
     }, []);
-    const seriesMapping={"功能":<UserOutlined/>,"系统":<LaptopOutlined/>,"管理":<MonitorOutlined/>}
+
     const fetchData = async () => {
         try {
             const response = await axios.get("/rule/query");
             const { state, data } = response.data;
-            console.log(data);
-
+            console.log(data.role);
+            //const funcResponse = await axios.get("func");
+            //const { funcState, funcData } = funcResponse.data; // funcResponse
             if (state) {
                 const items = [];
+                const map1 = rbac.RBAC; //map1=rbac+funcState
 
-                Object.keys(data).forEach((key) => {
-                    const subItems = Object.keys(data[key]).map((subKey) => ({
-                        key: `首页/${key}/${subKey}`,
-                        label: subKey,
-                    }));
+                map1.forEach((item) => {
+                    if (data.role.includes(item.owner)) {
+                        const menuItem = items.find((menu) => menu.label === item.belongs);
 
-                    items.push({
-                        key: `首页/${key}`,
-                        icon: seriesMapping[key],
-                        label: key,
-                        children: subItems,
-                    });
+                        if (!menuItem) {
+                            items.push({
+                                key: `首页/${item.belongs}`,
+                                icon: getIconByBelongs(item.belongs),
+                                label: item.belongs,
+                                children: [],
+                            });
+                        }
+
+                        const subItems = items.find((menu) => menu.label === item.belongs).children;
+                        subItems.push({
+                            key: `首页/${item.belongs}/${item.component}`,
+                            label: item.component,
+                            // component: getComponentByLabel(item.component),
+                        });
+                    }
                 });
-
                 setMenuItems(items);
             }
         } catch (error) {
@@ -56,30 +64,66 @@ const Main = () => {
         }
     };
 
+    const getIconByBelongs = (belongs) => {
+        switch (belongs) {
+            case "功能":
+                return <UserOutlined />;
+            case "系统":
+                return <LaptopOutlined />;
+            case "管理":
+                return <MonitorOutlined />;
+            default:
+                return null;
+        }
+    };
+
+    const getComponentByLabel = async (label) => {
+        switch (label) {
+            case "审计日志":
+                return (<Log/>)
+            case "人员管理":
+                return (<UserManage/>)
+            case "IP查询":
+                return (<IPQuery/>)
+            case "文件切分":
+                return (<FileMergeCut/>);
+            default:
+                const component = await fetchComponent(label);
+                return component ? () => component : null;
+        }
+    };
+
+    const fetchComponent = async (label) => {
+        const userFuncResponse = await axios.get("func/component/");
+        const { userFuncState, userFuncData } = userFuncResponse.data;
+        if (userFuncState) {
+            const { component } = await userFuncData.json();
+            const Component = eval(component); // 使用eval()动态执行组件代码
+            return Component;
+        } else {
+            return null;
+        }
+    };
+
     const handleClick = ({ key }) => {
-        const [prefix, type, suffix] = key.split("/");
+        const [prefix, belongs, suffix] = key.split("/");
         let updatedBreadcrumbItem = "";
 
-        if (prefix === "sub") {
-            updatedBreadcrumbItem = `${intl.formatMessage({ id: "首页" })}/${type === "function" ? intl.formatMessage({ id: "功能" }) : intl.formatMessage({ id: "系统" })}/${
-                suffix.replace("option", intl.formatMessage({ id: "选项" }))
-            }`;
+        if (prefix === "首页") {
+            updatedBreadcrumbItem = `${{ id: "首页" }}/${{ id: belongs }}/${{ id: suffix }}`;
         }
 
         setSelectedMenuKey(key);
         setBreadcrumbItem(updatedBreadcrumbItem);
 
-        if (key === "sub/function/ipQuery") {
-            setShowIPQuery(true);
+        const menuItem = menuItems.find((item) => item.key === prefix+"/"+belongs);
+        if (menuItem && menuItem.component) {
+            getComponentByLabel(suffix).then((comp)=>setShowComponent(comp));
         } else {
-            setShowIPQuery(false);
-        }
-        if (key === "sub/function/fileCut") {
-            setShowFileCut(true);
-        } else {
-            setShowFileCut(false);
+            getComponentByLabel(suffix).then((comp)=>setShowComponent(comp));
         }
     };
+
 
     const showModal = () => {
         setIsModalVisible(true);
@@ -88,7 +132,6 @@ const Main = () => {
     const handleOk = () => {
         form.submit();
     };
-
 
     const handleCancel = () => {
         setIsModalVisible(false);
@@ -127,22 +170,17 @@ const Main = () => {
                             style={{ height: "100%", borderRight: 0 }}
                             onClick={handleClick}
                         >
-                            {menuItems.map((item, index) => (
-                                <Menu.SubMenu
-                                    key={item.key}
-                                    icon={item.icon}
-                                    title={intl.formatMessage({ id: item.label })}
-                                    items={item.children}
-                                >
+                            {menuItems.map((item) => (
+                                <Menu.SubMenu key={item.key} icon={item.icon} title={item.label} items={item.children}>
                                     {item.children.map((subItem) => (
-                                        <Menu.Item key={subItem.key}>
-                                            {intl.formatMessage({ id: subItem.label })}
-                                        </Menu.Item>
+                                        <Menu.Item key={subItem.key}>{subItem.label}</Menu.Item>
                                     ))}
                                 </Menu.SubMenu>
                             ))}
                             <div key="addFunction" style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}>
-                                <Button icon={<PlusOutlined />} onClick={showModal}><FormattedMessage id="添加" /></Button>
+                                <Button icon={<PlusOutlined />} onClick={showModal}>
+                                    添加
+                                </Button>
                             </div>
                         </Menu>
                         <AddFunctionModal
@@ -162,23 +200,20 @@ const Main = () => {
                         {breadcrumbItem ? (
                             <Breadcrumb.Item>{breadcrumbItem}</Breadcrumb.Item>
                         ) : (
-                            <Breadcrumb.Item><FormattedMessage id="首页" /></Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                首页
+                            </Breadcrumb.Item>
                         )}
                     </Breadcrumb>
-                    <Content
-                        style={{
-                            padding: 24,
-                            margin: 0,
-                            minHeight: 280,
-                            background: colorBgContainer,
-                        }}
-                    >
-                        {selectedMenuKey && !showIPQuery && !showFileCut && (
-                            <div><FormattedMessage id="您选择的是：" />{selectedMenuKey}</div>
+                    <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
+                        {selectedMenuKey && !Showcomponent && (
+                            <div>
+                               您选择的是:
+                                {selectedMenuKey}
+                            </div>
                         )}
-                        {!selectedMenuKey && <div><FormattedMessage id="欢迎访问首页" /></div>}
-                        {showIPQuery && <IPQuery />}
-                        {showFileCut && <FileMergeCut />}
+                        {!selectedMenuKey && <div>欢迎访问首页</div>}
+                        {Showcomponent}
                     </Content>
                 </Layout>
             </Layout>
