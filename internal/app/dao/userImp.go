@@ -34,7 +34,7 @@ var emptyUser = UserInfo{}
 // TODO increase  the create time field
 type UserInfo struct {
 	Username    string `json:"username" bson:"username"`
-	Password    string `json:"password" bson:"password"`
+	Password    string `json:"-" bson:"password"`
 	Authority   string `json:"athority" bson:"authority"`
 	PhoneNumber string `json:"phoneNumber" bson:"phoneNumber"`
 	RealName    string `json:"realName" bson:"realName"`
@@ -258,6 +258,7 @@ func (userDao *UserDao) FilterUsers(userInfo *UserInfo) ([]*UserInfo, error) {
 	}
 	defer result.Close(context.Background())
 	result.All(context.Background(), &users)
+	//hide secret
 	// err = CreateList(redisKey, users, DEFAULT_USER_EXPIRE_TIME)
 	// if err != nil {
 	// 	log.Printf("创建redis缓存(key:%s,value:%v)失败%s", redisKey, users, err.Error())

@@ -135,6 +135,7 @@ var defualt_department_schema = []any{DepartmentInfo{
 }}
 
 func initDepartmentSchema() {
+	getDepartmentCollection().Drop(context.Background())
 	_, err := getDepartmentCollection().InsertMany(context.TODO(), defualt_department_schema)
 	if err != nil {
 		panic(fmt.Sprintf("初始化department schema出错:%s", err.Error()))
@@ -220,6 +221,7 @@ var default_users_schema = []any{
 		Password:    utils.Encrypt("admin"),
 		PhoneNumber: "18080705675",
 		Department:  "无",
+		CreateTime:  time.Now().Unix(),
 	},
 	UserInfo{
 		Username:    "audit",
@@ -228,6 +230,7 @@ var default_users_schema = []any{
 		PhoneNumber: "18080705675",
 		RealName:    "审计员",
 		Department:  "无",
+		CreateTime:  time.Now().Unix(),
 	},
 	UserInfo{
 		Username:    "member",
@@ -236,6 +239,34 @@ var default_users_schema = []any{
 		PhoneNumber: "18080705675",
 		RealName:    "会员",
 		Department:  "无",
+		CreateTime:  time.Now().Unix(),
+	},
+	UserInfo{
+		Username:    "案件服务",
+		Authority:   "member",
+		Password:    utils.Encrypt("member"),
+		PhoneNumber: "18080705675",
+		RealName:    "会员",
+		Department:  "案件服务部",
+		CreateTime:  time.Now().Unix(),
+	},
+	UserInfo{
+		Username:    "财务部",
+		Authority:   "member",
+		Password:    utils.Encrypt("member"),
+		PhoneNumber: "18080705675",
+		RealName:    "会员",
+		Department:  "财务部",
+		CreateTime:  time.Now().Unix(),
+	},
+	UserInfo{
+		Username:    "售前部门",
+		Authority:   "member",
+		Password:    utils.Encrypt("member"),
+		PhoneNumber: "18080705675",
+		RealName:    "会员",
+		Department:  "售前部门",
+		CreateTime:  time.Now().Unix(),
 	},
 }
 
@@ -251,6 +282,7 @@ var default_funcmaps_schema = []any{
 
 func initUserSchema() {
 	// var users = []any{}
+	getUserCollection().Drop(context.Background())
 	_, err := getUserCollection().InsertMany(context.Background(), default_users_schema)
 	if err != nil {
 		panic(fmt.Sprintf("初始化user document失败:%s", err.Error()))
@@ -266,7 +298,7 @@ func initUserSchema() {
 	// }
 }
 func initFuncMapSchema() {
-
+	getFuncMapCollection().Drop(context.Background())
 	_, err := getFuncMapCollection().InsertMany(context.Background(), default_funcmaps_schema)
 	if err != nil {
 		panic(fmt.Sprintf("初始化funcmap document失败:%s", err.Error()))

@@ -7,6 +7,7 @@ type User interface {
 	Login(ctx *gin.Context)
 	FilterUsers(ctx *gin.Context)
 	QueryUsers(ctx *gin.Context)
+	DeleteUser(ctx *gin.Context)
 }
 
 func GetUserController() User {

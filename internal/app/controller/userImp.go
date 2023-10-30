@@ -174,3 +174,7 @@ func (userController *UserController) QueryUsers(ctx *gin.Context) {
 		log.Printf("[userContrller][FilterUser]写入response信息失败:%s", err.Error())
 	}
 }
+
+func (userController *UserController) DeleteUser(ctx *gin.Context) {
+  
+}

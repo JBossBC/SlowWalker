@@ -4,7 +4,6 @@ import { Empty, Space, Table, Tag,Button,message, Form, Col, Input, Row, Select,
 import { DownOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { useNavigate } from 'react-router';
-import qs from 'qs';
 
 /** 	PRINT LogLevel = "print"
 	WARN  LogLevel = "warn"

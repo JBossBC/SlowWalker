@@ -22,7 +22,7 @@
     </prometheus>
     <meilisearch>
         <key>123456789</key>
-        <host>http://192.168.43.218:7700</host>
+        <host>http://localhost:7700</host>
     </meilisearch>
     <!-- including the development and test envrionment and online envrionment-->
 </server>
