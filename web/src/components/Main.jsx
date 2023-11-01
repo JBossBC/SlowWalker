@@ -29,7 +29,6 @@ const Main = () => {
         try {
             const response = await axios.get("/rule/query");
             const { state, data } = response.data;
-            console.log(data.role);
             //const funcResponse = await axios.get("func");
             //const { funcState, funcData } = funcResponse.data; // funcResponse
             if (state) {

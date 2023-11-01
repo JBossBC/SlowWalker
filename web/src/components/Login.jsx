@@ -7,7 +7,7 @@ import axios from "../utils/axios";
 // import axios from "../utils/axios";
 //import { useHistory } from "react-router-dom";
 const Login = (props) => {
-    const {setToken} = props;
+    const {setToken,token} = props;
     const [loading, setLoading] = useState(false);
     const [disableAll, setDisableAll] = useState(false);
     const navigate =useNavigate();
@@ -17,7 +17,7 @@ const Login = (props) => {
             // login
             navigate('/main');
         }
-    },[])
+    },[]);
     const onFinish = async (value) => {
         const { username, password } = value; // Obtain the value of the form input
         try {
@@ -47,7 +47,9 @@ const Login = (props) => {
             const jwt = String(response.headers.get('Authorization')).replace("Bearer ","");
             sessionStorage.setItem('repliteweb', jwt);
             setToken(jwt);
+            axios.defaults.headers['Authorization']= 'Bearer ' + sessionStorage.getItem('repliteweb');
             message.success(resMessage).then(()=>navigate("/main"));
+
         } finally {
             setLoading(false);
             setDisableAll(false); // 解除禁用其他链接和按钮

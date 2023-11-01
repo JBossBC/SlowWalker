@@ -3,7 +3,17 @@ import { Table,Menu,message,Button, Modal,Popconfirm} from 'antd'
 import { TeamOutlined,WarningOutlined } from "@ant-design/icons";
 import axios from "../utils/axios";
 import moment from "moment";
+import DynamicComponent from "./parseReact";
+
+
 const UserManage = ()=>{
+    const componentCode = `
+    import { Button } from 'antd';
+    
+    export default function MyButton(props) {
+      return <Button  onClick={props.onClick}>{props.children}</Button>;
+    }
+  `;
     const [department,setDepartment] =useState([]);
     const [users,setUsers]=useState([]);
     const [updateModal,setUpdateModal]=useState(false);
@@ -123,7 +133,6 @@ const UserManage = ()=>{
     useEffect(()=>{
         init();
     },[])
-    const dataSource = [];
     return(<div style={{width:"100%",height:"100%",display:"flex",justifyContent:"flex-start",alignContent:'center',flexDirection:"row"}}>
         <div style={{width:"20%",height:"100%"}}>
             <Menu items={department} onSelect={currentDepartmentHandle}>        
@@ -132,9 +141,8 @@ const UserManage = ()=>{
         <div style={{width:"80%",height:"100%"}}>
             <Table dataSource={users} columns={columns}></Table>
         </div>
-        {updateModal&&<Modal>
-            
-            </Modal>}
+        <DynamicComponent componentCode={componentCode} />
+        {updateModal&&<Modal> </Modal>}
     </div>)
 }
 

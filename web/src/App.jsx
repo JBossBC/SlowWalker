@@ -29,17 +29,6 @@ function App() {
               return Promise.reject(error);
           })
       },[]);
-    const [locale, setLocale] = useState('zh');
-
-    const handleLocaleChange = (lang) => {
-        setLocale(lang);
-    };
-
-    useEffect(() => {
-        setLocale(window.navigator.language.toLowerCase().slice(0, 2));
-    }, []);
-
-    const currentMessages = messages[locale];
 
 
     return (
@@ -57,8 +46,8 @@ function App() {
                     {/*    </Select>*/}
                     {/*</div>*/}
                     <Routes>
-                        <Route path="/" element={<Index setToken={setToken} />} />
-                        <Route path="/login"  element={<Index setToken={setToken} />} />
+                        <Route path="/" element={<Index setToken={setToken} token={Token}/>} />
+                        <Route path="/login"  element={<Index setToken={setToken}  token={Token}/>} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/user" element={<UserManage/>}/>
                         <Route path="/main" element={<Main />} />
