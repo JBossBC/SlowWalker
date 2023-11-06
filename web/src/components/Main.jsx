@@ -14,15 +14,14 @@ const { Header, Content, Sider, Footer } = Layout;  //add Footer
 
 
 const Main = () => {
-    // const intl = useIntl();
     const { token: { colorBgContainer } } = theme.useToken();
     const [selectedMenuKey, setSelectedMenuKey] = useState("");
     const [breadcrumbItem, setBreadcrumbItem] = useState("");
     const [menuItems, setMenuItems] = useState([]);
     const [Showcomponent, setShowComponent] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [form] = Form.useForm();
-    const [params, setParams] = useState([]);
     const [showLog, setShowLog] = useState(false); // add
     const navigate = useNavigate(); //add
     
@@ -58,7 +57,7 @@ const Main = () => {
                         subItems.push({
                             key: `首页/${item.belongs}/${item.component}`,
                             label: item.component,
-                            // component: getComponentByLabel(item.component),
+                            component: getComponentByLabel(item.component),
                         });
                     }
                 });
@@ -66,6 +65,8 @@ const Main = () => {
             }
         } catch (error) {
             console.error("Error fetching data:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -110,22 +111,21 @@ const Main = () => {
         }
     };
 
+
     const handleClick = ({ key }) => {
         const [prefix, belongs, suffix] = key.split("/");
         let updatedBreadcrumbItem = "";
 
         if (prefix === "首页") {
-            updatedBreadcrumbItem = `${{ id: "首页" }}/${{ id: belongs }}/${{ id: suffix }}`;
+            updatedBreadcrumbItem = `${prefix}/${belongs}/${suffix}`;
         }
 
         setSelectedMenuKey(key);
         setBreadcrumbItem(updatedBreadcrumbItem);
 
-        const menuItem = menuItems.find((item) => item.key === prefix+"/"+belongs);
-        if (menuItem && menuItem.component) {
-            getComponentByLabel(suffix).then((comp)=>setShowComponent(comp));
-        } else {
-            getComponentByLabel(suffix).then((comp)=>setShowComponent(comp));
+        const menuItem = menuItems.find((item) => item.key === `${prefix}/${belongs}`);
+        if (menuItem && menuItem.label) {
+            getComponentByLabel(suffix).then((comp) => setShowComponent(comp));
         }
 
     };
@@ -143,23 +143,6 @@ const Main = () => {
         setIsModalVisible(false);
     };
 
-    const handleAddParam = () => {
-        const newParams = [...params];
-        newParams.push({ name: '', type: '' });
-        setParams(newParams);
-    };
-
-    const handleDeleteParam = (index) => {
-        const newParams = [...params];
-        newParams.splice(index, 1);
-        setParams(newParams);
-    };
-
-    const handleParamChange = (index, field, value) => {
-        const newParams = [...params];
-        newParams[index][field] = value;
-        setParams(newParams);
-    };
 
     const handleLogout = async () => {
         try {
@@ -214,8 +197,8 @@ const Main = () => {
                 </Button>   
             </Header>
             <Layout>
-                {menuItems.length > 0 && (
-                    <Sider width={200} style={{ background: colorBgContainer}} >
+                {!isLoading && menuItems.length > 0 && (
+                    <Sider width={200} style={{ background: colorBgContainer }}>
                         <Menu
                             mode="inline"
                             selectedKeys={[selectedMenuKey]}
@@ -230,21 +213,18 @@ const Main = () => {
                                     ))}
                                 </Menu.SubMenu>
                             ))}
-                            <div key="addFunction" style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}>
-                                <Button icon={<PlusOutlined />} onClick={showModal}>
-                                    添加
-                                </Button>
-                            </div>
+                            {menuItems.some((item) => item.label === '功能') && (
+                                <div key="addFunction" style={{ marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
+                                    <Button icon={<PlusOutlined />} onClick={showModal}>
+                                        添加
+                                    </Button>
+                                </div>
+                            )}
                         </Menu>
                         <AddFunctionModal
                             isModalVisible={isModalVisible}
                             handleOk={handleOk}
                             handleCancel={handleCancel}
-                            params={params}
-                            setParams={setParams}
-                            handleAddParam={handleAddParam}
-                            handleDeleteParam={handleDeleteParam}
-                            handleParamChange={handleParamChange}
                         />
                     </Sider>
                 )}
