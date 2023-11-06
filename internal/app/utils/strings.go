@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -25,7 +24,6 @@ func IgnoreQuotationMarks(str string) string {
 func ParseLabel(labels []string) []string {
 	var labelSs []string
 	for _, label := range labels {
-		fmt.Printf("输入的label为%v\n", label)
 		label = strings.Replace(label, " ", "|", -1)
 		label = strings.Replace(label, ",", "|", -1)
 		label = strings.Replace(label, "，", "|", -1)
@@ -33,6 +31,5 @@ func ParseLabel(labels []string) []string {
 		label = strings.Replace(label, ".", "|", -1)
 		labelSs = append(labelSs, label)
 	}
-	fmt.Printf("输出的labels为%v\n", labelSs)
 	return labelSs
 }

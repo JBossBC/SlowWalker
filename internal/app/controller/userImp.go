@@ -55,19 +55,6 @@ func (userController *UserController) Login(ctx *gin.Context) {
 	}
 }
 
-//func (userController *UserController) LogOut(ctx *gin.Context) {
-//	jwtStr, _ := ctx.Get("Authorization")
-//	jwt.Parse(jwtStr.(string), func(token *jwt.Token) (interface{}, error) {
-//		return []byte("repliteweb"), nil
-//	})
-//	var blacklistedTokens []string //token黑名单
-//	if v, ok := ctx.Get("blacklisted_tokens"); ok {
-//		blacklistedTokens = v.([]string)
-//	}
-//	blacklistedTokens = append(blacklistedTokens, jwtStr.(string))
-//	ctx.Set("blacklisted_tokens", blacklistedTokens)
-//}
-
 const DEFUALT_AUTHORITY_LEVEL = "member"
 
 func (userController *UserController) Register(ctx *gin.Context) {

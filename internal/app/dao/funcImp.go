@@ -22,6 +22,7 @@ var (
 )
 
 func getFunctionDao() *FunctionDao {
+	fmt.Println("func")
 	functionOnce.Do(func() {
 		functionDao = new(FunctionDao)
 	})

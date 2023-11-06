@@ -71,7 +71,7 @@ const Search = () => {
       <Button
         type="primary"
         onClick={handleSearch}
-        style={{ marginBottom: 12, ...buttonStyle }}
+        style={{ marginBottom: 12}}
         ghost={true}
         loading={false}
       >
