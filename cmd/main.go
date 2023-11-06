@@ -89,7 +89,7 @@ func searchRoute(engine *gin.Engine) { //搜索功能路由
 	group := engine.Group("search")
 	group.Use(middleware.Auth)
 	group.Use(middleware.RBACMiddleware)
-	group.Handle(http.MethodGet, "/function", controller.GetSearchController().SearchFunctions)
+	group.Handle(http.MethodGet, "/function", controller.GetMeiliSearchController().MeiliSearchFunctions)
 
 }
 func departmentRoute(engine *gin.Engine) {

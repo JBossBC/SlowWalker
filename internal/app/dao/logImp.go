@@ -359,20 +359,24 @@ func (logDao *LogDao) AggregateLogSum() (int32, error) { //new add
 func (logDao *LogDao) RemoveLogs(filters []LogInfo) error { //new add
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	filter := bson.M{} // 定义一个空的过滤器
 	// 将前端传递的过滤器数组合并到总的过滤器中
-	for _, f := range filters {
-		filter["level"] = f.Level
-		filter["ip"] = f.IP
-		filter["message"] = f.Message
-		filter["operator"] = f.Operator
-		filter["date"] = f.Date
-		_, err := getLogCollection().DeleteMany(ctx, filter)
-		if err != nil {
-			log.Println("删除日志记录失败", err)
-			return err
+	deleteFilters := make([]bson.M, len(filters))
+	for i, f := range filters {
+		deleteFilter := bson.M{
+			"level":    f.Level,
+			"ip":       f.IP,
+			"message":  f.Message,
+			"operator": f.Operator,
+			"date":     f.Date,
 		}
+		deleteFilters[i] = deleteFilter
 	}
+	_, err := getLogCollection().DeleteMany(ctx, deleteFilters)
+	if err != nil {
+		log.Println("删除日志记录失败", err)
+		return err
+	}
+
 	return nil
 }
 

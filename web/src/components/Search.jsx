@@ -5,19 +5,20 @@ import { Input, Button, List, message, Select } from 'antd';
 const { Option } = Select;
 
 const Search = () => {
-  const [searchDesc, setSearchDesc] = useState('');
+  const [searchText1, setSearchText1] = useState('');
+  const [searchText2, setSearchText2] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
 
   const handleSearch = async () => {
     try {
       const response = await axios.get("/search/function", {
         params: {
-          labels: selectedTags,
-          descriptions: searchDesc
+          labels: searchText1.trim(),
+          descriptions: searchText2.trim()
         },
       });
       const { state, message: resMessage } = response.data;
+      console.log(response.data.data)
       if (!state) {
         let Message = resMessage;
         if (Message === undefined || Message === "") {
@@ -27,37 +28,56 @@ const Search = () => {
         return;
       }
 
-      setSearchResults(response.data.data.hits);
+      setSearchResults(response.data.data);
     } catch (error) {
       console.log(error);
       message.error("查询错误");
     }
   };
 
+
+  const inputsStyle = {
+    marginBottom: '12px', // 下边距
+    width: '80%', // 宽度
+    height: '40px', // 高度
+    //padding: '8px', // 内边距
+    fontSize: '12px', // 字体大小
+    fontWeight: 'bold', // 字体粗细
+    color: '#333', // 字体颜色
+    backgroundColor: '#fff', // 背景色
+    border: '1px solid #ccc', // 边框
+    borderRadius: '4px', // 边框圆角
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)', // 阴影
+    outline: 'none', // 失去焦点时去掉默认的外部边框
+    cursor: 'auto', // 鼠标指针样式
+    transition: 'all .3s ease-in-out', // 过渡效果
+  };
+
   return (
     <div>
-      <Select
-        mode="multiple"
-        style={{ width: '100%', marginBottom: 12 }}
-        placeholder="请选择类型"
-        value={selectedTags}
-        onChange={(value) => setSelectedTags(value)}
-      >
-        <Option value="golang_scripts">golang_scripts</Option>
-        <Option value="python_scripts">python_scripts</Option>
-        <Option value="fileSystem">fileSystem</Option>
-      </Select>
-
       <Input
-        value={searchDesc}
-        onChange={e => setSearchDesc(e.target.value)}
-        placeholder="请输入关键词"
-        style={{ marginBottom: 12 }}
+        value={searchText1}
+        onChange={e => setSearchText1(e.target.value)}
+        placeholder="请输入标签"
+        style={inputsStyle}
       />
-
-      <Button type="primary" onClick={handleSearch} style={{ marginBottom: 12 }}>
+      <Input
+        value={searchText2}
+        onChange={e => setSearchText2(e.target.value)}
+        placeholder="请输入关键词"
+        style={inputsStyle}
+      />
+      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+      <Button
+        type="primary"
+        onClick={handleSearch}
+        style={{ marginBottom: 12, ...buttonStyle }}
+        ghost={true}
+        loading={false}
+      >
         搜索
       </Button>
+    </div>
 
       <List
         dataSource={searchResults}
