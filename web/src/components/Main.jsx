@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Breadcrumb, theme, Form, Button } from 'antd';
-import { LaptopOutlined, UserOutlined, PlusOutlined, MonitorOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router';  //add
+import { Layout, Menu, Breadcrumb, Form,theme, Button } from 'antd';
+import { LaptopOutlined, UserOutlined, PlusOutlined, MonitorOutlined,LogoutOutlined } from '@ant-design/icons';
 import axios from "../utils/axios";
 import rbac from "../utils/rbac.json";
 import IPQuery from './IPQuery';
@@ -8,7 +9,9 @@ import FileMergeCut from "./FileMergeCut";
 import AddFunctionModal from './AddFunctionModal';
 import UserManage from "./users";
 import Log from "./Log";
-const { Header, Content, Sider } = Layout;
+import Search from './Search';  //add
+const { Header, Content, Sider, Footer } = Layout;  //add Footer
+
 
 const Main = () => {
     // const intl = useIntl();
@@ -20,6 +23,9 @@ const Main = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [params, setParams] = useState([]);
+    const [showLog, setShowLog] = useState(false); // add
+    const navigate = useNavigate(); //add
+    
 
     useEffect(() => {
         fetchData();
@@ -121,6 +127,7 @@ const Main = () => {
         } else {
             getComponentByLabel(suffix).then((comp)=>setShowComponent(comp));
         }
+
     };
 
 
@@ -154,23 +161,70 @@ const Main = () => {
         setParams(newParams);
     };
 
+    const handleLogout = async () => {
+        try {
+            // 调用注销接口以清除用户的会话
+            //await api.logout()
+            // 清除本地存储
+            localStorage.removeItem('repliteweb')
+            
+            // 导航到登录页面
+            navigate('/login')
+          } catch (error) {
+            console.error(error)
+          }
+    }
+
+    // const search = () => {
+    //     setIsModalVisible(true);
+    // };
+   
+    const Theme = {
+        bodyBg: '#f5f',
+        footerBg: '#f5f5f5',
+        footerPadding: '24px 50px',
+        headerBg: '#00000',
+        headerColor: 'rgba(0, 0, 0, 0.88)',
+        headerHeight: 64,
+        headerPadding: '0 50px',
+        lightSiderBg: '#ffffff',
+        lightTriggerBg: '#ffffff',
+        lightTriggerColor: 'rgba(0, 0, 0, 0.88)',
+        siderBg: '#00000',
+        triggerBg: '#002140',
+        triggerColor: '#fff',
+        triggerHeight: 48,
+        zeroTriggerHeight: 40,
+        zeroTriggerWidth: 40
+    }
+
     return (
         <Layout>
-            <Header style={{ display: "flex", alignItems: "center" }}>
+            <Header style={{ display: "flex", alignItems: "center",justifyContent: "space-between", 
+            background : Theme.headerBg
+
+            }}>
                 <div className="demo-logo"></div>
+                <Button
+                    icon={<LogoutOutlined />}
+                    style={{ marginLeft: "auto" }}
+                    onClick={handleLogout}
+                > 
+                退出登录
+                </Button>   
             </Header>
             <Layout>
                 {menuItems.length > 0 && (
-                    <Sider width={200} style={{ background: colorBgContainer }}>
+                    <Sider width={200} style={{ background: colorBgContainer}} >
                         <Menu
                             mode="inline"
                             selectedKeys={[selectedMenuKey]}
-                            defaultOpenKeys={menuItems.map((item) => item.key)}
+                            defaultOpenKeys={[]}
                             style={{ height: "100%", borderRight: 0 }}
                             onClick={handleClick}
                         >
                             {menuItems.map((item) => (
-                                <Menu.SubMenu key={item.key} icon={item.icon} title={item.label} items={item.children}>
+                                <Menu.SubMenu key={item.key} icon={item.icon} title={item.label} items={item.children} defaultOpen={false} >
                                     {item.children.map((subItem) => (
                                         <Menu.Item key={subItem.key}>{subItem.label}</Menu.Item>
                                     ))}
@@ -204,18 +258,26 @@ const Main = () => {
                             </Breadcrumb.Item>
                         )}
                     </Breadcrumb>
-                    <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
-                        {selectedMenuKey && !Showcomponent && (
-                            <div>
-                               您选择的是:
-                                {selectedMenuKey}
-                            </div>
-                        )}
-                        {!selectedMenuKey && <div>欢迎访问首页</div>}
-                        {Showcomponent}
-                    </Content>
+                    <div style={{ minHeight: "calc(100vh - 200px)" }}>
+                        <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
+                            {selectedMenuKey && !Showcomponent && (
+                                <div>
+                                您选择的是:
+                                    {selectedMenuKey}
+                                </div>
+                            )}
+                            {!selectedMenuKey &&   
+                            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", 
+                            alignItems: "center", height: "100%" }}>
+                            <h3 style={{ fontSize: "4rem", fontWeight: "bold", margin: 0 ,background: "#00000" }}>欢迎使用</h3>
+                            <p style={{ fontSize: "1rem", margin: "1rem 0" }}>这里是 RepliteWeb Util 工具 首页</p>
+                            </div>}
+                            {Showcomponent}
+                        </Content>
+                    </div>
                 </Layout>
             </Layout>
+            <Footer style={{ textAlign: 'center' }}>RepliteWeb Util ©2023 Created by Upsec </Footer>
         </Layout>
     );
 };

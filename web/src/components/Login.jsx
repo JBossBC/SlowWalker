@@ -50,6 +50,11 @@ const Login = (props) => {
             axios.defaults.headers['Authorization']= 'Bearer ' + sessionStorage.getItem('repliteweb');
             message.success(resMessage).then(()=>navigate("/main"));
 
+            // const jwt = String(response.headers.get('Authorization')).replace("Bearer ","");
+            // localStorage.setItem('repliteweb', jwt);
+            // setJwtToken(jwt);
+            // navigate('/main');
+
         } finally {
             setLoading(false);
             setDisableAll(false); // 解除禁用其他链接和按钮

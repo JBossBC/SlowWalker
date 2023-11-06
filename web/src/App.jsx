@@ -7,6 +7,7 @@ import { IntlProvider, FormattedMessage } from "react-intl";
 import messages from "./utils/language";
 import { Select,message } from "antd";
 
+
 // init the axios interceptors from error handle
 const defaultToken = sessionStorage.getItem("repliteweb")!=undefined?sessionStorage.getItem("repliteweb"):"";
 // axios.defaults.headers.common["Authorization"] = `Bearer ${defaultToken}`;
@@ -30,6 +31,9 @@ function App() {
           })
       },[]);
 
+    
+
+     
 
     return (
         // <IntlProvider locale={locale} messages={currentMessages}>
