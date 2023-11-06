@@ -2,10 +2,10 @@ package controller
 
 import "github.com/gin-gonic/gin"
 
-type Search interface {
-	SearchFunctions(ctx *gin.Context)
+type MeiliSearch interface { //定义一个接口，名叫MeiliSearch
+	MeiliSearchFunctions(ctx *gin.Context)
 }
 
-func GetSearchController() Search {
-	return getMeiliSearchClient()
+func GetMeiliSearchController() MeiliSearch {
+	return getMeiliSearchController()
 }

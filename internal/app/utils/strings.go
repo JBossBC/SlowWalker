@@ -1,6 +1,9 @@
 package utils
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // MergeStr: if the value[i] is "" , the value will be replace for "*"
 func MergeStr(value ...string) string {
@@ -17,4 +20,19 @@ func MergeStr(value ...string) string {
 
 func IgnoreQuotationMarks(str string) string {
 	return strings.ReplaceAll(str, "\"", "")
+}
+
+func ParseLabel(labels []string) []string {
+	var labelSs []string
+	for _, label := range labels {
+		fmt.Printf("输入的label为%v\n", label)
+		label = strings.Replace(label, " ", "|", -1)
+		label = strings.Replace(label, ",", "|", -1)
+		label = strings.Replace(label, "，", "|", -1)
+		label = strings.Replace(label, "。", "|", -1)
+		label = strings.Replace(label, ".", "|", -1)
+		labelSs = append(labelSs, label)
+	}
+	fmt.Printf("输出的labels为%v\n", labelSs)
+	return labelSs
 }
