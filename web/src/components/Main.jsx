@@ -119,8 +119,9 @@ const Main = () => {
         if (prefix === "首页") {
             updatedBreadcrumbItem = `${prefix}/${belongs}/${suffix}`;
         }
-
+        
         setSelectedMenuKey(key);
+        console.log(selectedMenuKey)
         setBreadcrumbItem(updatedBreadcrumbItem);
 
         const menuItem = menuItems.find((item) => item.key === `${prefix}/${belongs}`);
@@ -146,22 +147,14 @@ const Main = () => {
 
     const handleLogout = async () => {
         try {
-            // 调用注销接口以清除用户的会话
-            //await api.logout()
             // 清除本地存储
-            localStorage.removeItem('repliteweb')
-            
+            sessionStorage.removeItem('repliteweb')
             // 导航到登录页面
             navigate('/login')
           } catch (error) {
             console.error(error)
           }
     }
-
-    // const search = () => {
-    //     setIsModalVisible(true);
-    // };
-   
     const Theme = {
         bodyBg: '#f5f',
         footerBg: '#f5f5f5',
@@ -245,6 +238,10 @@ const Main = () => {
                                 您选择的是:
                                     {selectedMenuKey}
                                 </div>
+                                
+                            )}
+                            {selectedMenuKey === "首页/管理/功能管理" && (
+                                <Search />
                             )}
                             {!selectedMenuKey &&   
                             <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", 

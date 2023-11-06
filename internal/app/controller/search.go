@@ -1,8 +1,10 @@
 package controller
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
-type MeiliSearch interface { //定义一个接口，名叫MeiliSearch
+type MeiliSearch interface {
 	MeiliSearchFunctions(ctx *gin.Context)
 }
 

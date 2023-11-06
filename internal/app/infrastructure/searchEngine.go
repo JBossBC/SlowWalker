@@ -34,6 +34,8 @@ func (m MeiliSearchProvider) getMeiliSearchClient() *meilisearch.Client {
 	return meilisearch.NewClient(meilisearch.ClientConfig{
 		Host:   config.GetServerConfig().MeiliSearch.Host, //server address
 		APIKey: config.GetServerConfig().MeiliSearch.Key,  //API key
+		//Host:   "http://localhost:7700",
+		//APIKey: "123456789",
 	})
 }
 
@@ -73,6 +75,7 @@ func (m MeiliSearchProvider) SearchFunctions(label []string, description string,
 		}
 	}
 	if err != nil {
+		log.Println(err)
 		return utils.NewFailedResponse("搜索失败！")
 	}
 	return utils.NewSuccessResponse(filteredHits)
@@ -115,6 +118,8 @@ func init() {
 	meiliConfig := meilisearch.ClientConfig{
 		Host:   config.GetServerConfig().MeiliSearch.Host, //server address
 		APIKey: config.GetServerConfig().MeiliSearch.Key,  //API key
+		//Host:   "http://localhost:7700",
+		//APIKey: "123456789",
 	}
 	client := meilisearch.NewClient(meiliConfig)
 	_, err := client.Health()
