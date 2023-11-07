@@ -72,6 +72,7 @@ const Search = () => {
         type="primary"
         onClick={handleSearch}
         style={{ marginBottom: 12}}
+
         ghost={true}
         loading={false}
       >

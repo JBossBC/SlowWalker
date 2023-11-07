@@ -9,12 +9,14 @@ import (
 	"replite_web/internal/app/utils"
 	"sync"
 
-	"github.com/meilisearch/meilisearch-go"
 	"io"
 	"os"
+
+	"github.com/meilisearch/meilisearch-go"
 )
 
 type MeiliSearchProvider struct {
+	meiliSearchClient *meilisearch.Client
 }
 
 var (
@@ -25,12 +27,12 @@ var (
 func getMeiliSearchProvider() *MeiliSearchProvider {
 	meiliSearchOnce.Do(func() {
 		meiliSearchProvider = new(MeiliSearchProvider)
+		meiliSearchProvider.meiliSearchClient = getMeiliSearchClient()
 	})
 	return meiliSearchProvider
 }
 
-// to get meilisearchClient
-func (m MeiliSearchProvider) getMeiliSearchClient() *meilisearch.Client {
+func getMeiliSearchClient() *meilisearch.Client {
 	return meilisearch.NewClient(meilisearch.ClientConfig{
 		Host:   config.GetServerConfig().MeiliSearch.Host, //server address
 		APIKey: config.GetServerConfig().MeiliSearch.Key,  //API key
@@ -49,8 +51,7 @@ func (m MeiliSearchProvider) AddDocuments(documentsFile string, indexName string
 	if err != nil {
 		return err
 	}
-	client := m.getMeiliSearchClient()
-	_, err = client.Index(indexName).AddDocuments(documents)
+	_, err = m.meiliSearchClient.Index(indexName).AddDocuments(documents)
 	if err != nil {
 		log.Println(err)
 	}
@@ -59,11 +60,10 @@ func (m MeiliSearchProvider) AddDocuments(documentsFile string, indexName string
 
 // TODO should set the two field to help meilisearch building the index which is helpful to searching('label' and 'description')
 func (m MeiliSearchProvider) SearchFunctions(label []string, description string, index string) (response utils.Response) {
-	client := m.getMeiliSearchClient()
 	searchReq := &meilisearch.SearchRequest{
 		AttributesToSearchOn: []string{"label", "description", "title"}, //just search in the two fields
 	}
-	resp, err := client.Index(index).Search(description, searchReq)
+	resp, err := m.meiliSearchClient.Index(index).Search(description, searchReq)
 	regStr := string(".*" + queryStrings(label) + ".*")
 	pattern := regexp.MustCompile(regStr) // 定义正则匹配模式
 	filteredHits := make([]interface{}, 0)
@@ -96,8 +96,7 @@ func queryStrings(labels []string) string {
 
 // delete index involve all documents belong the index
 func (m MeiliSearchProvider) DeleteAllDocuments(indexName string) error {
-	client := m.getMeiliSearchClient()
-	_, err := client.DeleteIndex(indexName)
+	_, err := m.meiliSearchClient.DeleteIndex(indexName)
 	return err
 }
 
@@ -106,8 +105,7 @@ func (m MeiliSearchProvider) UpdateSettingFilters(index string) error {
 	settings := meilisearch.Settings{
 		FilterableAttributes: []string{"label"},
 	}
-	client := m.getMeiliSearchClient()
-	_, err := client.Index(index).UpdateSettings(&settings)
+	_, err := m.meiliSearchClient.Index(index).UpdateSettings(&settings)
 	if err != nil {
 		return err
 	}

@@ -1,19 +1,12 @@
 import React,{useEffect, useState}from "react"
-import { Table,Menu,message,Button, Modal,Popconfirm} from 'antd'
+import { Table,Menu,message,Button, Modal,Popconfirm, Form, Input} from 'antd'
 import { TeamOutlined,WarningOutlined } from "@ant-design/icons";
 import axios from "../utils/axios";
 import moment from "moment";
 import DynamicComponent from "./parseReact";
 
 
-const UserManage = ()=>{
-    const componentCode = `
-    import { Button } from 'antd';
-    
-    export default function MyButton(props) {
-      return <Button  onClick={props.onClick}>{props.children}</Button>;
-    }
-  `;
+const UserManage = (props)=>{
     const [department,setDepartment] =useState([]);
     const [users,setUsers]=useState([]);
     const [updateModal,setUpdateModal]=useState(false);
@@ -49,7 +42,7 @@ const UserManage = ()=>{
         dataIndex:"operation",
         key:"operation",
         render:function(value,record,index){
-            return (<div><Button username={record.username} index={index} onClick={(target)=>{updateUserInfoClick(target)}}>修改</Button>
+            return (<div><Button username={record.username} userIndex={index} onClick={()=>{updateUserInfoClick(index)}}>修改</Button>
             <Popconfirm
         title="删除"
       description={deleteInfo!=undefined&&`是否要删除用户: ${deleteInfo.username}`}
@@ -74,8 +67,8 @@ const UserManage = ()=>{
         setDeleteInfo(users[index]);
         setDeleteConfirm(true);
     }
-    function updateUserInfoClick(target){
-        setUpdateInfo(users[target.target.index]);
+    function updateUserInfoClick(targetIndex){
+        setUpdateInfo(users[targetIndex]);
         setUpdateModal(true);
     }
     function getItem(key, icon, children, label, type) {
@@ -139,10 +132,24 @@ const UserManage = ()=>{
             </Menu>
         </div>
         <div style={{width:"80%",height:"100%"}}>
-            <Table dataSource={users} columns={columns}></Table>
+            <Table bordered sticky dataSource={users} columns={columns}></Table>
         </div>
-        <DynamicComponent componentCode={componentCode} />
-        {updateModal&&<Modal> </Modal>}
+        {/* <DynamicComponent componentCode={componentCode} /> */}
+        {updateModal&&<Modal title={<div></div>} keyboard  centered width="700px" okText="确定" cancelText="取消" onCancel={()=>{setUpdateModal(false)}} open={updateModal}>
+            <Form>
+                <Form.Item label="账号">
+                <Input  placeholder={updateInfo?updateInfo.username:""} disabled ></Input>
+                </Form.Item>
+                <Form.Item label="真实姓名">
+                <Input placeholder={updateInfo?updateInfo.realName:""}></Input>
+                </Form.Item>
+                <Form.Item label="电话号码">
+                <Input placeholder={updateInfo?updateInfo.phoneNumber:""}></Input>
+                </Form.Item>
+                <Form.Item label="所属部门">
+                <Input  placeholder={updateInfo?updateInfo.department:""}></Input>
+                </Form.Item>
+                </Form> </Modal>}
     </div>)
 }
 

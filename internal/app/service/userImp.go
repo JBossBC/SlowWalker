@@ -178,8 +178,8 @@ func (userService *UserService) DeleteUser(user *dao.UserInfo) (response utils.R
 	return utils.NewSuccessResponse(nil)
 }
 
-func (userService *UserService) QueryUsers(filter dao.UserInfo) (response utils.Response) {
-	result, err := dao.GetUserDao().QueryUsers(&filter)
+func (userService *UserService) QueryUsers(filter *dao.UserInfo) (response utils.Response) {
+	result, err := dao.GetUserDao().QueryUsers(filter)
 	if err != nil {
 		return utils.NewFailedResponse("查询失败")
 	}

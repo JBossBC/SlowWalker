@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/xml"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -15,7 +16,6 @@ type ServerConfig struct {
 	Secret      string       `xml:"secret"`
 	Port        string       `xml:"port"`
 	SMSConfig   *SMSConfig   `xml:"sms"`
-	Environment string       `xml:"environment"`
 	Kafka       *KafkaConfig `xml:"kafka"`
 	MeiliSearch *MeiliSearch `xml:"meiliSearch"`
 }
@@ -38,26 +38,26 @@ type MeiliSearch struct {
 }
 
 type PrometheusConfig struct {
-	Server string `json:"server"`
+	Server string `xml:"server"`
 }
 
 var serverConf *ServerConfig
 
-var DEFUALT_SERVER_CONFIG_FILE = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "server.xml")
+var DEFUALT_SERVER_CONFIG_FILE = map[string]string{"develop": fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "server.xml"), "test": fmt.Sprint("..", string(filepath.Separator), "configs", string(filepath.Separator), "server.xml")}
 
 //  init the envrionment to make configuration
 
 func init() {
-	file, err := os.Open(DEFUALT_SERVER_CONFIG_FILE)
+	file, err := os.Open(DEFUALT_SERVER_CONFIG_FILE[string(CurEnviroment)])
 	if err != nil {
 		panic(fmt.Sprintf("初始化server配置文件出错:%s", err.Error()))
 	}
-
 	serverConf = new(ServerConfig)
 	err = xml.NewDecoder(bufio.NewReader(file)).Decode(serverConf)
 	if err != nil {
 		panic(fmt.Sprintf("xml解析server配置文件出错:%s", err.Error()))
 	}
+	log.Printf("server的配置如下:%v", serverConf)
 }
 
 func GetServerConfig() *ServerConfig {

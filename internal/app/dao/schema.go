@@ -172,7 +172,7 @@ func InitMogoSchema() {
 		// 	log.Printf("格式化db配置文件时出错%s", err.Error())
 		// 	return
 		// }
-		file, _ := os.OpenFile(config.DEFAULT_DB_CONFIG, os.O_TRUNC|os.O_WRONLY, 0755)
+		file, _ := os.OpenFile(config.DEFAULT_DB_CONFIG[string(config.CurEnviroment)], os.O_TRUNC|os.O_WRONLY, 0755)
 		writer := bufio.NewWriter(file)
 		_, err = writer.Write(bytes)
 		if err != nil {

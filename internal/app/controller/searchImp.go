@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"replite_web/internal/app/infrastructure"
 	"replite_web/internal/app/utils"
 	"sync"
+
+	"github.com/gin-gonic/gin"
 )
 
 type MeiliSearchController struct {
@@ -23,14 +24,15 @@ func getMeiliSearchController() *MeiliSearchController {
 	return meiliSearchController
 }
 
+const FunctionIndex = "SlowWalker"
+
 func (meiliSearchController *MeiliSearchController) MeiliSearchFunctions(ctx *gin.Context) {
 	label := ctx.Query("labels")
 	description := ctx.Query("descriptions")
 	var labels []string
 	labels = append(labels, label)
 	labels = utils.ParseLabel(labels)
-	bytes := infrastructure.GetMeiliSearchProvider().SearchFunctions(labels, description, "WebFFF").Serialize()
-
+	bytes := infrastructure.GetMeiliSearchProvider().SearchFunctions(labels, description, FunctionIndex).Serialize()
 	_, err := ctx.Writer.Write(bytes)
 	if err != nil {
 		log.Printf("写入response信息失败:%s", err.Error())

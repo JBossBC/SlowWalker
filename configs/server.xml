@@ -20,9 +20,9 @@
         <server>
         </server>
     </prometheus>
-    <meilisearch>
+    <meiliSearch>
         <key>123456789</key>
         <host>http://localhost:7700</host>
-    </meilisearch>
+    </meiliSearch>
     <!-- including the development and test envrionment and online envrionment-->
 </server>

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/xml"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sync/atomic"
@@ -34,21 +35,21 @@ type Collection struct {
 	Value string `xml:"value"`
 }
 
-var DEFAULT_COLLECTIONS_CONFIG = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "collections.xml")
+var DEFAULT_COLLECTIONS_CONFIG = map[string]string{"test": fmt.Sprint("..", string(filepath.Separator), "configs", string(filepath.Separator), "collections.xml"), "develop": fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "collections.xml")}
 
 // var DEFAULT_COLLECTIONS_CONFIG = "configs/collections.xml"
 
 func init() {
-	file, err := os.Open(DEFAULT_COLLECTIONS_CONFIG)
+	file, err := os.Open(DEFAULT_COLLECTIONS_CONFIG[string(CurEnviroment)])
 	if err != nil {
-		panic(fmt.Sprintf("cant find the collections config %s error: %s", DEFAULT_COLLECTIONS_CONFIG, err.Error()))
+		panic(fmt.Sprintf("cant find the collections config %s error: %s", DEFAULT_COLLECTIONS_CONFIG[string(CurEnviroment)], err.Error()))
 	}
 	var cols = new(Collections)
 	cols.Table = make([]Collection, 0, 5)
 	err = xml.NewDecoder(bufio.NewReader(file)).Decode(&cols)
 	// result, err := utils.XMLToMap(file)
 	if err != nil {
-		panic(fmt.Sprintf("解析collections配置文件(%s)出错:%s", DEFAULT_COLLECTIONS_CONFIG, err.Error()))
+		panic(fmt.Sprintf("解析collections配置文件(%s)出错:%s", DEFAULT_COLLECTIONS_CONFIG[string(CurEnviroment)], err.Error()))
 	}
 	var result = make(map[string]string)
 	for i := 0; i < len(cols.Table); i++ {
@@ -57,6 +58,7 @@ func init() {
 	}
 	//TODO3 how to convert the map[string]string params to map[string]any
 	collectionConfig = newStaticMap(result)
+	log.Printf("collection的配置如下:%v", collectionConfig)
 }
 
 type staticMap struct {

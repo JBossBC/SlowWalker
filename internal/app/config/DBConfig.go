@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/xml"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -27,19 +28,20 @@ type RedisConfig struct {
 	Init     string `xml:"init"`
 }
 
-var DEFAULT_DB_CONFIG = fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "db.xml")
+var DEFAULT_DB_CONFIG = map[string]string{"test": fmt.Sprint("..", string(filepath.Separator), "configs", string(filepath.Separator), "db.xml"), "develop": fmt.Sprint(".", string(filepath.Separator), "configs", string(filepath.Separator), "db.xml")}
 
 var DBConfig *DataBase
 
 func init() {
-	config, err := os.Open(DEFAULT_DB_CONFIG)
+	config, err := os.Open(DEFAULT_DB_CONFIG[string(CurEnviroment)])
 	if err != nil {
-		panic(fmt.Sprintf("database config file %s is error: %s", DEFAULT_DB_CONFIG, err.Error()))
+		panic(fmt.Sprintf("database config file %s is error: %s", DEFAULT_DB_CONFIG[string(CurEnviroment)], err.Error()))
 	}
 	DBConfig = new(DataBase)
 	err = xml.NewDecoder(bufio.NewReader(config)).Decode(DBConfig)
 	if err != nil {
 		panic(fmt.Sprintf("analysis the xml format error: %s", err))
 	}
+	log.Printf("DBConfig的配置如下:%v\n", DBConfig)
 	//TODO if the init is true,config will renew the database ,and update the init value to keep the config file
 }

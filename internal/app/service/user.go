@@ -12,7 +12,7 @@ type User interface {
 	// QueryUserByUsername(user *dao.UserInfo) (response utils.Response)
 	FilterUsers(user *dao.UserInfo) (response utils.Response)
 	DeleteUser(user *dao.UserInfo) (response utils.Response)
-	QueryUsers(filter dao.UserInfo) (response utils.Response)
+	QueryUsers(filter *dao.UserInfo) (response utils.Response)
 	// QueryUsersByDepartment(userInfo *dao.UserInfo) (response utils.Response)
 }
 

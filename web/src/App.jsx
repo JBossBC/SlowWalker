@@ -18,6 +18,7 @@ const { Option } = Select;
 
 function App() {
       const [Token,setToken] = useState(defaultToken);
+      
       useEffect(()=>{
           axios.interceptors.response.use(null,(error)=>{
               // if (error.response.state ==304){
@@ -30,11 +31,6 @@ function App() {
               return Promise.reject(error);
           })
       },[]);
-
-    
-
-     
-
     return (
         // <IntlProvider locale={locale} messages={currentMessages}>
             <Router>

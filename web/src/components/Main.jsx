@@ -23,10 +23,9 @@ const Main = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [params, setParams] = useState([]);
-    const [showLog, setShowLog] = useState(false); // add
+  //the login role
+    const [curState,setCurState] = useState(null);
     const navigate = useNavigate(); //add
-    
-
     useEffect(() => {
         fetchData();
     }, []);
@@ -40,7 +39,7 @@ const Main = () => {
             if (state) {
                 const items = [];
                 const map1 = rbac.RBAC; //map1=rbac+funcState
-
+                setCurState(data.role);
                 map1.forEach((item) => {
                     if (data.role.includes(item.owner)) {
                         const menuItem = items.find((menu) => menu.label === item.belongs);
@@ -85,13 +84,13 @@ const Main = () => {
     const getComponentByLabel = async (label) => {
         switch (label) {
             case "审计日志":
-                return (<Log/>)
+                return (<Log curState={curState}/>)
             case "人员管理":
-                return (<UserManage/>)
+                return (<UserManage curState={curState}/>)
             case "IP查询":
-                return (<IPQuery/>)
+                return (<IPQuery curState={curState}/>)
             case "文件切分":
-                return (<FileMergeCut/>);
+                return (<FileMergeCut curState={curState}/>);
             default:
                 const component = await fetchComponent(label);
                 return component ? () => component : null;
@@ -164,10 +163,9 @@ const Main = () => {
 
     const handleLogout = async () => {
         try {
-            // 清除本地存储
             sessionStorage.removeItem('repliteweb')
-            // 导航到登录页面
-            navigate('/login')
+
+            navigate('/login');
           } catch (error) {
             console.error(error)
           }

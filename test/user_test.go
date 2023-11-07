@@ -87,7 +87,7 @@ func TestQueryUser(t *testing.T) {
 	log.Println(response)
 }
 func TestQueryUsers(t *testing.T) {
-	response := service.GetUserService().QueryUsers(1, 1)
+	response := service.GetUserService().QueryUsers(nil)
 	response1 := utils.NewFailedResponse("查询失败")
 	if response == response1 {
 		t.Fatalf("查询失败")

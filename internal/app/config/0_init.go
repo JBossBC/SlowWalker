@@ -33,3 +33,20 @@ package config
 // 	DEFAULT_DB_CONFIG = values[1]
 // 	DEFUALT_SERVER_CONFIG_FILE = values[2]
 // }
+
+func init() {
+	AssembleEnviroment(string(Develop_Enviroment))
+}
+
+var CurEnviroment Enviroment
+
+type Enviroment string
+
+func AssembleEnviroment(enviroment string) {
+	CurEnviroment = Enviroment(enviroment)
+}
+
+var (
+	Test_Enviroment    Enviroment = "test"
+	Develop_Enviroment Enviroment = "develop"
+)

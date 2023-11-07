@@ -169,7 +169,7 @@ func (userController *UserController) QueryUsers(ctx *gin.Context) {
 		ctx.AbortWithStatus(utils.BadReqest)
 		return
 	}
-	_, err = ctx.Writer.Write(service.GetUserService().QueryUsers(template).Serialize())
+	_, err = ctx.Writer.Write(service.GetUserService().QueryUsers(&template).Serialize())
 	if err != nil {
 		log.Printf("[userContrller][FilterUser]写入response信息失败:%s", err.Error())
 	}
