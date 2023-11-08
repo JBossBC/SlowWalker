@@ -35,7 +35,7 @@ var emptyUser = UserInfo{}
 type UserInfo struct {
 	Username    string `json:"username" bson:"username"`
 	Password    string `json:"-" bson:"password"`
-	Authority   string `json:"athority" bson:"authority"`
+	Authority   string `json:"authority" bson:"authority"`
 	PhoneNumber string `json:"phoneNumber" bson:"phoneNumber"`
 	RealName    string `json:"realName" bson:"realName"`
 	//only user operation has value for department,the department field includes two means. first: what the users belong to. second: what the user display role in the department

@@ -19,31 +19,44 @@ const UserManage = (props)=>{
         title:"账号",
         dataIndex: 'username',
         key: 'username',
+        width:"15%",
+        align:"center",
     },{
         title:"真实姓名",
         dataIndex:"realName",
         key:"realName",
+        width:"10%",
+        align:"center",
     },{
         title:"联系电话",
         dataIndex:"phoneNumber",
         key:"phoneNumber",
+        width:"15%",
+        align:"center",
     },{
-        tilte:"所属部门",
+        title:"所属部门",
         dataIndex:"department",
         key:"belongs_department",
+        width:"10%",
+        align:"center",
     },{
         title:"注册时间",
         dataIndex:"createTime",
         key:"createTime",
+        width:"20%",
+        align:"center",
         render:(value)=>{
             return  moment(value * 1000).format('YYYY-MM-DD HH:mm:ss');  
         },
     },{
-        tilte:"操作",
+        title:"操作",
         dataIndex:"operation",
         key:"operation",
+        width:"30%",
+        align:"center",
         render:function(value,record,index){
-            return (<div><Button username={record.username} userIndex={index} onClick={()=>{updateUserInfoClick(index)}}>修改</Button>
+            return (<div style={{display:"flex", width:"100%",alignContent:"center",justifyContent:"center"}}><Button style={{margin:"5px"}} type="primary" onClick={()=>{updateUserInfoClick(index)}}>修改</Button>
+            <Button style={{margin:"5px"}}  onClick={()=>{recoverPassword(index)}}>重置密码</Button>
             <Popconfirm
         title="删除"
       description={deleteInfo!=undefined&&`是否要删除用户: ${deleteInfo.username}`}
@@ -57,12 +70,16 @@ const UserManage = (props)=>{
       }}
       onCancel={()=>{setDeleteConfirm(false)}}
     >
-            <Button  index={index} onClick={()=>{delConfirm(index)}}>删除</Button>
+            <Button style={{margin:"5px"}}   index={index} danger onClick={()=>{delConfirm(index)}}>删除</Button>
             </Popconfirm></div>)
         },
     }];
     function deleteUser(){
 
+    }
+    function recoverPassword(index){
+       const info=users[index];
+       axios.get("/user/recover",{params:{"username":info.username}})
     }
     function delConfirm(index){
         setDeleteInfo(users[index]);
@@ -134,7 +151,7 @@ const UserManage = (props)=>{
             </Menu>
         </div>
         <div style={{width:"80%",height:"100%"}}>
-            <Table bordered sticky dataSource={users} columns={columns}></Table>
+            <Table bordered sticky size="middle" dataSource={users} columns={columns}></Table>
         </div>
         {/* <DynamicComponent componentCode={componentCode} /> */}
         {updateModal&&<Modal title={<div></div>} keyboard  centered width="700px" okText="确定" cancelText="取消" onCancel={()=>{setUpdateModal(false)}} open={updateModal}>
