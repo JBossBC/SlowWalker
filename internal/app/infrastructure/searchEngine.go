@@ -2,7 +2,6 @@ package infrastructure
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"regexp"
 	"replite_web/internal/app/config"
@@ -112,17 +111,3 @@ func (m MeiliSearchProvider) UpdateSettingFilters(index string) error {
 	return nil
 }
 
-func init() {
-	meiliConfig := meilisearch.ClientConfig{
-		Host:   config.GetServerConfig().MeiliSearch.Host, //server address
-		APIKey: config.GetServerConfig().MeiliSearch.Key,  //API key
-		//Host:   "http://localhost:7700",
-		//APIKey: "123456789",
-	}
-	client := meilisearch.NewClient(meiliConfig)
-	_, err := client.Health()
-	if err != nil {
-		panic(fmt.Sprintf("connecting the MeiliSearch within %s seconds is error: %v", meiliConfig.Timeout, err))
-	}
-	log.Printf("Connected to MeiliSearch")
-}

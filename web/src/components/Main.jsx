@@ -10,6 +10,7 @@ import AddFunctionModal from './AddFunctionModal';
 import UserManage from "./users";
 import Log from "./Log";
 import Search from './Search';  //add
+import NotFound from './NotFound';
 const { Header, Content, Sider, Footer } = Layout;  //add Footer
 
 
@@ -89,14 +90,18 @@ const Main = () => {
             case "审计日志":
                 return (<Log curState={curState}/>)
             case "人员管理":
-                return (<UserManage curState={curState}/>)
+                return (<UserManage curState={curState} setBreadcrumbItem={setBreadcrumbItem} breadcrumbItem={breadcrumbItem}/>)
             case "IP查询":
                 return (<IPQuery curState={curState}/>)
             case "文件切分":
                 return (<FileMergeCut curState={curState}/>);
             default:
+                try{
                 const component = await fetchComponent(label);
                 return component ? () => component : null;
+                }catch{
+                    return (<NotFound/>);
+                }
         }
     };
 
@@ -122,7 +127,6 @@ const Main = () => {
         }
         
         setSelectedMenuKey(key);
-        console.log(selectedMenuKey)
         setBreadcrumbItem(updatedBreadcrumbItem);
 
         const menuItem = menuItems.find((item) => item.key === `${prefix}/${belongs}`);
@@ -231,17 +235,14 @@ const Main = () => {
                             </Breadcrumb.Item>
                         )}
                     </Breadcrumb>
-                    <div style={{ minHeight: "calc(100vh - 200px)" }}>
-                        <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer }}>
+                    <div style={{ minHeight: "calc(100vh - 200px)",height:"100%",width:"100%" }}>
+                        <Content style={{ padding: 24, margin: 0, minHeight: 280, background: colorBgContainer,height:"100%",width:"100%" }}>
                             {selectedMenuKey && !Showcomponent && (
                                 <div>
                                 您选择的是:
                                     {selectedMenuKey}
                                 </div>
                                 
-                            )}
-                            {selectedMenuKey === "首页/管理/功能管理" && (
-                                <Search />
                             )}
                             {!selectedMenuKey &&   
                             <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", 

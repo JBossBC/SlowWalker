@@ -1,4 +1,4 @@
-import { Form, Input, Checkbox, Button, message } from "antd";
+import { Form, Input, Checkbox, Button, message,Card } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import {useNavigate}  from 'react-router-dom';
 import logo from "../public/logo.png";
@@ -72,10 +72,7 @@ const Login = (props) => {
                         </div>
                     </div>
                 </div>
-                <div style={{border:"2px",boxShadow: '0 0 5px rgba(0, 0, 0, 0.3)',padding:"16px",width:"25%",marginRight:"108px",height:"100%"}}>
-                    <div  style={{margin:"12px",marginBottom:"32px",fontFamily:" Montserrat, sans-serif",fontSize:"25px"}}>
-                        登录
-                    </div>
+                <Card title="登录" hoverable style={{border:"2px",boxShadow: '0 0 5px rgba(0, 0, 0, 0.3)',padding:"16px",width:"25%",marginRight:"108px",height:"100%"}}>
                     <Form
                         name="normal_login"
                         className="login-form"
@@ -115,7 +112,7 @@ const Login = (props) => {
                             Or <a href="/register"disabled={disableAll}>去注册!</a>
                         </Form.Item>
                     </Form>
-                </div>
+                </Card>
             </div>
             <div style={{height:"10%"}}></div>
         </div>

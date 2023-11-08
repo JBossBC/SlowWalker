@@ -7,6 +7,7 @@ import DynamicComponent from "./parseReact";
 
 
 const UserManage = (props)=>{
+    const{breadcrumbItem,setBreadcrumbItem} =props;
     const [department,setDepartment] =useState([]);
     const [users,setUsers]=useState([]);
     const [updateModal,setUpdateModal]=useState(false);
@@ -118,6 +119,7 @@ const UserManage = (props)=>{
                 return;
              }
              setUsers(data.data);
+             setBreadcrumbItem(breadcrumbItem+"/"+curElement.key);
            })
     }
      function init(){
